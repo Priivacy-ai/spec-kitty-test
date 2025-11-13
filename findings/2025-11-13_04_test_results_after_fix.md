@@ -21,10 +21,17 @@ Reinstalled spec-kitty with upstream fix b2285ba and re-ran functional tests. Th
 ❌ 1 FAILED (Gemini variable syntax)
 ```
 
-### After Fix (b2285ba)
+### After Fix (b2285ba) - Initial Run
 ```
 ✅ 3 PASSED
-⏭️ 1 SKIPPED
+⏭️ 1 SKIPPED (test bug - checking wrong output stream)
+❌ 0 FAILED
+```
+
+### After Test Fix (stdout vs stderr)
+```
+✅ 4 PASSED (ALL TESTS PASSING!)
+⏭️ 0 SKIPPED
 ❌ 0 FAILED
 ```
 
@@ -38,12 +45,18 @@ Reinstalled spec-kitty with upstream fix b2285ba and re-ran functional tests. Th
 **Test**: `test_agent_specific_formats`
 - **Status**: ❌ FAILED → ✅ PASSED
 
-## What's Still Skipped
+## What Was Also Fixed
 
 **Issue**: Template discovery error message quality (finding 2025-11-13_01)
+- **Before**: Cryptic error about `.kittify/templates/commands`
+- **After**: Clear error with:
+  - Explanation: "Templates could not be found in any of the expected locations"
+  - Lists all paths checked
+  - Mentions `SPEC_KITTY_TEMPLATE_ROOT` environment variable
+  - Provides 4 different solutions with examples
+- **Fix**: Also in commit b2285ba
 - **Test**: `test_init_without_template_root_fails_with_clear_error`
-- **Status**: Still skipped (awaiting error message improvement)
-- **Expected behavior**: Clear error explaining template discovery, env vars, and solutions
+- **Status**: ❌ SKIPPED (test bug) → ✅ PASSED (after test fix)
 
 ## Validation
 
