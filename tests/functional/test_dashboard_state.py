@@ -26,6 +26,24 @@ from pathlib import Path
 import pytest
 
 
+@pytest.fixture
+def spec_kitty_repo_root():
+    """Get spec-kitty repository root from environment or default location."""
+    env_path = os.environ.get('SPEC_KITTY_REPO')
+    if env_path:
+        return Path(env_path)
+
+    # Default: sibling directory to spec-kitty-test
+    default_path = Path(__file__).parent.parent.parent.parent / 'spec-kitty'
+    if default_path.exists():
+        return default_path
+
+    raise ValueError(
+        "Could not find spec-kitty repository. "
+        "Set SPEC_KITTY_REPO environment variable or ensure ../spec-kitty exists"
+    )
+
+
 class TestArtifactDetection:
     """Test artifact detection after project init and feature creation."""
 
@@ -426,3 +444,176 @@ Test work package 3
         assert kanban_stats['for_review'] == 0, "Should count 0 work packages in for_review"
         assert kanban_stats['done'] == 1, "Should count 1 work package in done"
         assert kanban_stats['total'] == 3, "Should count 3 total work packages"
+
+
+class TestScannerUtilities:
+    """Test scanner utility functions for path formatting and sorting."""
+
+    @pytest.fixture
+    def temp_project_dir(self):
+        """Create temporary directory for test project."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
+
+    def test_path_formatting_for_display(self):
+        """Test: Paths are formatted consistently for UI display"""
+        from specify_cli.dashboard.scanner import format_path_for_display
+        from pathlib import Path
+
+        home = Path.home()
+
+        # Test home directory replacement
+        home_subdir = home / 'projects' / 'test'
+        formatted = format_path_for_display(str(home_subdir))
+
+        # Should replace home with ~
+        assert formatted is not None, "Should return formatted path"
+        assert formatted.startswith('~'), f"Should start with ~, got {formatted}"
+        assert 'projects' in formatted, "Should contain subdirectory"
+
+        # Test path outside home
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            temp_path = Path(tmpdir) / 'test'
+            formatted_temp = format_path_for_display(str(temp_path))
+
+            # Should return absolute path (not under home)
+            assert not formatted_temp.startswith('~'), \
+                f"Temp path should not use ~, got {formatted_temp}"
+
+        # Test None input
+        formatted_none = format_path_for_display(None)
+        assert formatted_none is None, "None input should return None"
+
+        # Test empty string
+        formatted_empty = format_path_for_display("")
+        assert formatted_empty == "", "Empty string should return empty string"
+
+    def test_work_package_sorting(self):
+        """Test: Work packages sort numerically by ID"""
+        from specify_cli.dashboard.scanner import work_package_sort_key
+
+        # Create work package tasks with various IDs
+        wp01 = {'id': 'WP01', 'title': 'First'}
+        wp02 = {'id': 'WP02', 'title': 'Second'}
+        wp10 = {'id': 'WP10', 'title': 'Tenth'}
+        wp100 = {'id': 'WP100', 'title': 'Hundredth'}
+
+        tasks = [wp100, wp02, wp10, wp01]
+
+        # Sort using the sort key
+        sorted_tasks = sorted(tasks, key=work_package_sort_key)
+
+        # Should be in numeric order, not lexicographic
+        sorted_ids = [t['id'] for t in sorted_tasks]
+        assert sorted_ids == ['WP01', 'WP02', 'WP10', 'WP100'], \
+            f"Should sort numerically, got {sorted_ids}"
+
+        # Test edge cases
+        empty_task = {'id': '', 'title': 'Empty'}
+        no_id_task = {'title': 'No ID'}
+        mixed_task = {'id': 'WP5-ABC-123', 'title': 'Mixed'}
+
+        edge_cases = [empty_task, no_id_task, mixed_task, wp01]
+        sorted_edge = sorted(edge_cases, key=work_package_sort_key)
+
+        # Should handle edge cases without crashing
+        assert len(sorted_edge) == 4, "Should sort all tasks"
+
+    def test_feature_resolution_by_id(self, temp_project_dir, spec_kitty_repo_root):
+        """Test: Resolve feature directory from feature ID"""
+        from specify_cli.dashboard.scanner import resolve_feature_dir
+
+        project_name = "test_resolve"
+        project_path = temp_project_dir / project_name
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        subprocess.run(
+            ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
+            cwd=temp_project_dir,
+            env=env,
+            input='y\n',
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        # Create a feature
+        feature_dir = project_path / 'kitty-specs' / '007-test-resolution'
+        feature_dir.mkdir(parents=True, exist_ok=True)
+        (feature_dir / 'spec.md').write_text("# Test")
+
+        # Resolve by ID
+        resolved = resolve_feature_dir(project_path, '007-test-resolution')
+
+        assert resolved is not None, "Should resolve existing feature"
+        assert resolved == feature_dir, f"Should resolve to correct path: {feature_dir}"
+
+        # Test non-existent feature
+        not_found = resolve_feature_dir(project_path, '999-nonexistent')
+        assert not_found is None, "Should return None for non-existent feature"
+
+        # Test with just number
+        resolved_by_number = resolve_feature_dir(project_path, '007')
+        # Depending on implementation, might resolve by prefix
+        # Implementation-specific behavior
+
+
+class TestGatherFeaturePaths:
+    """Test feature path gathering functionality."""
+
+    @pytest.fixture
+    def temp_project_dir(self):
+        """Create temporary directory for test project."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
+
+    def test_gather_feature_paths(self, temp_project_dir, spec_kitty_repo_root):
+        """Test: Gather all feature paths from project"""
+        from specify_cli.dashboard.scanner import gather_feature_paths
+
+        project_name = "test_gather"
+        project_path = temp_project_dir / project_name
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        subprocess.run(
+            ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
+            cwd=temp_project_dir,
+            env=env,
+            input='y\n',
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        # Create multiple features
+        specs_dir = project_path / 'kitty-specs'
+        specs_dir.mkdir(exist_ok=True)
+
+        feature1 = specs_dir / '001-first-feature'
+        feature2 = specs_dir / '002-second-feature'
+        feature3 = specs_dir / '003-third-feature'
+
+        for feat in [feature1, feature2, feature3]:
+            feat.mkdir(exist_ok=True)
+            (feat / 'spec.md').write_text("# Spec")
+
+        # Gather paths
+        paths = gather_feature_paths(project_path)
+
+        assert isinstance(paths, dict), "Should return dictionary"
+        assert len(paths) == 3, f"Should find 3 features, found {len(paths)}"
+
+        # Check feature IDs are keys
+        assert '001-first-feature' in paths, "Should include feature 1"
+        assert '002-second-feature' in paths, "Should include feature 2"
+        assert '003-third-feature' in paths, "Should include feature 3"
+
+        # Check paths are correct
+        assert paths['001-first-feature'] == feature1, "Path should match for feature 1"
+        assert paths['002-second-feature'] == feature2, "Path should match for feature 2"
+        assert paths['003-third-feature'] == feature3, "Path should match for feature 3"

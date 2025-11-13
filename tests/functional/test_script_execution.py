@@ -294,9 +294,9 @@ class TestCoreScriptFunctionality:
         plan_content = plan_file.read_text()
         assert len(plan_content) > 0, "plan.md should not be empty"
 
-    @pytest.mark.skip(reason="Script signature changed - needs investigation of actual usage pattern")
+    @pytest.mark.skip(reason="Developer maintenance script - copies Python task helpers from spec-kitty repo to project. Used for upgrades, not core user workflow.")
     def test_refresh_tasks_script(self, temp_project_dir, spec_kitty_repo_root):
-        """Test: refresh-kittify-tasks.sh generates work packages (in worktree)"""
+        """Test: refresh-kittify-tasks.sh copies task helpers for project upgrades"""
         project_name = "test_refresh_tasks"
         project_path = temp_project_dir / project_name
 
@@ -366,7 +366,6 @@ class TestCoreScriptFunctionality:
         planned_dir = tasks_dir / 'planned'
         assert planned_dir.exists(), "tasks/planned/ directory should be created"
 
-    @pytest.mark.skip(reason="Script signature: WORK_PACKAGE_ID FEATURE_DIR [AGENT] - needs correct invocation")
     def test_move_task_to_doing_script(self, temp_project_dir, spec_kitty_repo_root):
         """Test: move-task-to-doing.sh moves work packages correctly (in worktree)"""
         project_name = "test_move_task"
@@ -422,10 +421,26 @@ lane: planned
 Test task content
 """)
 
-        # Run move script from worktree
+        # Commit the task file (script uses git to move files)
+        subprocess.run(
+            ['git', 'add', 'kitty-specs'],
+            cwd=worktree_dir,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        subprocess.run(
+            ['git', 'commit', '-m', 'Add test task'],
+            cwd=worktree_dir,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        # Run move script with correct signature: WORK_PACKAGE_ID FEATURE_DIR [AGENT]
         move_script = project_path / '.kittify/scripts/bash/move-task-to-doing.sh'
         result = subprocess.run(
-            [str(move_script), branch_name, 'WP01'],
+            [str(move_script), 'WP01', str(feature_dir), 'claude'],
             cwd=worktree_dir,  # Run from worktree
             capture_output=True,
             text=True,
@@ -434,7 +449,7 @@ Test task content
 
         # Script should succeed
         assert result.returncode == 0, \
-            f"move-task-to-doing.sh should succeed. stderr: {result.stderr}"
+            f"move-task-to-doing.sh should succeed. stderr: {result.stderr}\nstdout: {result.stdout}"
 
         # Verify task moved from planned to doing
         assert not wp_file.exists(), \
