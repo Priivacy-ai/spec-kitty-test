@@ -221,16 +221,23 @@ class TestCoreScriptFunctionality:
         assert 'FEATURE_NUM' in output_data, "JSON should contain FEATURE_NUM"
         assert 'FRIENDLY_NAME' in output_data, "JSON should contain FRIENDLY_NAME"
 
-        # Verify feature directory was created
+        # Verify feature directory was created in worktree (Issue #2: correct behavior)
         feature_num = output_data['FEATURE_NUM']
-        feature_dir = project_path / 'kitty-specs' / f"{feature_num}-test-feature"
+        branch_name = output_data['BRANCH_NAME']
+
+        # Features are created in .worktrees/, not kitty-specs/ directly
+        worktree_dir = project_path / '.worktrees' / branch_name
+        feature_dir = worktree_dir / 'kitty-specs' / branch_name
+
+        assert worktree_dir.exists(), \
+            f"Worktree should be created at {worktree_dir}"
 
         assert feature_dir.exists(), \
-            f"Feature directory should be created at {feature_dir}"
+            f"Feature directory should be created in worktree at {feature_dir}"
 
-        # Verify spec.md exists
+        # Verify spec.md exists in worktree
         spec_file = feature_dir / 'spec.md'
-        assert spec_file.exists(), "spec.md should be created"
+        assert spec_file.exists(), "spec.md should be created in worktree"
 
     def test_setup_plan_script(self, temp_project_dir, spec_kitty_repo_root):
         """Test: setup-plan.sh initializes plan structure"""
