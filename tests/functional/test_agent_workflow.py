@@ -19,21 +19,27 @@ from pathlib import Path
 import pytest
 
 
-# Expected workflow command order
+# Correct workflow command order
+# Based on Spec Kit documentation and Spec Kitty enhancements
 WORKFLOW_ORDER = [
-    'constitution',  # Establish principles first
-    'clarify',       # Clarify requirements
-    'specify',       # Create specification
-    'plan',          # Create implementation plan
-    'research',      # Research as needed
-    'tasks',         # Generate tasks from plan
-    'implement',     # Implement the code
-    'review',        # Review implementation
-    'accept',        # Accept completed work
-    'merge',         # Merge to main
-    'dashboard',     # View dashboard
-    'analyze',       # Analyze results
-    'checklist',     # Final checklist
+    'constitution',  # Step 1: Establish project principles FIRST (governance)
+    'specify',       # Step 2: Define requirements (CREATES worktree)
+    'clarify',       # Step 3 (OPTIONAL): Clarify underspecified areas
+    'plan',          # Step 4: Create technical implementation plan
+    'research',      # Step 5: Run Phase 0 research scaffolding
+    'tasks',         # Step 6: Generate task breakdown from plan
+    'analyze',       # Step 7 (OPTIONAL): Cross-artifact consistency check
+    'implement',     # Step 8: Execute tasks
+    'review',        # Step 9: Review implemented work
+    'accept',        # Step 10: Final acceptance & metadata recording
+    'merge',         # Step 11: Merge to main + cleanup worktree
+]
+
+# Utility commands NOT in workflow sequence
+# These can be run anytime and don't represent workflow steps
+UTILITY_COMMANDS = [
+    'dashboard',     # Viewing tool, runs continuously in background
+    'checklist',     # OPTIONAL quality gate, can run anytime after plan
 ]
 
 
@@ -147,16 +153,22 @@ class TestWorkflowCommandOrder:
 
     def test_commands_follow_logical_workflow_order(self, temp_project_dir, spec_kitty_repo_root):
         """
-        Test: Core workflow commands exist and can be executed in logical order
+        Test: Core workflow commands exist in correct sequence
 
-        This test validates that all commands in the expected workflow exist.
-        The actual execution order is determined by the user/agent based on
-        the workflow needs, not by alphabetical file order.
+        Validates the proper workflow order per Spec Kit documentation:
+        1. constitution - Establish governance principles FIRST
+        2. specify - Define requirements (CREATES worktree)
+        3. clarify - OPTIONAL: Clarify underspecified areas
+        4. plan - Create technical implementation plan
+        5. research - Run Phase 0 research scaffolding
+        6. tasks - Generate task breakdown from plan
+        7. analyze - OPTIONAL: Cross-artifact consistency check
+        8. implement - Execute tasks
+        9. review - Review implemented work
+        10. accept - Final acceptance & metadata recording
+        11. merge - Merge to main + cleanup worktree
 
-        Validates:
-        - All core workflow commands exist
-        - Commands can be discovered
-        - Workflow is complete
+        Utility commands (dashboard, checklist) are NOT in workflow sequence.
         """
         project_name = "test_workflow_order"
         project_path = temp_project_dir / project_name
@@ -177,35 +189,29 @@ class TestWorkflowCommandOrder:
 
         commands_dir = project_path / '.claude' / 'commands'
 
-        # Verify expected workflow sequence commands all exist
-        workflow_sequence = [
-            'constitution',  # Understand principles
-            'specify',       # Create specification
-            'plan',          # Create plan
-            'tasks',         # Generate tasks
-            'implement',     # Implement code
-            'review',        # Review work
-            'accept',        # Accept work
-        ]
-
-        for cmd_name in workflow_sequence:
+        # Verify ALL workflow commands exist in order
+        for cmd_name in WORKFLOW_ORDER:
             cmd_file = commands_dir / f'spec-kitty.{cmd_name}.md'
             assert cmd_file.exists(), (
                 f"Workflow command '{cmd_name}' is missing from agent commands. "
                 f"Cannot execute complete workflow without this command."
             )
 
+        # Verify utility commands also exist
+        for cmd_name in UTILITY_COMMANDS:
+            cmd_file = commands_dir / f'spec-kitty.{cmd_name}.md'
+            assert cmd_file.exists(), (
+                f"Utility command '{cmd_name}' is missing from agent commands."
+            )
+
     def test_all_workflow_commands_present(self, temp_project_dir, spec_kitty_repo_root):
         """
-        Test: All expected workflow commands exist
+        Test: All expected commands exist (workflow + utility)
 
-        Validates complete workflow is available:
-        - Setup: constitution, clarify
-        - Planning: specify, plan, research
-        - Execution: tasks, implement
-        - Quality: review, accept
-        - Integration: merge
-        - Monitoring: dashboard, analyze, checklist
+        Validates complete command set is available:
+        - Workflow: constitution → specify → clarify → plan → research →
+                   tasks → analyze → implement → review → accept → merge
+        - Utility: dashboard, checklist (not in workflow sequence)
         """
         project_name = "test_complete_workflow"
         project_path = temp_project_dir / project_name
@@ -226,12 +232,76 @@ class TestWorkflowCommandOrder:
 
         commands_dir = project_path / '.claude' / 'commands'
 
-        # Check each expected command exists
+        # Check all workflow commands exist
         for cmd_name in WORKFLOW_ORDER:
             cmd_file = commands_dir / f'spec-kitty.{cmd_name}.md'
             assert cmd_file.exists(), (
                 f"Workflow command '{cmd_name}' is missing"
             )
+
+        # Check all utility commands exist
+        for cmd_name in UTILITY_COMMANDS:
+            cmd_file = commands_dir / f'spec-kitty.{cmd_name}.md'
+            assert cmd_file.exists(), (
+                f"Utility command '{cmd_name}' is missing"
+            )
+
+    def test_workflow_vs_utility_commands_distinction(self, temp_project_dir, spec_kitty_repo_root):
+        """
+        Test: Workflow commands are distinct from utility commands
+
+        Validates understanding of command types:
+        - Workflow commands: Sequential steps in the development process
+        - Utility commands: Tools that can run anytime, not workflow steps
+
+        Key distinctions:
+        - dashboard: Viewing tool, runs continuously
+        - checklist: Quality gate, can run anytime after plan
+        - These do NOT belong in the workflow sequence
+        """
+        project_name = "test_command_types"
+        project_path = temp_project_dir / project_name
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        subprocess.run(
+            ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
+            cwd=temp_project_dir,
+            env=env,
+            input='y\n',
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True
+        )
+
+        commands_dir = project_path / '.claude' / 'commands'
+
+        # Verify we have exactly 11 workflow commands
+        assert len(WORKFLOW_ORDER) == 11, (
+            f"Expected 11 workflow commands, got {len(WORKFLOW_ORDER)}"
+        )
+
+        # Verify we have exactly 2 utility commands
+        assert len(UTILITY_COMMANDS) == 2, (
+            f"Expected 2 utility commands, got {len(UTILITY_COMMANDS)}"
+        )
+
+        # Verify no overlap between workflow and utility
+        workflow_set = set(WORKFLOW_ORDER)
+        utility_set = set(UTILITY_COMMANDS)
+        overlap = workflow_set & utility_set
+
+        assert len(overlap) == 0, (
+            f"Workflow and utility commands should not overlap. Found: {overlap}"
+        )
+
+        # Verify total is 13 commands
+        total_commands = len(WORKFLOW_ORDER) + len(UTILITY_COMMANDS)
+        assert total_commands == 13, (
+            f"Expected 13 total commands (11 workflow + 2 utility), got {total_commands}"
+        )
 
 
 class TestCommandPathReferences:
