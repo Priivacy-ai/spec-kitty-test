@@ -39,11 +39,7 @@ import pytest
 
 
 def extract_json_from_output(output: str) -> dict:
-    """Extract JSON from script output that may contain log messages.
-
-    Scripts often output log messages before JSON. This function finds
-    the first line starting with { and parses it as JSON.
-    """
+    """Extract JSON from script output that may contain log messages."""
     for line in output.strip().split('\n'):
         line = line.strip()
         if line.startswith('{'):
