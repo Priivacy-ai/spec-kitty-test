@@ -102,7 +102,8 @@ class TestInitTemplateDiscovery:
         assert result.returncode != 0, "Init should have failed without templates"
 
         # Check error message quality (this is what we're fixing)
-        error_output = result.stderr.lower()
+        # Error messages go to stdout (not stderr) in spec-kitty
+        error_output = (result.stdout + result.stderr).lower()
 
         # BEFORE FIX (ed3f461): Cryptic error about .kittify/templates/commands
         # AFTER FIX: Should mention template discovery, env vars, solutions
@@ -118,7 +119,7 @@ class TestInitTemplateDiscovery:
         if not has_helpful_info:
             # This is expected to fail on ed3f461
             pytest.skip(
-                f"Error message needs improvement (expected on ed3f461):\n{result.stderr}\n\n"
+                f"Error message needs improvement (expected on ed3f461):\n{result.stdout}\n\n"
                 "After upstream fix, this should provide clear guidance on:\n"
                 "- SPEC_KITTY_TEMPLATE_ROOT environment variable\n"
                 "- Template discovery mechanism\n"
@@ -128,7 +129,7 @@ class TestInitTemplateDiscovery:
         # After fix, verify the error is helpful
         assert has_helpful_info, (
             f"Error message should explain template discovery issue.\n"
-            f"Got: {result.stderr}"
+            f"Got: {result.stdout}"
         )
 
     def test_variable_substitution_in_generated_commands(self, temp_project_dir, spec_kitty_root):
