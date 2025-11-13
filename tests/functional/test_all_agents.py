@@ -98,13 +98,8 @@ class TestAllAgents:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.fixture
-    def spec_kitty_root(self):
-        """Path to spec-kitty repository"""
-        return Path(__file__).parent.parent.parent.parent / "spec-kitty"
-
     @pytest.mark.parametrize("agent_name,agent_config", AGENT_TEST_MATRIX.items())
-    def test_agent_directory_structure(self, temp_project_dir, spec_kitty_root, agent_name, agent_config):
+    def test_agent_directory_structure(self, temp_project_dir, spec_kitty_repo_root, agent_name, agent_config):
         """
         Test: Each agent creates correct directory structure
 
@@ -117,7 +112,7 @@ class TestAllAgents:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Init with this agent
         subprocess.run(
@@ -141,7 +136,7 @@ class TestAllAgents:
         assert agent_dir.is_dir(), f"{agent_name}: {agent_config['dir']} is not a directory"
 
     @pytest.mark.parametrize("agent_name,agent_config", AGENT_TEST_MATRIX.items())
-    def test_agent_file_count_and_extension(self, temp_project_dir, spec_kitty_root, agent_name, agent_config):
+    def test_agent_file_count_and_extension(self, temp_project_dir, spec_kitty_repo_root, agent_name, agent_config):
         """
         Test: Each agent gets exactly 13 files with correct extension
 
@@ -154,7 +149,7 @@ class TestAllAgents:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             [
@@ -186,7 +181,7 @@ class TestAllAgents:
             assert file.stat().st_size > 0, f"{agent_name}: {file.name} is empty"
 
     @pytest.mark.parametrize("agent_name,agent_config", AGENT_TEST_MATRIX.items())
-    def test_agent_variable_syntax(self, temp_project_dir, spec_kitty_root, agent_name, agent_config):
+    def test_agent_variable_syntax(self, temp_project_dir, spec_kitty_repo_root, agent_name, agent_config):
         """
         Test: Each agent uses correct variable syntax
 
@@ -199,7 +194,7 @@ class TestAllAgents:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             [
@@ -241,7 +236,7 @@ class TestAllAgents:
             f"Should only use '{expected_var}'"
         )
 
-    def test_copilot_creates_vscode_settings(self, temp_project_dir, spec_kitty_root):
+    def test_copilot_creates_vscode_settings(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: GitHub Copilot creates .vscode/settings.json
 
@@ -251,7 +246,7 @@ class TestAllAgents:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             [
@@ -277,7 +272,7 @@ class TestAllAgents:
             settings = json.load(f)
             assert isinstance(settings, dict), "settings.json should be valid JSON object"
 
-    def test_opencode_singular_directory(self, temp_project_dir, spec_kitty_root):
+    def test_opencode_singular_directory(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: opencode uses 'command' (singular) not 'commands' (plural)
 
@@ -287,7 +282,7 @@ class TestAllAgents:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             [
@@ -312,7 +307,7 @@ class TestAllAgents:
         plural_dir = project_path / '.opencode' / 'commands'
         assert not plural_dir.exists(), "opencode should NOT have 'commands' (plural)"
 
-    def test_toml_agents_valid_format(self, temp_project_dir, spec_kitty_root):
+    def test_toml_agents_valid_format(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: TOML agents (gemini, qwen) produce valid TOML files
 
@@ -328,7 +323,7 @@ class TestAllAgents:
             project_path = temp_project_dir / project_name
 
             env = os.environ.copy()
-            env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+            env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
             subprocess.run(
                 [
@@ -362,7 +357,7 @@ class TestAllAgents:
                 f"{agent_name}: TOML prompt should contain {{{{args}}}}"
             )
 
-    def test_all_agents_create_shared_infrastructure(self, temp_project_dir, spec_kitty_root):
+    def test_all_agents_create_shared_infrastructure(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: All agents create same shared infrastructure
 
@@ -379,7 +374,7 @@ class TestAllAgents:
             project_path = temp_project_dir / project_name
 
             env = os.environ.copy()
-            env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+            env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
             subprocess.run(
                 [

@@ -20,12 +20,7 @@ class TestInitTemplateDiscovery:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.fixture
-    def spec_kitty_root(self):
-        """Path to spec-kitty repository"""
-        return Path(__file__).parent.parent.parent.parent / "spec-kitty"
-
-    def test_init_with_template_root_env_var(self, temp_project_dir, spec_kitty_root):
+    def test_init_with_template_root_env_var(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Init succeeds when SPEC_KITTY_TEMPLATE_ROOT is set
 
@@ -35,7 +30,7 @@ class TestInitTemplateDiscovery:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Run spec-kitty init
         result = subprocess.run(
@@ -132,7 +127,7 @@ class TestInitTemplateDiscovery:
             f"Got: {result.stdout}"
         )
 
-    def test_variable_substitution_in_generated_commands(self, temp_project_dir, spec_kitty_root):
+    def test_variable_substitution_in_generated_commands(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Generated command files have variables properly substituted
 
@@ -143,7 +138,7 @@ class TestInitTemplateDiscovery:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Run init
         subprocess.run(
@@ -190,7 +185,7 @@ class TestInitTemplateDiscovery:
             "Command file should be valid Markdown (YAML frontmatter or heading)"
         )
 
-    def test_agent_specific_formats(self, temp_project_dir, spec_kitty_root):
+    def test_agent_specific_formats(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Different agents get appropriate file formats
 
@@ -201,7 +196,7 @@ class TestInitTemplateDiscovery:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Init with claude and gemini to test different formats
         subprocess.run(

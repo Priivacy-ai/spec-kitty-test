@@ -20,12 +20,7 @@ class TestMultiAgentInit:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.fixture
-    def spec_kitty_root(self):
-        """Path to spec-kitty repository"""
-        return Path(__file__).parent.parent.parent.parent / "spec-kitty"
-
-    def test_init_with_two_agents(self, temp_project_dir, spec_kitty_root):
+    def test_init_with_two_agents(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Init with two agents creates directories for both
 
@@ -38,7 +33,7 @@ class TestMultiAgentInit:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Init with claude and codex
         result = subprocess.run(
@@ -72,7 +67,7 @@ class TestMultiAgentInit:
         codex_names = {f.name for f in codex_commands}
         assert claude_names == codex_names, "Claude and Codex should have same command names"
 
-    def test_init_with_three_agents(self, temp_project_dir, spec_kitty_root):
+    def test_init_with_three_agents(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Init with three agents creates directories for all three
 
@@ -82,7 +77,7 @@ class TestMultiAgentInit:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Init with claude, codex, and cursor
         result = subprocess.run(
@@ -114,7 +109,7 @@ class TestMultiAgentInit:
         assert codex_count == 13, f"Codex: expected 13, got {codex_count}"
         assert cursor_count == 13, f"Cursor: expected 13, got {cursor_count}"
 
-    def test_agents_have_isolated_files(self, temp_project_dir, spec_kitty_root):
+    def test_agents_have_isolated_files(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Each agent's files are isolated (no cross-contamination)
 
@@ -124,7 +119,7 @@ class TestMultiAgentInit:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             [
@@ -158,7 +153,7 @@ class TestMultiAgentInit:
         assert len(claude_specify) > 100, "Claude file should have content"
         assert len(codex_specify) > 100, "Codex file should have content"
 
-    def test_shared_infrastructure_created_once(self, temp_project_dir, spec_kitty_root):
+    def test_shared_infrastructure_created_once(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Shared infrastructure (.kittify, .git) created once regardless of agent count
 
@@ -168,7 +163,7 @@ class TestMultiAgentInit:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             [
@@ -204,7 +199,7 @@ class TestMultiAgentInit:
         assert (project_path / '.codex').exists(), "Codex directory should exist"
         assert (project_path / '.cursor').exists(), "Cursor directory should exist"
 
-    def test_agent_directory_structure_correct(self, temp_project_dir, spec_kitty_root):
+    def test_agent_directory_structure_correct(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Each agent's directory structure matches expected pattern
 
@@ -218,7 +213,7 @@ class TestMultiAgentInit:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             [
@@ -250,7 +245,7 @@ class TestMultiAgentInit:
         assert all(f.suffix == '.md' for f in codex_files), "Codex files should be .md"
         assert all(f.suffix == '.toml' for f in gemini_files), "Gemini files should be .toml"
 
-    def test_gitignore_protects_all_agents(self, temp_project_dir, spec_kitty_root):
+    def test_gitignore_protects_all_agents(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: .gitignore includes all initialized agent directories
 
@@ -260,7 +255,7 @@ class TestMultiAgentInit:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             [
@@ -287,7 +282,7 @@ class TestMultiAgentInit:
         assert '.codex/' in gitignore_content, ".gitignore should protect .codex/"
         assert '.cursor/' in gitignore_content, ".gitignore should protect .cursor/"
 
-    def test_no_unexpected_files_created(self, temp_project_dir, spec_kitty_root):
+    def test_no_unexpected_files_created(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Init doesn't create files for agents not specified
 
@@ -297,7 +292,7 @@ class TestMultiAgentInit:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Only init with claude
         subprocess.run(

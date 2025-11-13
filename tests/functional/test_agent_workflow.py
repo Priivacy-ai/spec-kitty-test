@@ -46,12 +46,7 @@ class TestAgentCommandDiscovery:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.fixture
-    def spec_kitty_root(self):
-        """Path to spec-kitty repository"""
-        return Path(__file__).parent.parent.parent.parent / "spec-kitty"
-
-    def test_agent_can_discover_all_commands(self, temp_project_dir, spec_kitty_root):
+    def test_agent_can_discover_all_commands(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Agent can discover all 13 commands after init
 
@@ -65,7 +60,7 @@ class TestAgentCommandDiscovery:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Init with Claude
         subprocess.run(
@@ -99,7 +94,7 @@ class TestAgentCommandDiscovery:
                 f"Agent cannot discover '{expected_cmd}' command"
             )
 
-    def test_commands_are_readable_by_agent(self, temp_project_dir, spec_kitty_root):
+    def test_commands_are_readable_by_agent(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: All command files are readable and non-empty
 
@@ -112,7 +107,7 @@ class TestAgentCommandDiscovery:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
@@ -150,12 +145,7 @@ class TestWorkflowCommandOrder:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.fixture
-    def spec_kitty_root(self):
-        """Path to spec-kitty repository"""
-        return Path(__file__).parent.parent.parent.parent / "spec-kitty"
-
-    def test_commands_follow_logical_workflow_order(self, temp_project_dir, spec_kitty_root):
+    def test_commands_follow_logical_workflow_order(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Core workflow commands exist and can be executed in logical order
 
@@ -172,7 +162,7 @@ class TestWorkflowCommandOrder:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
@@ -205,7 +195,7 @@ class TestWorkflowCommandOrder:
                 f"Cannot execute complete workflow without this command."
             )
 
-    def test_all_workflow_commands_present(self, temp_project_dir, spec_kitty_root):
+    def test_all_workflow_commands_present(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: All expected workflow commands exist
 
@@ -221,7 +211,7 @@ class TestWorkflowCommandOrder:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
@@ -253,12 +243,7 @@ class TestCommandPathReferences:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.fixture
-    def spec_kitty_root(self):
-        """Path to spec-kitty repository"""
-        return Path(__file__).parent.parent.parent.parent / "spec-kitty"
-
-    def test_commands_reference_kittify_paths(self, temp_project_dir, spec_kitty_root):
+    def test_commands_reference_kittify_paths(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Commands correctly reference .kittify/ paths
 
@@ -271,7 +256,7 @@ class TestCommandPathReferences:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
@@ -301,7 +286,7 @@ class TestCommandPathReferences:
                     f"{cmd_name}: Contains unreplaced {{AGENT_SCRIPT}} variable"
                 )
 
-    def test_no_unreplaced_template_variables(self, temp_project_dir, spec_kitty_root):
+    def test_no_unreplaced_template_variables(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: No template variables remain unreplaced
 
@@ -315,7 +300,7 @@ class TestCommandPathReferences:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
@@ -355,12 +340,7 @@ class TestMultiAgentParallelExecution:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.fixture
-    def spec_kitty_root(self):
-        """Path to spec-kitty repository"""
-        return Path(__file__).parent.parent.parent.parent / "spec-kitty"
-
-    def test_multi_agent_isolated_directories(self, temp_project_dir, spec_kitty_root):
+    def test_multi_agent_isolated_directories(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Multiple agents have isolated command directories
 
@@ -373,7 +353,7 @@ class TestMultiAgentParallelExecution:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         # Init with multiple agents
         subprocess.run(
@@ -406,7 +386,7 @@ class TestMultiAgentParallelExecution:
         assert len(list(codex_dir.glob('spec-kitty.*.md'))) == 13
         assert len(list(cursor_dir.glob('spec-kitty.*.md'))) == 13
 
-    def test_multi_agent_same_workflow_available(self, temp_project_dir, spec_kitty_root):
+    def test_multi_agent_same_workflow_available(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: All agents get the same workflow commands
 
@@ -419,7 +399,7 @@ class TestMultiAgentParallelExecution:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             ['spec-kitty', 'init', project_name, '--ai=claude,codex', '--ignore-agent-tools'],
@@ -459,12 +439,7 @@ class TestCommandContentCompleteness:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    @pytest.fixture
-    def spec_kitty_root(self):
-        """Path to spec-kitty repository"""
-        return Path(__file__).parent.parent.parent.parent / "spec-kitty"
-
-    def test_commands_contain_arguments_variable(self, temp_project_dir, spec_kitty_root):
+    def test_commands_contain_arguments_variable(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Commands include $ARGUMENTS variable for agent input
 
@@ -477,7 +452,7 @@ class TestCommandContentCompleteness:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
@@ -509,7 +484,7 @@ class TestCommandContentCompleteness:
             "Expected most commands to accept arguments."
         )
 
-    def test_commands_have_meaningful_content(self, temp_project_dir, spec_kitty_root):
+    def test_commands_have_meaningful_content(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Commands contain actual instructions, not just boilerplate
 
@@ -522,7 +497,7 @@ class TestCommandContentCompleteness:
         project_path = temp_project_dir / project_name
 
         env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_root)
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
         subprocess.run(
             ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
