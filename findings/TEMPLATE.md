@@ -1,12 +1,35 @@
 # Findings Report Template
 
+## Organization
+
+Findings are organized by **spec-kitty version** in subdirectories:
+
+```
+findings/
+├── 0.4.9/    - Findings for spec-kitty v0.4.9
+├── 0.4.12/   - Findings for spec-kitty v0.4.12
+├── 0.4.13/   - Findings for spec-kitty v0.4.13
+├── 0.5.1/    - Findings for spec-kitty v0.5.1 (PyPI package)
+└── TEMPLATE.md (this file)
+```
+
+**When creating a new finding:**
+1. Determine which spec-kitty version you're testing (check with `spec-kitty --version`)
+2. Create or use the appropriate version subdirectory (e.g., `findings/0.5.1/`)
+3. Name the file: `YYYY-MM-DD_NN_descriptive-name.md`
+4. Follow the template below
+
+---
+
+## Template
+
 **Date:** YYYY-MM-DD
 **Session ID:** (unique identifier for this testing session)
 **Tested by:** (human or agent name)
 **Category:** (Feature Enhancement, Bug Report, UX Improvement, Documentation, Integration, Testing, Performance, etc.)
-**Spec-Kitty Version:** (git hash from `cd ../.. && git log -1 --format=%H`)
+**Spec-Kitty Version:** (version number, e.g., "0.5.1" from `spec-kitty --version`, or git hash for dev versions)
 **Analysis Date:** (when you created this finding)
-**Applies To:** (commit hash range, e.g., "ed3f461..HEAD" or specific version)
+**Applies To:** (version number, version range, or commit hash range)
 
 ## Summary
 Brief one-sentence or two-sentence summary of the finding.
