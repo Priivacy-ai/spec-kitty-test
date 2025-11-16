@@ -1,0 +1,21 @@
+# Spec-Kitty Test Suite Dependencies
+
+# Core testing framework
+pytest>=8.4.2
+pytest-anyio>=4.11.0
+
+# Browser automation for dashboard UI tests
+playwright>=1.56.0
+pytest-playwright>=0.7.1
+pytest-base-url>=2.1.0
+
+# Spec-Kitty (the package being tested)
+# Install from PyPI for stable testing:
+spec-kitty-cli>=0.5.2
+
+# Or install from source for development testing:
+# pip install -e /path/to/spec-kitty
+
+# Note: To test against development version, use:
+#   pip install -e ../spec-kitty
+# instead of installing from PyPI
