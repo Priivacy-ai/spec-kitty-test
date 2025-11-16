@@ -75,3 +75,27 @@ def clean_env():
     # Restore original env
     os.environ.clear()
     os.environ.update(original_env)
+
+
+# Playwright Configuration
+@pytest.fixture(scope="session")
+def browser_type_launch_args(browser_type_launch_args):
+    """Configure Playwright browser launch options."""
+    return {
+        **browser_type_launch_args,
+        "headless": True,  # Run headless for CI/CD
+        "args": [
+            "--disable-dev-shm-usage",  # Overcome limited resource problems
+            "--no-sandbox",  # For containerized environments
+        ]
+    }
+
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    """Configure Playwright browser context."""
+    return {
+        **browser_context_args,
+        "viewport": {"width": 1920, "height": 1080},
+        "ignore_https_errors": True,
+    }

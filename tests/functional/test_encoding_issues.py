@@ -604,7 +604,10 @@ class TestNormalizationFunction:
         )
 
         # Call normalize function
-        test_script = """
+        worktree_path = initialized_project / '.worktrees/001-normalize-win'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -616,8 +619,6 @@ print(f"FIXED: {{len(fixed_files)}} files")
 for f in fixed_files:
     print(f"  - {{f}}")
 """
-            initialized_project / '.worktrees/001-normalize-win'
-        )
 
         result = subprocess.run(
             ['python3', '-c', test_script],
@@ -649,7 +650,10 @@ for f in fixed_files:
         )
 
         # Normalize
-        test_script = """
+        worktree_path = initialized_project / '.worktrees/001-smart-to-straight'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -658,8 +662,6 @@ from acceptance_support import normalize_feature_encoding
 repo_root = Path('{worktree_path}')
 normalize_feature_encoding(repo_root, '001-smart-to-straight')
 """
-            initialized_project / '.worktrees/001-smart-to-straight'
-        )
 
         subprocess.run(['python3', '-c', test_script], check=False)
 
@@ -681,7 +683,10 @@ normalize_feature_encoding(repo_root, '001-smart-to-straight')
         )
 
         # Normalize
-        test_script = """
+        worktree_path = initialized_project / '.worktrees/001-math-norm'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -690,8 +695,6 @@ from acceptance_support import normalize_feature_encoding
 repo_root = Path('{worktree_path}')
 normalize_feature_encoding(repo_root, '001-math-norm')
 """
-            initialized_project / '.worktrees/001-math-norm'
-        )
 
         subprocess.run(['python3', '-c', test_script], check=False)
 
@@ -716,7 +719,10 @@ normalize_feature_encoding(repo_root, '001-math-norm')
         original_content = (feature_dir / "spec.md").read_text(encoding='utf-8')
 
         # Normalize
-        test_script = """
+        worktree_path = initialized_project / '.worktrees/001-preserve-utf8'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -725,8 +731,6 @@ from acceptance_support import normalize_feature_encoding
 repo_root = Path('{worktree_path}')
 normalize_feature_encoding(repo_root, '001-preserve-utf8')
 """
-            initialized_project / '.worktrees/001-preserve-utf8'
-        )
 
         subprocess.run(['python3', '-c', test_script], check=False)
 
@@ -744,7 +748,10 @@ normalize_feature_encoding(repo_root, '001-preserve-utf8')
         (feature_dir / "research.md").write_bytes(b"Bad \x93 research")
 
         # Normalize and capture return value
-        test_script = """
+        worktree_path = initialized_project / '.worktrees/001-list-fixed'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -756,8 +763,6 @@ print(f"COUNT: {{len(fixed_files)}}")
 for f in fixed_files:
     print(f"FILE: {{f.name}}")
 """
-            initialized_project / '.worktrees/001-list-fixed'
-        )
 
         result = subprocess.run(
             ['python3', '-c', test_script],
@@ -930,7 +935,10 @@ class TestErrorMessages:
             initialized_project, "ErrorFormat", content
         )
 
-        test_script = """
+        worktree_path = feature_dir / 'spec.md'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -942,8 +950,6 @@ except ArtifactEncodingError as e:
     print(f"MESSAGE: {{e}}")
     print(f"PATH: {{e.path}}")
 """
-            feature_dir / 'spec.md'
-        )
 
         result = subprocess.run(
             ['python3', '-c', test_script],
@@ -967,7 +973,10 @@ except ArtifactEncodingError as e:
             initialized_project, "ByteAccuracy", content
         )
 
-        test_script = """
+        worktree_path = feature_dir / 'spec.md'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -978,8 +987,6 @@ try:
 except Exception as e:
     print(f"{{e}}")
 """
-            feature_dir / 'spec.md'
-        )
 
         result = subprocess.run(
             ['python3', '-c', test_script],
@@ -1001,7 +1008,10 @@ except Exception as e:
             initialized_project, "PathInError", content, "data-model.md"
         )
 
-        test_script = """
+        worktree_path = feature_dir / 'data-model.md'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -1012,8 +1022,6 @@ try:
 except Exception as e:
     print(f"{{e}}")
 """
-            feature_dir / 'data-model.md'
-        )
 
         result = subprocess.run(
             ['python3', '-c', test_script],
@@ -1034,7 +1042,10 @@ except Exception as e:
             initialized_project, "SuggestCmd", content
         )
 
-        test_script = """
+        worktree_path = feature_dir / 'spec.md'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -1045,8 +1056,6 @@ try:
 except Exception as e:
     print(f"{{e}}")
 """
-            feature_dir / 'spec.md'
-        )
 
         result = subprocess.run(
             ['python3', '-c', test_script],
@@ -1068,7 +1077,10 @@ except Exception as e:
             initialized_project, "Actionable", content
         )
 
-        test_script = """
+        worktree_path = feature_dir / 'spec.md'
+        scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
+
+        test_script = f"""
 import sys
 from pathlib import Path
 sys.path.insert(0, '{scripts_path}')
@@ -1087,8 +1099,6 @@ except Exception as e:
     print(f"HAS_FIX: {{has_fix}}")
     print(f"MESSAGE: {{message}}")
 """
-            feature_dir / 'spec.md'
-        )
 
         result = subprocess.run(
             ['python3', '-c', test_script],

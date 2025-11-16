@@ -31,6 +31,8 @@ from pathlib import Path
 
 import pytest
 
+from .test_helpers import get_diagnostics_command
+
 
 @pytest.fixture
 def spec_kitty_repo_root():
@@ -147,9 +149,12 @@ class TestDashboardHealthInDiagnostics:
             check=True
         )
 
+        # Get version-appropriate diagnostics command
+        diag_cmd, version = get_diagnostics_command()
+
         # Run diagnostics
         result = subprocess.run(
-            ['spec-kitty', 'diagnostics'],
+            diag_cmd,
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -162,7 +167,7 @@ class TestDashboardHealthInDiagnostics:
         # Look for dashboard health indicators
         # Output should mention dashboard in some form
         assert 'dashboard' in output.lower(), \
-            f"Diagnostics should include dashboard health. Got: {output}"
+            f"Diagnostics should include dashboard health (using {version}). Got: {output[:200]}"
 
     def test_diagnostics_detects_healthy_dashboard(self, temp_project_dir, spec_kitty_repo_root):
         """Test: Diagnostics detects and reports healthy dashboard"""
@@ -257,9 +262,12 @@ class TestDashboardHealthInDiagnostics:
             check=True
         )
 
+        # Get version-appropriate diagnostics command
+        diag_cmd, version = get_diagnostics_command()
+
         # Run diagnostics CLI command
         result = subprocess.run(
-            ['spec-kitty', 'diagnostics'],
+            diag_cmd,
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -268,7 +276,7 @@ class TestDashboardHealthInDiagnostics:
 
         # Should run without crashing
         assert result.returncode == 0 or result.returncode == 1, \
-            f"Diagnostics should run (may fail gracefully). Got code: {result.returncode}"
+            f"Diagnostics should run (may fail gracefully) using {version}. Got code: {result.returncode}"
 
         output = result.stdout + result.stderr
 
@@ -334,9 +342,12 @@ class TestDiagnosticsOutputFormat:
             check=True
         )
 
+        # Get version-appropriate diagnostics command
+        diag_cmd, version = get_diagnostics_command()
+
         # Run diagnostics
         result = subprocess.run(
-            ['spec-kitty', 'diagnostics'],
+            diag_cmd,
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -351,4 +362,4 @@ class TestDiagnosticsOutputFormat:
         # Should not have cryptic Python tracebacks
         if 'error' in output.lower() or 'warning' in output.lower():
             assert 'Traceback (most recent call last)' not in output, \
-                "Errors should be user-friendly, not raw tracebacks"
+                f"Errors should be user-friendly, not raw tracebacks (using {version})"

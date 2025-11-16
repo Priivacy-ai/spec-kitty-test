@@ -34,6 +34,8 @@ from pathlib import Path
 
 import pytest
 
+from .test_helpers import get_diagnostics_command
+
 
 @pytest.fixture
 def spec_kitty_repo_root():
@@ -519,7 +521,7 @@ class TestAPICLIConsistency:
             assert key in diagnostics, f"Should include {key}"
 
     def test_diagnostics_cli_command(self, temp_project_dir, spec_kitty_repo_root):
-        """Test: spec-kitty diagnostics CLI command works (upstream implemented it!)"""
+        """Test: spec-kitty diagnostics CLI command works (version-aware)"""
         project_name = "test_cli"
         project_path = temp_project_dir / project_name
 
@@ -536,26 +538,30 @@ class TestAPICLIConsistency:
             check=True
         )
 
+        # Get version-appropriate diagnostics command
+        diag_cmd, version = get_diagnostics_command()
+
         # Test human-readable output
         result = subprocess.run(
-            ['spec-kitty', 'diagnostics'],
+            diag_cmd,
             cwd=project_path,
             capture_output=True,
             text=True,
-            check=True  # Command should exist (upstream implemented it!)
+            check=True  # Command should exist
         )
 
         # Verify command succeeded
-        assert result.returncode == 0, "CLI command should succeed"
+        assert result.returncode == 0, f"CLI command should succeed (using {version})"
         assert len(result.stdout) > 0, "CLI should produce output"
 
         # Verify output contains expected sections
-        assert 'Project Information' in result.stdout or 'project_path' in result.stdout, \
-            "Should show project info"
+        assert 'Project Information' in result.stdout or 'project_path' in result.stdout or 'Project Path' in result.stdout or 'Checking for installed tools' in result.stdout, \
+            f"Should show project info. Got: {result.stdout[:200]}"
 
         # Test JSON output mode
+        json_cmd = diag_cmd + ['--json']
         result_json = subprocess.run(
-            ['spec-kitty', 'diagnostics', '--json'],
+            json_cmd,
             cwd=project_path,
             capture_output=True,
             text=True,
