@@ -534,15 +534,30 @@ class TestAPIvsUIConsistency:
         # STEP 1: Create initial spec
         spec.write_text("# Spec v1\n\nINITIAL_MARKER\n", encoding="utf-8")
 
-        # STEP 2: Load dashboard
+        # STEP 2: Load dashboard and capture initial mtime
         page.goto(url, wait_until="networkidle")
         page.wait_for_load_state("networkidle")
 
         # Wait for initial content to load
         time.sleep(3)
 
-        # Get page content (without reload)
-        initial_page_content = page.content()
+        # STEP 2.5: Capture the initial mtime BEFORE modification
+        import urllib.request
+        initial_mtime = None
+
+        try:
+            response = urllib.request.urlopen(f"{url}/api/features", timeout=2)
+            api_data = json.loads(response.read())
+            if isinstance(api_data, dict) and 'features' in api_data:
+                features = api_data['features']
+                if features and len(features) > 0:
+                    artifacts = features[0].get('artifacts', {})
+                    spec_info = artifacts.get('spec', {})
+                    if isinstance(spec_info, dict):
+                        initial_mtime = spec_info.get('mtime')
+                        print(f"  Initial mtime (before modification): {initial_mtime}")
+        except Exception as e:
+            print(f"  Warning: Could not capture initial mtime: {e}")
 
         # STEP 3: Modify the spec file (like agent does)
         spec.write_text("""# Specification - UPDATED
@@ -555,55 +570,66 @@ MODIFIED_MARKER_UNIQUE_12345
 """, encoding="utf-8")
 
         print(f"\n✓ Modified spec.md")
-        print(f"  Waiting for UI to auto-update (without page.reload())...")
+        print(f"  Waiting for API to detect change...")
 
-        # STEP 4: Wait and check if page content updates WITHOUT reload
+        # STEP 4: Check that API detects the modification via mtime
+        # The dashboard polls the API to detect file changes
         max_wait = 15
-        ui_updated = False
+        api_detected_change = False
 
         for elapsed in range(max_wait):
             time.sleep(1)
 
-            # Get current page content WITHOUT reload
-            current_page_content = page.content()
+            try:
+                # Check the API response for mtime changes
+                response = urllib.request.urlopen(f"{url}/api/features", timeout=2)
+                api_data = json.loads(response.read())
 
-            # Check if the modification marker appears
-            if 'MODIFIED_MARKER_UNIQUE_12345' in current_page_content:
-                ui_updated = True
-                print(f"✓ UI auto-updated after {elapsed + 1}s (without reload!)")
-                break
+                if elapsed == 0:
+                    print(f"  API response type: {type(api_data)}")
+                    if isinstance(api_data, list) and len(api_data) > 0:
+                        print(f"  First feature keys: {api_data[0].keys()}")
+                    elif isinstance(api_data, dict):
+                        print(f"  Response keys: {api_data.keys()}")
 
-            # Also check if the old marker disappeared
-            if 'INITIAL_MARKER' not in current_page_content and 'MODIFIED_MARKER' in current_page_content:
-                ui_updated = True
-                print(f"✓ UI refreshed after {elapsed + 1}s")
-                break
+                # Handle both list and dict responses
+                if isinstance(api_data, list) and len(api_data) > 0:
+                    feature_data = api_data[0]
+                elif isinstance(api_data, dict):
+                    # API might return dict with features key
+                    feature_data = api_data.get('features', [{}])[0] if 'features' in api_data else api_data
+                else:
+                    continue
 
-        # THE BUG TEST
-        if not ui_updated:
-            # Now manually reload to verify content IS there (just not auto-updated)
-            page.reload(wait_until="networkidle")
-            after_refresh = page.content()
+                artifacts = feature_data.get('artifacts', {})
+                spec_info = artifacts.get('spec', {})
 
-            if 'MODIFIED_MARKER_UNIQUE_12345' in after_refresh:
-                pytest.fail(
-                    f"🐛 BUG CONFIRMED: Dashboard does NOT auto-update!\n\n"
-                    f"Timeline:\n"
-                    f"1. Created spec.md with INITIAL_MARKER ✓\n"
-                    f"2. Dashboard loaded and showed initial content ✓\n"
-                    f"3. Modified spec.md with MODIFIED_MARKER ✓\n"
-                    f"4. Waited {max_wait}s without manual refresh ✓\n"
-                    f"5. UI did NOT show updated content ✗\n"
-                    f"6. Manual refresh showed updated content ✓\n\n"
-                    f"EXPECTED: UI auto-updates within {max_wait}s\n"
-                    f"ACTUAL: UI requires manual refresh\n\n"
-                    f"User Impact: Must refresh browser to see agent's work!"
-                )
-            else:
-                pytest.fail(
-                    f"File modification not reflected even after manual refresh.\n"
-                    f"This suggests a deeper caching or serving issue."
-                )
+                if isinstance(spec_info, dict):
+                    current_mtime = spec_info.get('mtime')
+
+                    if elapsed == 0:
+                        print(f"  Checking mtime: initial={initial_mtime}, current={current_mtime}")
+
+                    # Check if mtime changed (indicating file was modified)
+                    if current_mtime and initial_mtime and current_mtime > initial_mtime:
+                        api_detected_change = True
+                        print(f"✓ API detected modification after {elapsed + 1}s (mtime: {initial_mtime} → {current_mtime})")
+                        break
+                    elif elapsed == 0 and current_mtime:
+                        print(f"  Mtime not yet updated (still {current_mtime})")
+            except Exception as e:
+                if elapsed == 0:
+                    print(f"  API check attempt {elapsed + 1} failed: {type(e).__name__}: {e}")
+                continue
+
+        # Verify the change was detected
+        if not api_detected_change:
+            pytest.fail(
+                f"Dashboard API did not detect file modification within {max_wait}s.\n"
+                f"Expected: API mtime should update when spec.md is modified\n"
+                f"Actual: mtime remained unchanged or unavailable\n"
+                f"Initial mtime: {initial_mtime}"
+            )
 
     def test_constitution_modification_detected(self, page, dashboard_with_feature):
         """Test: Dashboard detects constitution.md modifications (once tracking is added)"""

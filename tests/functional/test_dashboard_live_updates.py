@@ -162,11 +162,24 @@ class TestInitialDashboardState:
         worktree_path = dashboard_project['worktree_path']
         feature_id = dashboard_project['feature_id']
 
-        # Verify no artifacts exist
+        # Delete any artifacts that were auto-created by create-new-feature.sh
+        # (The script creates spec.md by default, so we remove it for this test)
         feature_dir = worktree_path / 'kitty-specs' / feature_id
         constitution = feature_dir / 'constitution.md'
         spec = feature_dir / 'spec.md'
         plan = feature_dir / 'plan.md'
+
+        # Remove auto-created files to test empty state
+        if constitution.exists():
+            constitution.unlink()
+        if spec.exists():
+            spec.unlink()
+        if plan.exists():
+            plan.unlink()
+
+        # Wait a moment for filesystem changes to propagate
+        import time
+        time.sleep(1)
 
         assert not constitution.exists(), "Constitution should not exist yet"
         assert not spec.exists(), "Spec should not exist yet"
