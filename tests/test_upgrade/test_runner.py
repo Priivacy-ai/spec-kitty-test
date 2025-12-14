@@ -234,24 +234,6 @@ class TestMigrationRunner:
             # Some migrations may have succeeded before failure
             # That's fine - the key is that it stopped and reported
 
-    def test_rollback_on_error(self):
-        """Test: Rollback not implemented (document limitation)
-
-        GIVEN: A migration that fails partway through
-        WHEN: Failure occurs
-        THEN: No automatic rollback (manual cleanup required)
-
-        NOTE: This test documents that rollback is NOT implemented.
-        Users must manually fix issues and re-run upgrade.
-        """
-        try:
-            from specify_cli.upgrade.runner import MigrationRunner
-        except ImportError:
-            pytest.skip("MigrationRunner not yet implemented")
-
-        # Document the limitation
-        pytest.skip("Rollback not implemented - migrations are atomic or require manual cleanup")
-
     def test_metadata_updated_after_each(self, v0_6_4_project):
         """Test: Records each migration immediately
 
