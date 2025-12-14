@@ -75,8 +75,28 @@ def v0_1_x_project(tmp_path):
     fixture_path = Path(__file__).parent / 'fixtures' / 'v0_1_x_project'
     project_path = tmp_path / 'v0_1_x_project'
 
-    # Copy entire fixture including .git directory
+    # Copy entire fixture
     shutil.copytree(fixture_path, project_path, symlinks=True)
+
+    # Initialize git repo (fixtures can't store .git/ directories)
+    subprocess.run(
+        ['git', 'init'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'add', '.'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'commit', '-m', 'Initial commit for v0.1.x fixture'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
 
     return project_path
 
@@ -97,6 +117,26 @@ def v0_4_7_project(tmp_path):
     project_path = tmp_path / 'v0_4_7_project'
 
     shutil.copytree(fixture_path, project_path, symlinks=True)
+
+    # Initialize git repo (fixtures can't store .git/ directories)
+    subprocess.run(
+        ['git', 'init'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'add', '.'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'commit', '-m', 'Initial commit for v0.4.7 fixture'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
 
     return project_path
 
@@ -120,6 +160,44 @@ def v0_6_4_project(tmp_path):
 
     shutil.copytree(fixture_path, project_path, symlinks=True)
 
+    # Initialize git repo (fixtures can't store .git/ directories)
+    subprocess.run(
+        ['git', 'init'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'add', '.'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'commit', '-m', 'Initial commit for v0.6.4 fixture'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+
+    # Add old pre-commit-agent-check hook (v0.6.4 had hooks installed)
+    hooks_dir = project_path / '.git' / 'hooks'
+    hooks_dir.mkdir(parents=True, exist_ok=True)
+    hook_file = hooks_dir / 'pre-commit-agent-check'
+    hook_file.write_text("""#!/bin/bash
+# Installed by spec-kitty v0.5.0
+# Prevents committing agent configuration files
+
+# Check for agent files in staged changes
+if git diff --cached --name-only | grep -qE '^\\.claude/|^\\.codex/|^\\.gemini/'; then
+    echo "ERROR: Agent configuration files detected in commit."
+    exit 1
+fi
+
+exit 0
+""")
+    hook_file.chmod(0o755)
+
     return project_path
 
 
@@ -136,6 +214,26 @@ def v0_6_6_project(tmp_path):
     project_path = tmp_path / 'v0_6_6_project'
 
     shutil.copytree(fixture_path, project_path, symlinks=True)
+
+    # Initialize git repo (fixtures can't store .git/ directories)
+    subprocess.run(
+        ['git', 'init'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'add', '.'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'commit', '-m', 'Initial commit for v0.6.6 fixture'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
 
     return project_path
 
@@ -155,6 +253,26 @@ def broken_mission_project(tmp_path):
     project_path = tmp_path / 'broken_mission_project'
 
     shutil.copytree(fixture_path, project_path, symlinks=True)
+
+    # Initialize git repo (fixtures can't store .git/ directories)
+    subprocess.run(
+        ['git', 'init'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'add', '.'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
+    subprocess.run(
+        ['git', 'commit', '-m', 'Initial commit for broken_mission fixture'],
+        cwd=project_path,
+        capture_output=True,
+        check=True
+    )
 
     return project_path
 
