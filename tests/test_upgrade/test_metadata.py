@@ -282,14 +282,14 @@ class TestMigrationTracking:
 
         migration_record = metadata.applied_migrations[0]
 
-        assert migration_record['id'] == migration_id, \
+        assert migration_record.id == migration_id, \
             "Migration ID should match"
 
-        assert migration_record['result'] == 'success', \
+        assert migration_record.result == 'success', \
             "Result should be 'success'"
 
         # Verify timestamp is reasonable (between before and after)
-        applied_at = migration_record['applied_at']
+        applied_at = migration_record.applied_at
         assert isinstance(applied_at, datetime), \
             "applied_at should be datetime"
 
@@ -326,10 +326,10 @@ class TestMigrationTracking:
 
         migration_record = metadata.applied_migrations[0]
 
-        assert migration_record['id'] == migration_id, \
+        assert migration_record.id == migration_id, \
             "Migration ID should match"
 
-        assert migration_record['result'] == 'failed', \
+        assert migration_record.result == 'failed', \
             "Result should be 'failed'"
 
         # Failed migration should still be in history
@@ -375,12 +375,12 @@ class TestMigrationTracking:
             "Should have all 4 migrations recorded"
 
         # Verify chronological order
-        recorded_ids = [m['id'] for m in metadata.applied_migrations]
+        recorded_ids = [m.id for m in metadata.applied_migrations]
         assert recorded_ids == migrations, \
             "Migrations should be in chronological order"
 
         # Verify timestamps are also increasing
-        timestamps = [m['applied_at'] for m in metadata.applied_migrations]
+        timestamps = [m.applied_at for m in metadata.applied_migrations]
         for i in range(len(timestamps) - 1):
             assert timestamps[i] < timestamps[i + 1], \
                 f"Timestamp {i} should be less than timestamp {i+1}"
