@@ -603,8 +603,9 @@ class TestNormalizationFunction:
             initialized_project, "NormalizeWin", content
         )
 
-        # Call normalize function
-        worktree_path = initialized_project / '.worktrees/001-normalize-win'
+        # Extract actual feature ID from feature_dir path (don't hardcode!)
+        feature_id = feature_dir.name  # e.g., '001-normalizewin'
+        worktree_path = feature_dir.parent.parent  # Go up from kitty-specs/001-normalizewin
         scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
 
         test_script = f"""
@@ -614,7 +615,8 @@ sys.path.insert(0, '{scripts_path}')
 from acceptance_support import normalize_feature_encoding
 
 repo_root = Path('{worktree_path}')
-fixed_files = normalize_feature_encoding(repo_root, '001-normalize-win')
+feature_id = '{feature_id}'
+fixed_files = normalize_feature_encoding(repo_root, feature_id)
 print(f"FIXED: {{len(fixed_files)}} files")
 for f in fixed_files:
     print(f"  - {{f}}")
@@ -629,17 +631,32 @@ for f in fixed_files:
 
         output = result.stdout + result.stderr
 
+        # Debug: Print subprocess output
+        print(f"\n=== Subprocess Output ===")
+        print(output)
+        print(f"=== End Subprocess Output ===\n")
+
         # Should report fixed files
         assert 'FIXED:' in output, f"Should report fixed files. Got: {output}"
 
         # File should now be valid UTF-8
         fixed_file = feature_dir / "spec.md"
+
+        # Debug: Print actual file location and contents
+        print(f"\nDEBUG: Checking file at: {fixed_file}")
+        print(f"DEBUG: File exists: {fixed_file.exists()}")
+        if fixed_file.exists():
+            raw_bytes = fixed_file.read_bytes()
+            print(f"DEBUG: File bytes: {raw_bytes}")
+            print(f"DEBUG: Has 0x92: {b'\\x92' in raw_bytes}")
+
         try:
             fixed_content = fixed_file.read_text(encoding='utf-8')
             assert "'" in fixed_content or 'quote' in fixed_content, \
                 "Should have repaired text"
-        except UnicodeDecodeError:
-            pytest.fail("File should be valid UTF-8 after normalization")
+            print(f"✓ File normalized successfully: {repr(fixed_content)}")
+        except UnicodeDecodeError as e:
+            pytest.fail(f"File should be valid UTF-8 after normalization. Error: {e}\nFile still contains: {fixed_file.read_bytes()}")
 
     def test_converts_smart_quotes_to_straight(self, initialized_project, spec_kitty_repo_root):
         """Test: Smart quotes are converted to straight ASCII quotes"""
@@ -649,8 +666,9 @@ for f in fixed_files:
             initialized_project, "SmartToStraight", content
         )
 
-        # Normalize
-        worktree_path = initialized_project / '.worktrees/001-smart-to-straight'
+        # Extract actual feature ID
+        feature_id = feature_dir.name
+        worktree_path = feature_dir.parent.parent
         scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
 
         test_script = f"""
@@ -660,7 +678,7 @@ sys.path.insert(0, '{scripts_path}')
 from acceptance_support import normalize_feature_encoding
 
 repo_root = Path('{worktree_path}')
-normalize_feature_encoding(repo_root, '001-smart-to-straight')
+normalize_feature_encoding(repo_root, '{feature_id}')
 """
 
         subprocess.run(['python3', '-c', test_script], check=False)
@@ -682,8 +700,9 @@ normalize_feature_encoding(repo_root, '001-smart-to-straight')
             initialized_project, "MathNorm", content
         )
 
-        # Normalize
-        worktree_path = initialized_project / '.worktrees/001-math-norm'
+        # Extract actual feature ID
+        feature_id = feature_dir.name
+        worktree_path = feature_dir.parent.parent
         scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
 
         test_script = f"""
@@ -693,7 +712,7 @@ sys.path.insert(0, '{scripts_path}')
 from acceptance_support import normalize_feature_encoding
 
 repo_root = Path('{worktree_path}')
-normalize_feature_encoding(repo_root, '001-math-norm')
+normalize_feature_encoding(repo_root, '{feature_id}')
 """
 
         subprocess.run(['python3', '-c', test_script], check=False)
@@ -718,8 +737,9 @@ normalize_feature_encoding(repo_root, '001-math-norm')
 
         original_content = (feature_dir / "spec.md").read_text(encoding='utf-8')
 
-        # Normalize
-        worktree_path = initialized_project / '.worktrees/001-preserve-utf8'
+        # Extract actual feature ID
+        feature_id = feature_dir.name
+        worktree_path = feature_dir.parent.parent
         scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
 
         test_script = f"""
@@ -729,7 +749,7 @@ sys.path.insert(0, '{scripts_path}')
 from acceptance_support import normalize_feature_encoding
 
 repo_root = Path('{worktree_path}')
-normalize_feature_encoding(repo_root, '001-preserve-utf8')
+normalize_feature_encoding(repo_root, '{feature_id}')
 """
 
         subprocess.run(['python3', '-c', test_script], check=False)
@@ -747,8 +767,9 @@ normalize_feature_encoding(repo_root, '001-preserve-utf8')
         )
         (feature_dir / "research.md").write_bytes(b"Bad \x93 research")
 
-        # Normalize and capture return value
-        worktree_path = initialized_project / '.worktrees/001-list-fixed'
+        # Extract actual feature ID
+        feature_id = feature_dir.name
+        worktree_path = feature_dir.parent.parent
         scripts_path = spec_kitty_repo_root / 'scripts' / 'tasks'
 
         test_script = f"""
@@ -758,7 +779,7 @@ sys.path.insert(0, '{scripts_path}')
 from acceptance_support import normalize_feature_encoding
 
 repo_root = Path('{worktree_path}')
-fixed_files = normalize_feature_encoding(repo_root, '001-list-fixed')
+fixed_files = normalize_feature_encoding(repo_root, '{feature_id}')
 print(f"COUNT: {{len(fixed_files)}}")
 for f in fixed_files:
     print(f"FILE: {{f.name}}")
