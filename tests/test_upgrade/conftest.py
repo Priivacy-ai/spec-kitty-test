@@ -58,6 +58,23 @@ def spec_kitty_repo_root():
     )
 
 
+@pytest.fixture(scope="session", autouse=True)
+def set_template_root(spec_kitty_repo_root):
+    """Set SPEC_KITTY_TEMPLATE_ROOT so ensure_missions migration can find missions.
+
+    This allows the 0.6.7_ensure_missions migration to locate the mission
+    templates when running in test environments.
+    """
+    old_value = os.environ.get('SPEC_KITTY_TEMPLATE_ROOT')
+    os.environ['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+    yield
+    # Restore original value
+    if old_value is None:
+        os.environ.pop('SPEC_KITTY_TEMPLATE_ROOT', None)
+    else:
+        os.environ['SPEC_KITTY_TEMPLATE_ROOT'] = old_value
+
+
 # ============================================================================
 # Static Fixture Loaders
 # ============================================================================
