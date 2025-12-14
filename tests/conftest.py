@@ -87,6 +87,7 @@ def browser_type_launch_args(browser_type_launch_args):
         "args": [
             "--disable-dev-shm-usage",  # Overcome limited resource problems
             "--no-sandbox",  # For containerized environments
+            "--new-window",  # Open new windows instead of tabs
         ]
     }
 
@@ -99,3 +100,27 @@ def browser_context_args(browser_context_args):
         "viewport": {"width": 1920, "height": 1080},
         "ignore_https_errors": True,
     }
+
+
+@pytest.fixture
+def isolated_page(browser):
+    """
+    Create a new browser context (window) for each test.
+
+    This ensures:
+    1. Each test gets a fresh window (not a tab in an existing window)
+    2. The window is automatically closed when the test ends
+    3. Complete isolation between tests (cookies, storage, etc.)
+
+    Usage:
+        def test_something(isolated_page):
+            isolated_page.goto("http://localhost:8000")
+            # Test runs in isolated window
+        # Window automatically closed after test
+    """
+    context = browser.new_context()
+    page = context.new_page()
+    yield page
+    # Cleanup: close page and context (window) after test
+    page.close()
+    context.close()
