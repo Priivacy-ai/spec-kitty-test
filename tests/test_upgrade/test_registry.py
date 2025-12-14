@@ -49,48 +49,56 @@ class TestMigrationRegistry:
         except ImportError:
             pytest.skip("MigrationRegistry not yet implemented")
 
-        # Clear registry for test isolation
+        # Save original registry for restoration
+        original_migrations = None
         if hasattr(MigrationRegistry, '_migrations'):
+            original_migrations = MigrationRegistry._migrations.copy()
             MigrationRegistry._migrations = {}
 
-        # Create and register a test migration
-        @register
-        class TestRegistrationMigration(BaseMigration):
-            migration_id = "test_registration"
-            description = "Test migration for registration"
-            target_version = "0.6.7"
+        try:
+            # Create and register a test migration
+            @register
+            class TestRegistrationMigration(BaseMigration):
+                migration_id = "test_registration"
+                description = "Test migration for registration"
+                target_version = "0.6.7"
 
-            def detect(self, project_path: Path) -> bool:
-                return False
+                def detect(self, project_path: Path) -> bool:
+                    return False
 
-            def can_apply(self, project_path: Path) -> tuple:
-                return (True, "")
+                def can_apply(self, project_path: Path) -> tuple:
+                    return (True, "")
 
-            def apply(self, project_path: Path, dry_run: bool = False):
-                pass
+                def apply(self, project_path: Path, dry_run: bool = False):
+                    pass
 
-        # Verify migration is registered
-        all_migrations = MigrationRegistry.get_all()
+            # Verify migration is registered
+            all_migrations = MigrationRegistry.get_all()
 
-        migration_ids = [m.migration_id for m in all_migrations]
+            migration_ids = [m.migration_id for m in all_migrations]
 
-        assert "test_registration" in migration_ids, \
-            "Registered migration should appear in registry"
+            assert "test_registration" in migration_ids, \
+                "Registered migration should appear in registry"
 
-        # Verify we can retrieve it
-        test_migration = next(
-            (m for m in all_migrations if m.migration_id == "test_registration"),
-            None
-        )
+            # Verify we can retrieve it
+            test_migration = next(
+                (m for m in all_migrations if m.migration_id == "test_registration"),
+                None
+            )
 
-        assert test_migration is not None, \
-            "Should be able to retrieve registered migration"
+            assert test_migration is not None, \
+                "Should be able to retrieve registered migration"
 
-        assert test_migration.description == "Test migration for registration", \
-            "Migration metadata should be preserved"
+            assert test_migration.description == "Test migration for registration", \
+                "Migration metadata should be preserved"
 
-        assert test_migration.target_version == "0.6.7", \
-            "Target version should be preserved"
+            assert test_migration.target_version == "0.6.7", \
+                "Target version should be preserved"
+
+        finally:
+            # Restore original registry
+            if original_migrations is not None:
+                MigrationRegistry._migrations = original_migrations
 
     def test_get_all_migrations(self):
         """Test: Returns all registered migrations

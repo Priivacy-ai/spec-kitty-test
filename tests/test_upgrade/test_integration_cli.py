@@ -286,8 +286,8 @@ class TestUpgradeCommandBasic:
         assert version is not None, \
             f"Metadata should have version field. Got: {metadata}"
 
-        assert version.startswith('0.6'), \
-            f"Version should be 0.6.x, got {version}"
+        assert version.startswith('0.6') or version.startswith('0.7'), \
+            f"Version should be 0.6.x or 0.7.x, got {version}"
 
 
 class TestUpgradeCommandOptions:
