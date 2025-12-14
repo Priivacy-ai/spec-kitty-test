@@ -522,7 +522,7 @@ def create_conflicting_state():
 # Helper Functions (not fixtures, but imported by tests)
 # ============================================================================
 
-def extract_json_from_output(output: str) -> Optional[dict]:
+def _extract_json_from_output(output: str) -> Optional[dict]:
     """Extract JSON from script output that may contain log messages.
 
     Searches for the first line that looks like valid JSON.
@@ -535,7 +535,7 @@ def extract_json_from_output(output: str) -> Optional[dict]:
 
     Example:
         >>> output = "Starting...\\n{\"status\": \"ok\"}\\nDone"
-        >>> data = extract_json_from_output(output)
+        >>> data = _extract_json_from_output(output)
         >>> assert data['status'] == 'ok'
     """
     import json
@@ -549,6 +549,13 @@ def extract_json_from_output(output: str) -> Optional[dict]:
                 continue
 
     return None
+
+
+# Fixture wrapper for _extract_json_from_output
+@pytest.fixture
+def extract_json_from_output():
+    """Fixture wrapper for JSON extraction helper."""
+    return _extract_json_from_output
 
 
 def count_files_in_directory(directory: Path, pattern: str = '*') -> int:

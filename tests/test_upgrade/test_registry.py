@@ -159,8 +159,8 @@ class TestMigrationRegistry:
         # Test: v0.4.7 → current
         # Should need: 0.4.8 (gitignore), 0.5.0 (hooks), 0.6.5 (commands)
         applicable_047 = MigrationRegistry.get_applicable(
-            current_version="0.4.7",
-            target_version="0.6.7"  # or None for "latest"
+            from_version="0.4.7",
+            to_version="0.6.7"  # or None for "latest"
         )
 
         migration_ids_047 = [m.migration_id for m in applicable_047]
@@ -182,8 +182,8 @@ class TestMigrationRegistry:
         # Test: v0.6.4 → current
         # Should only need: 0.6.5 (commands rename)
         applicable_064 = MigrationRegistry.get_applicable(
-            current_version="0.6.4",
-            target_version="0.6.7"
+            from_version="0.6.4",
+            to_version="0.6.7"
         )
 
         migration_ids_064 = [m.migration_id for m in applicable_064]
@@ -204,8 +204,8 @@ class TestMigrationRegistry:
 
         # Test: v0.1.x → current (needs all migrations)
         applicable_01x = MigrationRegistry.get_applicable(
-            current_version="0.1.5",
-            target_version="0.6.7"
+            from_version="0.1.5",
+            to_version="0.6.7"
         )
 
         migration_ids_01x = [m.migration_id for m in applicable_01x]
