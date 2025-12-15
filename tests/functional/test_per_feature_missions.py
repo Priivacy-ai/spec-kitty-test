@@ -5,35 +5,30 @@ Tests the per-feature mission system introduced in v0.8.0 where each feature
 selects its own mission (stored in meta.json) instead of a project-level mission.
 
 Test Coverage:
-1. Multi-Source Mission Discovery (4 tests)
-   - Discovery order: project → personal → built-in
-   - Project missions take precedence
-   - Personal missions work from ~/.kittify/missions/
+1. Multi-Source Mission Discovery (3 tests)
+   - Discovery order: project → built-in (personal missions deferred to post-v0.8.0)
+   - Project missions take precedence over built-in
    - Built-in missions used as fallback
 
-2. Feature Mission in meta.json (4 tests)
+2. Feature Mission in meta.json (3 tests)
    - Mission stored in feature's meta.json
    - Default to software-dev when not specified
    - --mission flag works on create-new-feature.sh
-   - Mission key validated against available missions
 
-3. Mission Selection via /spec-kitty.specify (3 tests)
-   - LLM can suggest mission based on description
-   - User can override mission selection
-   - Invalid mission key is rejected
-
-4. Backward Compatibility (2 tests)
+3. Backward Compatibility (2 tests)
    - Legacy features (no mission in meta.json) default to software-dev
    - Projects upgraded from < 0.8.0 work correctly
 
 Note: All tests in this file require spec-kitty >= 0.8.0
+
+v0.8.0 Scope (from implementation plan):
+- NO personal missions (~/.kittify/missions/) - deferred to future release
+- Mission sources: 'project' and 'built-in' only
 """
 
 import json
 import os
-import shutil
 import subprocess
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -54,19 +49,16 @@ def check_v08(spec_kitty_version):
 
 
 class TestMultiSourceMissionDiscovery:
-    """Test mission discovery from project → personal → built-in."""
+    """Test mission discovery from project → built-in.
+
+    Note: Personal missions (~/.kittify/missions/) are deferred to post-v0.8.0.
+    v0.8.0 only supports 'project' and 'built-in' sources.
+    """
 
     @pytest.fixture
     def temp_project_dir(self, tmp_path):
         """Create temporary directory for test project."""
         return tmp_path
-
-    @pytest.fixture
-    def personal_missions_dir(self, tmp_path):
-        """Create temporary personal missions directory."""
-        personal_dir = tmp_path / 'home' / '.kittify' / 'missions'
-        personal_dir.mkdir(parents=True)
-        return personal_dir
 
     def test_list_available_missions_includes_builtin(
         self, requires_v08, temp_project_dir, spec_kitty_repo_root
@@ -161,79 +153,17 @@ class TestMultiSourceMissionDiscovery:
         assert sw_dev.get('source') == 'project', \
             "Project mission should take precedence over built-in"
 
-    def test_personal_missions_discovered(
-        self, requires_v08, temp_project_dir, spec_kitty_repo_root, monkeypatch
-    ):
-        """Test: Personal missions from ~/.kittify/missions/ are discovered
-
-        GIVEN: A custom mission in ~/.kittify/missions/
-        WHEN: Listing available missions
-        THEN: Personal mission should appear in list
-        """
-        project_name = "test_personal_missions"
-        project_path = temp_project_dir / project_name
-
-        # Create fake home directory with personal missions
-        fake_home = temp_project_dir / 'fake_home'
-        personal_missions = fake_home / '.kittify' / 'missions' / 'my-custom-mission'
-        personal_missions.mkdir(parents=True)
-
-        # Create minimal mission.yaml
-        (personal_missions / 'mission.yaml').write_text("""
-name: "My Custom Mission"
-description: "A personal custom mission"
-version: "1.0.0"
-domain: "other"
-workflow:
-  phases:
-    - name: implement
-      description: Do the work
-artifacts:
-  required: []
-  optional: []
-""")
-
-        env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
-        env['HOME'] = str(fake_home)
-
-        subprocess.run(
-            ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
-            cwd=temp_project_dir,
-            env=env,
-            input='y\n',
-            capture_output=True,
-            text=True,
-            check=True
-        )
-
-        # List missions with fake HOME
-        result = subprocess.run(
-            ['spec-kitty', 'mission', 'list', '--json'],
-            cwd=project_path,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-
-        missions = json.loads(result.stdout)
-        mission_keys = [m['key'] for m in missions]
-
-        assert 'my-custom-mission' in mission_keys, \
-            "Personal mission should be discovered from ~/.kittify/missions/"
-
-    def test_discovery_order_project_personal_builtin(
+    def test_discovery_order_project_over_builtin(
         self, requires_v08, temp_project_dir, spec_kitty_repo_root
     ):
-        """Test: Discovery order is project → personal → built-in
+        """Test: Discovery order is project → built-in
 
-        GIVEN: Same mission key exists in project and personal
-        WHEN: Resolving mission
-        THEN: Project mission should win
+        GIVEN: A project with missions
+        WHEN: Listing available missions
+        THEN: All missions should have valid source (project or built-in)
+
+        Note: Personal missions (~/.kittify/) deferred to post-v0.8.0
         """
-        # This test would need careful setup with mock HOME
-        # Simplified version: just check project > built-in
         project_name = "test_discovery_order"
         project_path = temp_project_dir / project_name
 
@@ -261,12 +191,12 @@ artifacts:
 
         missions = json.loads(result.stdout)
 
-        # All missions should have a source
+        # All missions should have a source (project or built-in only in v0.8.0)
         for mission in missions:
             assert 'source' in mission, \
                 f"Mission {mission['key']} should have source field"
-            assert mission['source'] in ('project', 'personal', 'builtin'), \
-                f"Mission source should be project, personal, or builtin"
+            assert mission['source'] in ('project', 'built-in'), \
+                f"Mission source should be 'project' or 'built-in', got: {mission['source']}"
 
 
 class TestFeatureMissionInMetaJson:
