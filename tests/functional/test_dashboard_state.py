@@ -53,7 +53,9 @@ class TestArtifactDetection:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)
 
-    def test_initial_state_after_init(self, temp_project_dir, spec_kitty_repo_root):
+    def test_initial_state_after_init(
+        self, temp_project_dir, spec_kitty_repo_root, mission_is_per_feature
+    ):
         """Test: Initial project state has no features, correct infrastructure"""
         project_name = "test_initial_state"
         project_path = temp_project_dir / project_name
@@ -80,10 +82,17 @@ class TestArtifactDetection:
         assert not specs_dir.exists() or len(list(specs_dir.iterdir())) == 0, \
             "No features should exist after init"
 
-        # Check mission is activated
-        active_mission = kittify_dir / 'active-mission'
-        assert active_mission.exists() or active_mission.is_symlink(), \
-            "Active mission should be set"
+        # Check missions are available (version-specific behavior)
+        if mission_is_per_feature:
+            # v0.8.0+: No active-mission, but missions directory should exist
+            missions_dir = kittify_dir / 'missions'
+            assert missions_dir.exists(), \
+                "Missions directory should exist (missions are per-feature in v0.8.0+)"
+        else:
+            # Pre-v0.8.0: active-mission symlink should exist
+            active_mission = kittify_dir / 'active-mission'
+            assert active_mission.exists() or active_mission.is_symlink(), \
+                "Active mission should be set (pre-v0.8.0)"
 
     def test_state_detection_with_artifacts(self, temp_project_dir, spec_kitty_repo_root):
         """Test: State detection recognizes created artifacts"""

@@ -51,7 +51,7 @@ def spec_kitty_repo_root():
 
 
 @pytest.fixture(scope="session")
-def spec_kitty_version(spec_kitty_repo_root):
+def spec_kitty_git_hash(spec_kitty_repo_root):
     """Get the current git commit hash of spec-kitty repo"""
     import subprocess
     result = subprocess.run(
@@ -62,6 +62,76 @@ def spec_kitty_version(spec_kitty_repo_root):
         check=True
     )
     return result.stdout.strip()
+
+
+@pytest.fixture(scope="session")
+def spec_kitty_version():
+    """Get the installed spec-kitty semantic version as a tuple.
+
+    Returns:
+        tuple: Version as (major, minor, patch), e.g., (0, 8, 0)
+
+    Example:
+        def test_something(spec_kitty_version):
+            if spec_kitty_version >= (0, 8, 0):
+                # v0.8.0+ behavior
+            else:
+                # legacy behavior
+    """
+    import subprocess
+    result = subprocess.run(
+        ['spec-kitty', '--version'],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    # Parse "spec-kitty-cli version 0.8.0" -> (0, 8, 0)
+    version_str = result.stdout.strip().split()[-1]
+    return tuple(map(int, version_str.split('.')))
+
+
+@pytest.fixture
+def requires_v08(spec_kitty_version):
+    """Skip test if spec-kitty < 0.8.0
+
+    Use for tests that require per-feature missions (v0.8.0+).
+
+    Example:
+        def test_per_feature_mission(requires_v08, temp_project_dir):
+            # This test only runs on v0.8.0+
+    """
+    if spec_kitty_version < (0, 8, 0):
+        pytest.skip("Requires spec-kitty >= 0.8.0 (per-feature missions)")
+
+
+@pytest.fixture
+def requires_pre_v08(spec_kitty_version):
+    """Skip test if spec-kitty >= 0.8.0
+
+    Use for legacy tests that test project-level missions (< v0.8.0).
+
+    Example:
+        def test_active_mission_symlink(requires_pre_v08, temp_project_dir):
+            # This test only runs on < v0.8.0 (active-mission was removed)
+    """
+    if spec_kitty_version >= (0, 8, 0):
+        pytest.skip("Legacy test for spec-kitty < 0.8.0 (active-mission removed)")
+
+
+@pytest.fixture
+def mission_is_per_feature(spec_kitty_version):
+    """Returns True if missions are per-feature (v0.8.0+), False if per-project.
+
+    Use for tests that need to adapt behavior based on version.
+
+    Example:
+        def test_mission_works(mission_is_per_feature, temp_project_dir):
+            if mission_is_per_feature:
+                # Check meta.json for mission
+            else:
+                # Check active-mission symlink
+    """
+    return spec_kitty_version >= (0, 8, 0)
 
 
 @pytest.fixture(autouse=True)

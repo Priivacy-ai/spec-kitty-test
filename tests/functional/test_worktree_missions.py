@@ -10,7 +10,7 @@ causing plan phase to fail with "Active mission directory not found".
 Test Coverage:
 1. Mission Copy Validation (3 tests)
    - Missions directory copied to worktree
-   - Active mission symlink works in worktree
+   - Active mission symlink works in worktree [LEGACY: < v0.8.0]
    - Mission templates accessible in worktree
 
 2. Plan Phase Prerequisites (3 tests)
@@ -20,7 +20,11 @@ Test Coverage:
 
 3. Mission Corruption Scenarios (2 tests)
    - Empty missions directory detected
-   - Broken active-mission symlink handled
+   - Broken active-mission symlink handled [LEGACY: < v0.8.0]
+
+Note: Tests marked [LEGACY] test active-mission symlink behavior which was
+removed in v0.8.0. These tests are skipped on v0.8.0+ where missions are
+per-feature (stored in meta.json).
 """
 
 import json
@@ -125,8 +129,15 @@ class TestMissionCopyValidation:
         assert software_dev.exists(), "software-dev mission should be copied to worktree"
         assert software_dev.is_dir(), "software-dev should be a directory"
 
-    def test_active_mission_symlink_in_worktree(self, temp_project_dir, spec_kitty_repo_root):
-        """Test: active-mission symlink points to valid mission in worktree"""
+    def test_active_mission_symlink_in_worktree(
+        self, temp_project_dir, spec_kitty_repo_root, requires_pre_v08
+    ):
+        """Test: active-mission symlink points to valid mission in worktree
+
+        [LEGACY TEST - v0.7.x and earlier only]
+        This test verifies the active-mission symlink which was removed in v0.8.0.
+        In v0.8.0+, missions are stored per-feature in meta.json instead.
+        """
         project_name = 'test_active_mission'
         project_path = temp_project_dir / project_name
 
@@ -470,8 +481,15 @@ class TestMissionCorruptionScenarios:
         assert 'mission' in (result.stderr + result.stdout).lower(), \
             "Error should mention missions"
 
-    def test_broken_active_mission_symlink(self, temp_project_dir, spec_kitty_repo_root):
-        """Test: Broken active-mission symlink with missing missions directory fails"""
+    def test_broken_active_mission_symlink(
+        self, temp_project_dir, spec_kitty_repo_root, requires_pre_v08
+    ):
+        """Test: Broken active-mission symlink with missing missions directory fails
+
+        [LEGACY TEST - v0.7.x and earlier only]
+        This test verifies error handling for broken active-mission symlinks,
+        which were removed in v0.8.0 where missions are per-feature.
+        """
         project_name = 'test_broken_symlink'
         project_path = temp_project_dir / project_name
 

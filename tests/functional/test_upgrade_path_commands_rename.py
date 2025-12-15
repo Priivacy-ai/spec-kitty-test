@@ -626,7 +626,9 @@ class TestCleanUpgrade:
 class TestRealWorldScenario:
     """Test based on actual agentfunc project structure."""
 
-    def test_replicate_agentfunc_structure(self, spec_kitty_repo_root, agentfunc_structure):
+    def test_replicate_agentfunc_structure(
+        self, spec_kitty_repo_root, agentfunc_structure, spec_kitty_version
+    ):
         """Test: Replicate agentfunc's doubled-command scenario"""
         temp_dir = tempfile.mkdtemp()
         try:
@@ -636,8 +638,14 @@ class TestRealWorldScenario:
             env = os.environ.copy()
             env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
+            # Build init command - --mission flag removed in v0.8.0
+            init_cmd = ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools']
+            if spec_kitty_version < (0, 8, 0):
+                # Pre-v0.8.0: use --mission flag on init
+                init_cmd.insert(4, '--mission=research')
+
             subprocess.run(
-                ['spec-kitty', 'init', project_name, '--ai=claude', '--mission=research', '--ignore-agent-tools'],
+                init_cmd,
                 cwd=temp_dir,
                 env=env,
                 input='y\n',
