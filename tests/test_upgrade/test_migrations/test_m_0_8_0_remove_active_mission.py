@@ -1,8 +1,11 @@
 """
-Test Migration 0.8.0: Per-Feature Missions
+Test Migration 0.8.0: Remove Active Mission
 
-Tests the migration that removes project-level mission selection and
-transitions to per-feature missions stored in meta.json.
+Tests the migration that removes project-level .kittify/active-mission
+file/symlink as part of the transition to per-feature missions.
+
+Migration ID: 0.8.0_remove_active_mission
+Class: RemoveActiveMissionMigration
 
 Breaking Changes in v0.8.0:
 - Remove --mission flag from spec-kitty init
@@ -14,7 +17,7 @@ Test Coverage:
 1. Detection (3 tests)
    - Detects active-mission symlink exists
    - No detection when active-mission doesn't exist
-   - No detection on fresh v0.8.0+ project
+   - Detects active-mission as regular file
 
 2. Migration Execution (3 tests)
    - Removes active-mission symlink
@@ -23,7 +26,7 @@ Test Coverage:
 
 3. Edge Cases (2 tests)
    - Handles broken active-mission symlink
-   - Handles active-mission pointing to non-existent mission
+   - Dry run shows changes without applying
 
 4. Integration (2 tests)
    - Migration is registered in registry
@@ -38,8 +41,8 @@ from pathlib import Path
 import pytest
 
 
-class TestPerFeatureMissionsMigration:
-    """Test the 0.8.0 per-feature missions migration."""
+class TestRemoveActiveMissionMigration:
+    """Test the 0.8.0 remove active-mission migration."""
 
     @pytest.fixture
     def temp_project_dir(self, tmp_path):
@@ -99,13 +102,13 @@ class TestPerFeatureMissionsMigration:
         THEN: Should return True (migration needed)
         """
         try:
-            from specify_cli.upgrade.migrations.m_0_8_0_per_feature_missions import (
-                PerFeatureMissionsMigration,
+            from specify_cli.upgrade.migrations.m_0_8_0_remove_active_mission import (
+                RemoveActiveMissionMigration,
             )
         except ImportError:
             pytest.skip("PerFeatureMissionsMigration not yet implemented")
 
-        migration = PerFeatureMissionsMigration()
+        migration = RemoveActiveMissionMigration()
 
         # Verify active-mission exists
         active_mission = project_with_active_mission / '.kittify' / 'active-mission'
@@ -125,13 +128,13 @@ class TestPerFeatureMissionsMigration:
         THEN: Should return False (no migration needed)
         """
         try:
-            from specify_cli.upgrade.migrations.m_0_8_0_per_feature_missions import (
-                PerFeatureMissionsMigration,
+            from specify_cli.upgrade.migrations.m_0_8_0_remove_active_mission import (
+                RemoveActiveMissionMigration,
             )
         except ImportError:
             pytest.skip("PerFeatureMissionsMigration not yet implemented")
 
-        migration = PerFeatureMissionsMigration()
+        migration = RemoveActiveMissionMigration()
 
         project_name = "test_no_active_mission"
         project_path = temp_project_dir / project_name
@@ -168,13 +171,13 @@ class TestPerFeatureMissionsMigration:
         THEN: Should return True (file should also be removed)
         """
         try:
-            from specify_cli.upgrade.migrations.m_0_8_0_per_feature_missions import (
-                PerFeatureMissionsMigration,
+            from specify_cli.upgrade.migrations.m_0_8_0_remove_active_mission import (
+                RemoveActiveMissionMigration,
             )
         except ImportError:
             pytest.skip("PerFeatureMissionsMigration not yet implemented")
 
-        migration = PerFeatureMissionsMigration()
+        migration = RemoveActiveMissionMigration()
 
         project_name = "test_active_mission_file"
         project_path = temp_project_dir / project_name
@@ -216,13 +219,13 @@ class TestPerFeatureMissionsMigration:
         THEN: Symlink should be removed
         """
         try:
-            from specify_cli.upgrade.migrations.m_0_8_0_per_feature_missions import (
-                PerFeatureMissionsMigration,
+            from specify_cli.upgrade.migrations.m_0_8_0_remove_active_mission import (
+                RemoveActiveMissionMigration,
             )
         except ImportError:
             pytest.skip("PerFeatureMissionsMigration not yet implemented")
 
-        migration = PerFeatureMissionsMigration()
+        migration = RemoveActiveMissionMigration()
 
         active_mission = project_with_active_mission / '.kittify' / 'active-mission'
 
@@ -248,13 +251,13 @@ class TestPerFeatureMissionsMigration:
         THEN: File should be removed
         """
         try:
-            from specify_cli.upgrade.migrations.m_0_8_0_per_feature_missions import (
-                PerFeatureMissionsMigration,
+            from specify_cli.upgrade.migrations.m_0_8_0_remove_active_mission import (
+                RemoveActiveMissionMigration,
             )
         except ImportError:
             pytest.skip("PerFeatureMissionsMigration not yet implemented")
 
-        migration = PerFeatureMissionsMigration()
+        migration = RemoveActiveMissionMigration()
 
         project_name = "test_remove_file"
         project_path = temp_project_dir / project_name
@@ -295,13 +298,13 @@ class TestPerFeatureMissionsMigration:
         THEN: missions/ directory should be preserved (only symlink removed)
         """
         try:
-            from specify_cli.upgrade.migrations.m_0_8_0_per_feature_missions import (
-                PerFeatureMissionsMigration,
+            from specify_cli.upgrade.migrations.m_0_8_0_remove_active_mission import (
+                RemoveActiveMissionMigration,
             )
         except ImportError:
             pytest.skip("PerFeatureMissionsMigration not yet implemented")
 
-        migration = PerFeatureMissionsMigration()
+        migration = RemoveActiveMissionMigration()
 
         missions_dir = project_with_active_mission / '.kittify' / 'missions'
 
@@ -333,13 +336,13 @@ class TestPerFeatureMissionsMigration:
         THEN: Broken symlink should be removed without error
         """
         try:
-            from specify_cli.upgrade.migrations.m_0_8_0_per_feature_missions import (
-                PerFeatureMissionsMigration,
+            from specify_cli.upgrade.migrations.m_0_8_0_remove_active_mission import (
+                RemoveActiveMissionMigration,
             )
         except ImportError:
             pytest.skip("PerFeatureMissionsMigration not yet implemented")
 
-        migration = PerFeatureMissionsMigration()
+        migration = RemoveActiveMissionMigration()
 
         project_name = "test_broken_symlink"
         project_path = temp_project_dir / project_name
@@ -384,13 +387,13 @@ class TestPerFeatureMissionsMigration:
         THEN: Should report changes but not modify anything
         """
         try:
-            from specify_cli.upgrade.migrations.m_0_8_0_per_feature_missions import (
-                PerFeatureMissionsMigration,
+            from specify_cli.upgrade.migrations.m_0_8_0_remove_active_mission import (
+                RemoveActiveMissionMigration,
             )
         except ImportError:
             pytest.skip("PerFeatureMissionsMigration not yet implemented")
 
-        migration = PerFeatureMissionsMigration()
+        migration = RemoveActiveMissionMigration()
 
         active_mission = project_with_active_mission / '.kittify' / 'active-mission'
 
@@ -408,15 +411,15 @@ class TestPerFeatureMissionsMigration:
             "active-mission should still exist after dry run"
 
 
-class TestPerFeatureMissionsIntegration:
-    """Integration tests for the 0.8.0 migration."""
+class TestRemoveActiveMissionIntegration:
+    """Integration tests for the 0.8.0 remove active-mission migration."""
 
     def test_migration_registered(self):
         """Test: Migration is registered in the registry
 
         GIVEN: The migration module is loaded
         WHEN: Checking MigrationRegistry
-        THEN: 0.8.0_per_feature_missions should be registered
+        THEN: 0.8.0_remove_active_mission should be registered
 
         Note: Skips if migration not yet implemented (pre-v0.8.0)
         """
@@ -429,11 +432,11 @@ class TestPerFeatureMissionsIntegration:
         migration_ids = [m.migration_id for m in all_migrations]
 
         # Skip if migration not yet implemented
-        if "0.8.0_per_feature_missions" not in migration_ids:
-            pytest.skip("0.8.0_per_feature_missions migration not yet implemented")
+        if "0.8.0_remove_active_mission" not in migration_ids:
+            pytest.skip("0.8.0_remove_active_mission migration not yet implemented")
 
-        assert "0.8.0_per_feature_missions" in migration_ids, \
-            "0.8.0_per_feature_missions should be registered"
+        assert "0.8.0_remove_active_mission" in migration_ids, \
+            "0.8.0_remove_active_mission should be registered"
 
     def test_migration_ordered_after_0_7_2(self):
         """Test: Migration comes after 0.7.2
