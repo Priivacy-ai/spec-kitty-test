@@ -1,8 +1,12 @@
 """
-Task Approval System Tests
+Task Approval System Tests (v0.8.x - directory-based lanes)
 
 Tests the dedicated task approval command (commit 0f3a16b) that ensures
 proper reviewer attribution in frontmatter and activity logs.
+
+IMPORTANT: These tests use directory-based lanes (tasks/for_review/, tasks/done/).
+In v0.9.0+, all WP files live in flat tasks/ directory and the approve command
+may behave differently. See test_frontmatter_only_lanes.py for v0.9.0+ tests.
 
 Background:
 ----------
@@ -55,6 +59,8 @@ Test Coverage:
 6. Git Operations (2 tests)
    - Source file removed (git rm)
    - Target file added (git add)
+
+Note: Tests require spec-kitty < 0.9.0 (directory-based lanes)
 """
 
 import os
@@ -63,6 +69,29 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
+
+def _get_spec_kitty_version():
+    """Get spec-kitty version at module load time for skipif."""
+    try:
+        result = subprocess.run(
+            ['spec-kitty', '--version'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        version_str = result.stdout.strip().split()[-1]
+        return tuple(map(int, version_str.split('.')))
+    except Exception:
+        return (0, 0, 0)
+
+
+# These tests use directory-based lanes (tasks/for_review/, tasks/done/)
+# v0.9.0+ uses flat structure with frontmatter-only lanes
+pytestmark = pytest.mark.skipif(
+    _get_spec_kitty_version() >= (0, 9, 0),
+    reason="Directory-based approval tests only apply to < 0.9.0"
+)
 
 
 @pytest.fixture

@@ -1,8 +1,12 @@
 """
-Test Tasks Directory Scaffolding (v0.8.0+)
+Test Tasks Directory Scaffolding (v0.8.0 - v0.8.x)
 
 Tests the tasks directory structure that guides agents to use correct
 kanban lanes and frontmatter format when generating work packages.
+
+IMPORTANT: These tests only apply to v0.8.x. In v0.9.0+, the lane
+subdirectories are eliminated in favor of flat tasks/ with frontmatter-only
+lane tracking. See test_frontmatter_only_lanes.py for v0.9.0+ tests.
 
 Bug Context:
 - Agents were dumping WP files in flat tasks/ directory
@@ -28,7 +32,7 @@ Test Coverage:
 3. File Naming Guide (1 test)
    - README documents WP01 format (not WP-01)
 
-Note: Tests require spec-kitty >= 0.8.0
+Note: Tests require spec-kitty >= 0.8.0 and < 0.9.0
 """
 
 import json
@@ -37,6 +41,29 @@ import subprocess
 from pathlib import Path
 
 import pytest
+
+
+def _get_spec_kitty_version():
+    """Get spec-kitty version at module load time for skipif."""
+    try:
+        result = subprocess.run(
+            ['spec-kitty', '--version'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        version_str = result.stdout.strip().split()[-1]
+        return tuple(map(int, version_str.split('.')))
+    except Exception:
+        return (0, 0, 0)
+
+
+# These tests only apply to v0.8.x (directory-based lanes)
+# v0.9.0+ uses flat structure - see test_frontmatter_only_lanes.py
+pytestmark = pytest.mark.skipif(
+    _get_spec_kitty_version() >= (0, 9, 0),
+    reason="Directory-based lane tests only apply to v0.8.x (< 0.9.0)"
+)
 
 
 class TestTasksDirectoryScaffolding:
