@@ -497,7 +497,8 @@ class TestWorktreeAutoUpgrade:
         new_metadata = ProjectMetadata.load(new_worktree / '.kittify')
 
         if new_metadata:
-            assert new_metadata.version.startswith('0.6') or new_metadata.version.startswith('0.7'), \
+            # Accept any 0.x version (0.6, 0.7, 0.8, 0.9, etc.)
+            assert new_metadata.version.startswith('0.'), \
                 f"New worktree should have current version, got {new_metadata.version}"
 
     def test_upgrade_output_shows_worktrees(self, v0_6_4_project, create_project_with_worktrees):

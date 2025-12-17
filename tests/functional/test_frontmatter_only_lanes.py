@@ -676,7 +676,7 @@ title: "Completed Task"
         tasks_cli = project_path / '.kittify' / 'scripts' / 'tasks' / 'tasks_cli.py'
 
         result = subprocess.run(
-            ['python3', str(tasks_cli), 'status', feature],
+            ['python3', str(tasks_cli), 'status', '--feature', feature],
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -743,7 +743,7 @@ lane: "for_review"
         tasks_cli = project_path / '.kittify' / 'scripts' / 'tasks' / 'tasks_cli.py'
 
         result = subprocess.run(
-            ['python3', str(tasks_cli), 'status', feature],
+            ['python3', str(tasks_cli), 'status', '--feature', feature],
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -800,7 +800,7 @@ title: "No Lane Field"
         tasks_cli = project_path / '.kittify' / 'scripts' / 'tasks' / 'tasks_cli.py'
 
         result = subprocess.run(
-            ['python3', str(tasks_cli), 'status', feature],
+            ['python3', str(tasks_cli), 'status', '--feature', feature],
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -872,7 +872,7 @@ lane: "planned"
         tasks_cli = project_path / '.kittify' / 'scripts' / 'tasks' / 'tasks_cli.py'
 
         result = subprocess.run(
-            ['python3', str(tasks_cli), 'status', feature],
+            ['python3', str(tasks_cli), 'status', '--feature', feature],
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -928,7 +928,7 @@ lane: "planned"
         tasks_cli = project_path / '.kittify' / 'scripts' / 'tasks' / 'tasks_cli.py'
 
         result = subprocess.run(
-            ['python3', str(tasks_cli), 'status', feature],
+            ['python3', str(tasks_cli), 'status', '--feature', feature],
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -937,8 +937,8 @@ lane: "planned"
 
         output = (result.stdout + result.stderr).lower()
 
-        # Should NOT show legacy warning
-        assert 'legacy' not in output, \
+        # Should NOT show legacy warning (check for actual warning patterns, not "legacy" in path)
+        assert 'legacy format' not in output and 'legacy structure' not in output, \
             "Flat structure should NOT trigger legacy warning"
 
     def test_legacy_warning_suggests_upgrade(
@@ -983,7 +983,7 @@ work_package_id: WP01
         tasks_cli = project_path / '.kittify' / 'scripts' / 'tasks' / 'tasks_cli.py'
 
         result = subprocess.run(
-            ['python3', str(tasks_cli), 'status', feature],
+            ['python3', str(tasks_cli), 'status', '--feature', feature],
             cwd=project_path,
             capture_output=True,
             text=True,
@@ -1050,6 +1050,15 @@ lane: "doing"
 # WP02
 ''')
 
+        # Downgrade metadata version to 0.8.0 so migration will run
+        import yaml
+        metadata_file = project_path / '.kittify' / 'metadata.yaml'
+        with open(metadata_file) as f:
+            metadata = yaml.safe_load(f)
+        metadata['spec_kitty']['version'] = '0.8.0'
+        with open(metadata_file, 'w') as f:
+            yaml.dump(metadata, f, default_flow_style=False)
+
         subprocess.run(['git', 'add', '.'], cwd=project_path, check=True)
         subprocess.run(['git', 'commit', '-m', 'Initial'], cwd=project_path, check=True)
 
@@ -1109,6 +1118,15 @@ title: "Review Task"
 ---
 # WP01
 ''')
+
+        # Downgrade metadata version to 0.8.0 so migration will run
+        import yaml
+        metadata_file = project_path / '.kittify' / 'metadata.yaml'
+        with open(metadata_file) as f:
+            metadata = yaml.safe_load(f)
+        metadata['spec_kitty']['version'] = '0.8.0'
+        with open(metadata_file, 'w') as f:
+            yaml.dump(metadata, f, default_flow_style=False)
 
         subprocess.run(['git', 'add', '.'], cwd=project_path, check=True)
         subprocess.run(['git', 'commit', '-m', 'Initial'], cwd=project_path, check=True)
@@ -1224,6 +1242,15 @@ lane: "planned"
 ---
 # WP01
 ''')
+
+        # Downgrade metadata version to 0.8.0 so migration will run
+        import yaml
+        metadata_file = project_path / '.kittify' / 'metadata.yaml'
+        with open(metadata_file) as f:
+            metadata = yaml.safe_load(f)
+        metadata['spec_kitty']['version'] = '0.8.0'
+        with open(metadata_file, 'w') as f:
+            yaml.dump(metadata, f, default_flow_style=False)
 
         subprocess.run(['git', 'add', '.'], cwd=project_path, check=True)
         subprocess.run(['git', 'commit', '-m', 'Initial'], cwd=project_path, check=True)

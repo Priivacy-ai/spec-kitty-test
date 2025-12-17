@@ -125,18 +125,19 @@ class TestArtifactDetection:
 
         artifacts = get_feature_artifacts(feature_dir)
 
-        assert artifacts['spec'] == True, "Should detect spec.md exists"
-        assert artifacts['plan'] == False, "Should detect plan.md doesn't exist"
-        assert artifacts['tasks'] == False, "Should detect tasks.md doesn't exist"
-        assert artifacts['kanban'] == False, "Should detect tasks/ directory doesn't exist"
+        # v0.9.0+: artifacts return dict with 'exists', 'mtime', 'size' keys
+        assert artifacts['spec']['exists'] == True, "Should detect spec.md exists"
+        assert artifacts['plan']['exists'] == False, "Should detect plan.md doesn't exist"
+        assert artifacts['tasks']['exists'] == False, "Should detect tasks.md doesn't exist"
+        assert artifacts['kanban']['exists'] == False, "Should detect tasks/ directory doesn't exist"
 
         # Now create plan.md
         plan_file = feature_dir / 'plan.md'
         plan_file.write_text("# Implementation Plan\n\nTest plan content")
 
         artifacts = get_feature_artifacts(feature_dir)
-        assert artifacts['spec'] == True, "Should still detect spec.md"
-        assert artifacts['plan'] == True, "Should now detect plan.md exists"
+        assert artifacts['spec']['exists'] == True, "Should still detect spec.md"
+        assert artifacts['plan']['exists'] == True, "Should now detect plan.md exists"
 
     def test_artifact_types_detected(self, temp_project_dir, spec_kitty_repo_root):
         """Test: All artifact types are correctly detected"""
@@ -185,15 +186,16 @@ class TestArtifactDetection:
 
         artifacts = get_feature_artifacts(feature_dir)
 
-        assert artifacts['spec'] == True, "Should detect spec.md"
-        assert artifacts['plan'] == True, "Should detect plan.md"
-        assert artifacts['tasks'] == True, "Should detect tasks.md"
-        assert artifacts['research'] == True, "Should detect research.md"
-        assert artifacts['quickstart'] == True, "Should detect quickstart.md"
-        assert artifacts['data_model'] == True, "Should detect data-model.md"
-        assert artifacts['contracts'] == True, "Should detect contracts/ directory"
-        assert artifacts['checklists'] == True, "Should detect checklists/ directory"
-        assert artifacts['kanban'] == True, "Should detect tasks/ kanban directory"
+        # v0.9.0+: artifacts return dict with 'exists', 'mtime', 'size' keys
+        assert artifacts['spec']['exists'] == True, "Should detect spec.md"
+        assert artifacts['plan']['exists'] == True, "Should detect plan.md"
+        assert artifacts['tasks']['exists'] == True, "Should detect tasks.md"
+        assert artifacts['research']['exists'] == True, "Should detect research.md"
+        assert artifacts['quickstart']['exists'] == True, "Should detect quickstart.md"
+        assert artifacts['data_model']['exists'] == True, "Should detect data-model.md"
+        assert artifacts['contracts']['exists'] == True, "Should detect contracts/ directory"
+        assert artifacts['checklists']['exists'] == True, "Should detect checklists/ directory"
+        assert artifacts['kanban']['exists'] == True, "Should detect tasks/ kanban directory"
 
 
 class TestWorkflowStatusDetection:
