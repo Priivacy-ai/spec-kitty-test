@@ -195,7 +195,6 @@ class TestMigrationDetection:
         # (This validates our test fixture setup)
         assert bash_refs_found or True, "Test fixture should have bash references"
 
-    @pytest.mark.xfail(reason="BUG FOUND: New projects still create 16 bash scripts. Init templates not updated yet.")
     def test_does_not_trigger_on_clean_project(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: Clean v0.10.0 projects don't need migration
@@ -205,11 +204,10 @@ class TestMigrationDetection:
         - Migration doesn't run unnecessarily
         - No-op migration is fast
 
-        CURRENT FINDING: This test FAILS - new projects still have bash scripts!
-        Expected: 0 bash scripts in new v0.10.0 projects
-        Actual: 16 bash scripts still created by spec-kitty init
-
-        This indicates init templates haven't been updated to v0.10.0 yet.
+        BUG #1 RESOLUTION: ✅ FIXED in commit a6dce6a
+        - Init templates updated to remove bash/PowerShell scripts
+        - New projects now Python-only
+        - This test now PASSES
         """
         project_name = "clean_project"
         project_path = temp_project_dir / project_name
