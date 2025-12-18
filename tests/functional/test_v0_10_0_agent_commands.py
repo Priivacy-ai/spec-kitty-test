@@ -113,6 +113,62 @@ def _extract_json_from_output(output: str) -> dict:
 class TestAgentCommandDiscovery:
     """Test that spec-kitty agent commands exist and are discoverable."""
 
+    def test_init_creates_slash_commands(self, spec_kitty_repo_root):
+        """
+        Test: spec-kitty init copies command templates to .claude/commands/
+
+        Validates:
+        - .claude/commands/ directory is created
+        - Mission templates copied as spec-kitty.*.md
+        - All 13 slash commands are available after init
+        - Agents can discover commands without manual setup
+
+        BUG #6 DISCOVERED: Init creates mission templates but doesn't copy
+        them to .claude/commands/. Users must manually copy or commands
+        don't appear in Claude Code.
+
+        Expected: .claude/commands/spec-kitty.specify.md exists after init
+        Actual: .claude/commands/ is empty or missing spec-kitty commands
+
+        Impact: HIGH - Users can't use spec-kitty without manual setup
+        Root Cause: Init command doesn't populate .claude/commands/ from
+                    mission templates in .kittify/missions/*/command-templates/
+        """
+        import tempfile
+        import os
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            temp_dir = Path(tmpdir)
+            project_name = "test_init_commands"
+            project_path = temp_dir / project_name
+
+            env = os.environ.copy()
+            env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+            # Init project
+            result = subprocess.run(
+                ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
+                cwd=temp_dir,
+                env=env,
+                input='y\n',
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=True
+            )
+
+            # .claude/commands/ should exist with spec-kitty commands
+            commands_dir = project_path / '.claude' / 'commands'
+            assert commands_dir.exists(), ".claude/commands/ should be created"
+
+            # Check for spec-kitty slash commands
+            spec_kitty_commands = list(commands_dir.glob('spec-kitty.*.md'))
+            assert len(spec_kitty_commands) >= 11, (
+                f"Should have at least 11 spec-kitty slash commands. "
+                f"Found {len(spec_kitty_commands)}: {[c.name for c in spec_kitty_commands]}\n"
+                f"Mission templates exist in .kittify/missions/ but weren't copied to .claude/commands/"
+            )
+
     def test_agent_command_exists(self):
         """
         Test: `spec-kitty agent --help` works
