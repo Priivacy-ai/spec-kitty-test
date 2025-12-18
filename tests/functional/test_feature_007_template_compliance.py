@@ -105,7 +105,6 @@ class TestCommandTemplateCompliance:
 
         return project_path
 
-    @pytest.mark.xfail(reason="BUG: tasks.md template still instructs subdirectory creation (Feature 007 violation)")
     def test_tasks_template_no_subdirectory_instructions(self, initialized_project):
         """
         Test: tasks.md template does NOT instruct subdirectory creation
@@ -227,7 +226,6 @@ class TestCommandTemplateCompliance:
                 "merge.md should not reference tasks/done/ subdirectory"
             )
 
-    @pytest.mark.xfail(reason="BUG: Templates don't reference frontmatter lane: field")
     def test_templates_reference_frontmatter_lanes(self, initialized_project):
         """
         Test: Templates instruct using frontmatter lane: field
@@ -300,7 +298,6 @@ class TestCommandTemplateCompliance:
             "\n".join(f"  {name}:\n    " + "\n    ".join(v) for name, v in violations.items())
         )
 
-    @pytest.mark.xfail(reason="BUG: software-dev mission templates not updated")
     def test_software_dev_mission_templates_compliance(self, initialized_project):
         """
         Test: software-dev mission templates updated for Feature 007
