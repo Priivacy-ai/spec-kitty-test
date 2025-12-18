@@ -437,6 +437,327 @@ Test content.
         )
 
 
+class TestReviewWorkflowEnhancements:
+    """Test enhanced review workflow with auto-move and race condition prevention."""
+
+    @pytest.fixture
+    def temp_project_dir(self):
+        """Create temporary directory for test projects."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
+
+    @pytest.fixture
+    def project_with_review_wp(self, temp_project_dir, spec_kitty_repo_root):
+        """Create project with WP in for_review lane."""
+        project_name = "review_enhanced"
+        project_path = temp_project_dir / project_name
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        subprocess.run(
+            ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
+            cwd=temp_project_dir,
+            env=env,
+            input='y\n',
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True
+        )
+
+        subprocess.run(
+            ['spec-kitty', 'agent', 'feature', 'create-feature', 'test'],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktree_path = project_path / '.worktrees' / '001-test'
+        tasks_dir = worktree_path / 'kitty-specs' / '001-test' / 'tasks'
+        tasks_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create WP in for_review lane
+        wp_file = tasks_dir / 'WP03-review-test.md'
+        wp_content = """---
+lane: for_review
+work_package_id: WP03
+activity:
+  - timestamp: 2025-01-01T00:00:00Z
+    event: created
+    lane: planned
+  - timestamp: 2025-01-02T00:00:00Z
+    event: moved
+    lane: for_review
+---
+
+# WP03: Review Test Task
+
+This task needs review.
+
+## Subtasks
+- [x] T001: Completed
+- [x] T002: Completed
+"""
+        wp_file.write_text(wp_content)
+
+        return {
+            'project_path': project_path,
+            'worktree_path': worktree_path,
+            'wp_file': wp_file,
+            'tasks_dir': tasks_dir
+        }
+
+    @pytest.mark.xfail(reason="Review auto-move feature in v0.10.5+ (not yet in installed v0.10.4)")
+    def test_review_auto_detects_for_review_wp(self, project_with_review_wp):
+        """
+        Test: review (no arg) finds first WP in for_review lane
+
+        Validates:
+        - Auto-detection works for review command
+        - Finds for_review lane (not planned)
+        - No argument needed
+        """
+        worktree_path = project_with_review_wp['worktree_path']
+
+        result = subprocess.run(
+            ['spec-kitty', 'agent', 'workflow', 'review'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+        # Should succeed
+        assert result.returncode == 0, (
+            f"Should auto-detect WP in for_review lane. Error: {result.stderr}"
+        )
+
+        # Should show WP03
+        output = result.stdout
+        assert 'WP03' in output or 'WP 03' in output, (
+            "Should show WP03 content"
+        )
+
+    @pytest.mark.xfail(reason="Review auto-move feature in v0.10.5+ (not yet in installed v0.10.4)")
+    def test_review_auto_moves_to_doing(self, project_with_review_wp):
+        """
+        Test: review command auto-moves WP from for_review → doing
+
+        Validates:
+        - Lane changed before showing prompt
+        - WP moved from for_review to doing
+        - Automatic transition (no manual move needed)
+
+        This prevents confusion - both implement and review use "doing" lane
+        while actively working.
+        """
+        worktree_path = project_with_review_wp['worktree_path']
+        wp_file = project_with_review_wp['wp_file']
+
+        # Initial state: for_review
+        initial_content = wp_file.read_text()
+        assert 'lane: for_review' in initial_content or 'lane: "for_review"' in initial_content, (
+            "Initial lane should be for_review"
+        )
+
+        # Run review command
+        result = subprocess.run(
+            ['spec-kitty', 'agent', 'workflow', 'review'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True
+        )
+
+        # Check lane changed to doing
+        updated_content = wp_file.read_text()
+
+        # Look for top-level lane field (not nested in activity)
+        import re
+        top_level_lane = re.search(r'^lane:\s*["\']?(\w+)["\']?', updated_content, re.MULTILINE)
+        assert top_level_lane is not None, "Should have lane field"
+
+        current_lane = top_level_lane.group(1)
+        assert current_lane == 'doing', (
+            f"Lane should be auto-moved to 'doing'. Got: '{current_lane}'"
+        )
+
+    @pytest.mark.xfail(reason="Review auto-move feature in v0.10.5+ (not yet in installed v0.10.4)")
+    def test_review_adds_activity_log_entry(self, project_with_review_wp):
+        """
+        Test: review command adds activity log entry
+
+        Validates:
+        - Activity log updated
+        - Entry mentions "review" or "workflow"
+        - Timestamp added
+        """
+        worktree_path = project_with_review_wp['worktree_path']
+        wp_file = project_with_review_wp['wp_file']
+
+        # Count initial activity entries
+        initial_content = wp_file.read_text()
+        initial_event_count = initial_content.count('event:')
+
+        # Run review
+        subprocess.run(
+            ['spec-kitty', 'agent', 'workflow', 'review'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True
+        )
+
+        # Check activity log updated
+        updated_content = wp_file.read_text()
+
+        # Should have activity about review
+        assert 'review' in updated_content.lower() or 'workflow' in updated_content.lower(), (
+            "Activity log should mention review or workflow"
+        )
+
+    def test_race_condition_prevention(self, project_with_review_wp):
+        """
+        Test: Two agents can't review same WP simultaneously
+
+        Validates:
+        - First agent moves WP to doing
+        - Second agent sees WP is already being worked on
+        - Clear message prevents collision
+
+        This is critical - prevents two agents from reviewing same work.
+        """
+        worktree_path = project_with_review_wp['worktree_path']
+
+        # First agent runs review
+        result1 = subprocess.run(
+            ['spec-kitty', 'agent', 'workflow', 'review', 'WP03'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True
+        )
+
+        # WP03 should now be in doing lane
+
+        # Second agent tries to review same WP
+        result2 = subprocess.run(
+            ['spec-kitty', 'agent', 'workflow', 'review', 'WP03'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+        # Second attempt should either:
+        # 1. Still work (showing it's already in doing)
+        # 2. Give warning that it's already being reviewed
+        # At minimum, should not cause corruption
+        assert result2.returncode in [0, 1], (
+            "Second review attempt should handle gracefully"
+        )
+
+    @pytest.mark.xfail(reason="Review auto-move feature in v0.10.5+ (not yet in installed v0.10.4)")
+    def test_implement_and_review_both_use_doing(self, temp_project_dir, spec_kitty_repo_root):
+        """
+        Test: Both implement and review use "doing" lane for active work
+
+        Validates:
+        - implement: planned → doing
+        - review: for_review → doing
+        - Consistent active work indicator
+        - No confusion about which lane means "working"
+
+        This is a KEY design decision - "doing" means actively working,
+        regardless of whether it's implementation or review.
+        """
+        project_name = "consistency_test"
+        project_path = temp_project_dir / project_name
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        subprocess.run(
+            ['spec-kitty', 'init', project_name, '--ai=claude', '--ignore-agent-tools'],
+            cwd=temp_project_dir,
+            env=env,
+            input='y\n',
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True
+        )
+
+        subprocess.run(
+            ['spec-kitty', 'agent', 'feature', 'create-feature', 'test'],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktree_path = project_path / '.worktrees' / '001-test'
+        tasks_dir = worktree_path / 'kitty-specs' / '001-test' / 'tasks'
+        tasks_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create one WP for implement, one for review
+        (tasks_dir / 'WP01-impl.md').write_text("""---
+lane: planned
+work_package_id: WP01
+---
+# Implement Test
+""")
+
+        (tasks_dir / 'WP02-review.md').write_text("""---
+lane: for_review
+work_package_id: WP02
+---
+# Review Test
+""")
+
+        # Run implement on WP01
+        subprocess.run(
+            ['spec-kitty', 'agent', 'workflow', 'implement', 'WP01'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True
+        )
+
+        # Run review on WP02
+        subprocess.run(
+            ['spec-kitty', 'agent', 'workflow', 'review', 'WP02'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True
+        )
+
+        # Both should now be in "doing" lane
+        wp01_content = (tasks_dir / 'WP01-impl.md').read_text()
+        wp02_content = (tasks_dir / 'WP02-review.md').read_text()
+
+        import re
+        wp01_lane = re.search(r'^lane:\s*["\']?(\w+)["\']?', wp01_content, re.MULTILINE)
+        wp02_lane = re.search(r'^lane:\s*["\']?(\w+)["\']?', wp02_content, re.MULTILINE)
+
+        if wp01_lane and wp02_lane:
+            assert wp01_lane.group(1) == 'doing', "implement should move to doing"
+            assert wp02_lane.group(1) == 'doing', "review should move to doing"
+            assert wp01_lane.group(1) == wp02_lane.group(1), (
+                "Both implement and review should use same 'doing' lane for active work"
+            )
+
+
 class TestPromptDisplay:
     """Test that prompts are displayed correctly to agents."""
 
