@@ -6,15 +6,38 @@ Comprehensive testing framework for [Spec-Kitty](https://github.com/Priivacy-ai/
 
 ## Purpose
 
-This repository provides extensive functional testing for Spec-Kitty, helping to:
+This repository provides extensive testing for Spec-Kitty, helping to:
 
 - ✅ Verify CLI commands work correctly across versions
 - ✅ Catch regressions before they reach users
 - ✅ Document bugs with reproducible test cases
 - ✅ Validate UX for both humans and LLM agents
 - ✅ Test real-world workflows end-to-end
+- ✅ **Ensure package distribution correctness (NEW - Critical!)**
 
 **By testing spec-kitty directly, we identify issues, document findings, and make it better for everyone.**
+
+---
+
+## ⚠️ Critical: Dual Testing Strategy (Updated 2026-01-06)
+
+**A catastrophic bug affecting 100% of PyPI users shipped through 8+ releases despite 323 passing tests.**
+
+We now use a **dual testing strategy**:
+
+### 1. Functional Tests (`tests/functional/`)
+- **323 tests** - Fast development iteration
+- Uses `SPEC_KITTY_TEMPLATE_ROOT` for local testing
+- Tests code correctness and features
+
+### 2. Distribution Tests (`tests/distribution/`) ⭐ **NEW**
+- **44+ tests** - Real user experience validation
+- NO environment overrides
+- Tests package distribution correctness
+
+**Key Principle:** *"Test what you ship, not just what you write."*
+
+📖 **Full story:** [TESTING.md](TESTING.md) | [Testing Failure Analysis](findings/0.10.8/COMPREHENSIVE_TESTING_FAILURE_SUMMARY.md)
 
 ## Quick Start
 
