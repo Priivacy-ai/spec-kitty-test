@@ -441,3 +441,10 @@ The fix is simple and standard practice for cross-platform Python CLIs. The test
 - This continues the theme of testing what users experience
 - Windows users are real users who deserve first-class support
 - Our new distribution testing paradigm should include Windows compatibility
+
+---
+
+## Related Issues
+
+- **Issue #62, #63, #64** - Template bundling bug (fixed in v0.10.9)
+- **Issue #68** - Mission templates still have script refs (discovered while investigating #66)
