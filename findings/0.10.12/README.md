@@ -24,15 +24,18 @@
 
 ## Test Execution Results
 
-### Three-Way Comparison
+### Four-Way Comparison
 
 | Version | Source | Tests | Passed | Failed | Skipped | P0 Pass |
 |---------|--------|-------|--------|--------|---------|---------|
 | v0.10.11 | PyPI | 117 | 0 | 0 | 117 | N/A |
 | v0.10.12 | Worktree | 117 | 38 | 45 | 34 | 8/8 (100%) |
-| v0.10.12 | **Main** | 117 | **54** | 31 | 32 | **12/12 (100%)** ✅ |
+| v0.10.12 | Main (before fixes) | 117 | 54 | 31 | 32 | 12/12 (100%) |
+| v0.10.12 | Main (after fixes) | 117 | 99 | 0 | 18 | 18/18 (100%) |
+| v0.10.12 | **PyPI Release** | 117 | **95** | **4** | **18** | **18/18 (100%)** ✅ |
 
-**Best Result**: Main repository (54/117 passing, 46%)
+**Best Result**: Main repo after fixes (99/117 passing, 85%)
+**PyPI Result**: 95/117 passing (81%) - ✅ **VALIDATED**
 
 ---
 
@@ -123,7 +126,18 @@
    - Three-way comparison
    - Final release approval
 
-5. **README.md** (this file)
+5. **2026-01-12_05_test_harness_fixes_final.md**
+   - Test improvements (46% → 85%)
+   - 8 harness fixes applied
+   - Zero failures achieved
+
+6. **2026-01-12_06_pypi_release_validation.md** ⭐ **LATEST**
+   - Official PyPI v0.10.12 validation
+   - 95/117 tests passing (81%)
+   - ALL P0 critical tests passing
+   - 0% contamination confirmed
+
+7. **README.md** (this file)
    - Quick reference summary
    - Test execution overview
    - Critical tests status
