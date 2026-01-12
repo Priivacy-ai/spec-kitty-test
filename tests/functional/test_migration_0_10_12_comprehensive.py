@@ -237,7 +237,7 @@ class TestMigration_0_7_3_GracefulFailure:
     def _run_upgrade(self, project_dir, repo_root):
         """Helper: Run spec-kitty upgrade"""
         return subprocess.run(
-            ['spec-kitty', 'upgrade'],
+            ['spec-kitty', 'upgrade', '--force'],
             cwd=project_dir,
             capture_output=True,
             text=True,
@@ -391,7 +391,7 @@ class TestMigration_0_10_6_TemplateCopyOrder:
     def _run_upgrade(self, project_dir, repo_root):
         """Helper: Run spec-kitty upgrade"""
         return subprocess.run(
-            ['spec-kitty', 'upgrade'],
+            ['spec-kitty', 'upgrade', '--force'],
             cwd=project_dir,
             capture_output=True,
             text=True,
@@ -633,7 +633,7 @@ class TestMigration_0_10_12_ConstitutionCleanup:
     def _run_upgrade(self, project_dir, repo_root):
         """Helper: Run spec-kitty upgrade"""
         return subprocess.run(
-            ['spec-kitty', 'upgrade'],
+            ['spec-kitty', 'upgrade', '--force'],
             cwd=project_dir,
             capture_output=True,
             text=True,
@@ -677,7 +677,7 @@ class TestFullUpgradePath:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -715,7 +715,7 @@ class TestFullUpgradePath:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -750,7 +750,7 @@ class TestFullUpgradePath:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -795,7 +795,7 @@ class TestFullUpgradePath:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -843,7 +843,7 @@ class TestFullUpgradePath:
 
             # Single command upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -874,7 +874,7 @@ class TestFullUpgradePath:
 
             # Upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -922,7 +922,7 @@ class TestFullUpgradePath:
 
             # Upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,

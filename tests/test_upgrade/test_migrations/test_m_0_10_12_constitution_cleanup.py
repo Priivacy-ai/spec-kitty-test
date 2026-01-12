@@ -76,7 +76,7 @@ class TestMigration_0_10_12_ConstitutionCleanup:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -117,7 +117,7 @@ class TestMigration_0_10_12_ConstitutionCleanup:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -162,7 +162,7 @@ class TestMigration_0_10_12_ConstitutionCleanup:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -212,7 +212,7 @@ class TestMigration_0_10_12_ConstitutionCleanup:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -278,7 +278,7 @@ This is critical project data that must not be lost.
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -382,7 +382,7 @@ This is critical project data that must not be lost.
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -440,7 +440,7 @@ This is critical project data that must not be lost.
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,

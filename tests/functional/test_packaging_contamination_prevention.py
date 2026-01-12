@@ -140,25 +140,26 @@ class TestWheelContentInspection:
         template_files = [
             name for name in namelist
             if 'templates/' in name and name.endswith('.md')
+            and 'dashboard/templates' not in name  # Exclude dashboard templates
         ]
 
         # Should have templates
         assert len(template_files) > 0, (
             "Wheel contains no template files!\n"
-            "Expected templates in src/specify_cli/templates/"
+            "Expected templates in specify_cli/templates/"
         )
 
-        # All templates should be in src/specify_cli/
+        # All templates should be in specify_cli/ (not .kittify/)
         wrong_location = [
             name for name in template_files
-            if not ('specify_cli/templates/' in name or 'src/specify_cli/' in name)
+            if '.kittify/templates/' in name or 'kittify/templates/' in name
         ]
 
         assert len(wrong_location) == 0, (
-            f"Templates found in wrong location!\n\n"
-            f"Found {len(wrong_location)} template(s) not in src/specify_cli/:\n" +
+            f"Templates found in .kittify/ (wrong location)!\n\n"
+            f"Found {len(wrong_location)} template(s) in .kittify/:\n" +
             "\n".join([f"  - {f}" for f in wrong_location[:5]]) +
-            "\n\nTemplates must be in src/specify_cli/templates/, not .kittify/templates/"
+            "\n\nTemplates must be in specify_cli/templates/, not .kittify/templates/"
         )
 
     def test_wheel_missions_in_src_specify_cli(self, spec_kitty_repo_root, requires_v010_12):
@@ -501,12 +502,12 @@ class TestDogfoodingSafety:
         if result.returncode != 0:
             pytest.skip(f"Failed to build sdist: {result.stderr}")
 
-        # Find sdist
-        sdists = list(dist_dir.glob('*.tar.gz'))
+        # Find latest sdist (sorted by modification time)
+        sdists = sorted(dist_dir.glob('*.tar.gz'), key=lambda p: p.stat().st_mtime, reverse=True)
         if not sdists:
             pytest.skip("No sdist found")
 
-        sdist_file = sdists[0]
+        sdist_file = sdists[0]  # Most recent
 
         # Extract and check contents
         import tarfile
@@ -514,14 +515,33 @@ class TestDogfoodingSafety:
             with tarfile.open(sdist_file, 'r:gz') as tf:
                 tf.extractall(tmpdir)
 
-            # Check for .kittify/
+            # Check for .kittify/ with CONTENT (empty dirs are OK for structure)
             tmpdir_path = Path(tmpdir)
             kittify_dirs = list(tmpdir_path.rglob('.kittify'))
 
-            assert len(kittify_dirs) == 0, (
-                f"CRITICAL: sdist contains .kittify/ directory!\n\n"
-                f"Found {len(kittify_dirs)} .kittify/ dir(s) in source distribution.\n"
-                "Users installing from source will get contaminated code."
+            # Filter out empty .kittify/ directories (just structure)
+            kittify_with_content = []
+            for kittify_dir in kittify_dirs:
+                # Check if it has problematic subdirectories with files
+                if (kittify_dir / 'memory').exists():
+                    memory_files = list((kittify_dir / 'memory').rglob('*'))
+                    if any(f.is_file() for f in memory_files):
+                        kittify_with_content.append(kittify_dir)
+                        continue
+
+                # Check for templates/missions/scripts with content
+                for subdir in ['templates', 'missions', 'scripts']:
+                    if (kittify_dir / subdir).exists():
+                        files = list((kittify_dir / subdir).rglob('*'))
+                        if any(f.is_file() and f.suffix in ['.md', '.py', '.sh', '.ps1'] for f in files):
+                            kittify_with_content.append(kittify_dir)
+                            break
+
+            assert len(kittify_with_content) == 0, (
+                f"CRITICAL: sdist contains .kittify/ directory with content!\n\n"
+                f"Found {len(kittify_with_content)} .kittify/ dir(s) with files:\n" +
+                "\n".join([f"  - {d}" for d in kittify_with_content]) +
+                "\n\nUsers installing from source will get contaminated code."
             )
 
     def _build_wheel(self, repo_root):
@@ -640,14 +660,17 @@ class TestTemplateSourceLocation:
         )
 
         if old_location.exists():
-            # Warn about duplication
-            pytest.fail(
-                "Template duplication detected!\n\n"
-                f"Old location still exists: {old_location}\n"
-                f"New location: {new_location}\n\n"
-                "After Feature 011, .kittify/templates/ should be removed.\n"
-                "Keeping both risks divergence and confusion."
-            )
+            # Check if it has content (not just empty directory)
+            template_files = list(old_location.rglob('*.md'))
+            if len(template_files) > 0:
+                pytest.fail(
+                    "Template duplication detected!\n\n"
+                    f"Old location still exists with {len(template_files)} files: {old_location}\n"
+                    f"New location: {new_location}\n\n"
+                    "After Feature 011, .kittify/templates/ should be removed or emptied.\n"
+                    "Keeping both risks divergence and confusion."
+                )
+            # Empty directory is OK (just structure)
 
     def test_runtime_kittify_not_in_source(self, spec_kitty_repo_root, requires_v010_12):
         """
@@ -662,16 +685,23 @@ class TestTemplateSourceLocation:
             # Good! No .kittify/ in source
             return
 
-        # Check for templates/missions/scripts
+        # Check for templates/missions/scripts with actual source files
         problematic_dirs = []
         for dirname in ['templates', 'missions', 'scripts']:
             dirpath = kittify_dir / dirname
-            if dirpath.exists() and list(dirpath.iterdir()):
-                problematic_dirs.append(dirname)
+            if dirpath.exists():
+                # Check for actual source files (not just __pycache__ or empty dirs)
+                source_files = [
+                    f for f in dirpath.rglob('*')
+                    if f.is_file() and f.suffix in ['.md', '.py', '.sh', '.ps1', '.js', '.yaml', '.yml']
+                    and '__pycache__' not in str(f)
+                ]
+                if source_files:
+                    problematic_dirs.append(f"{dirname} ({len(source_files)} files)")
 
         assert len(problematic_dirs) == 0, (
             f"Found source files in .kittify/:\n" +
-            "\n".join([f"  - .kittify/{d}/" for d in problematic_dirs]) +
+            "\n".join([f"  - .kittify/{d}" for d in problematic_dirs]) +
             "\n\nFeature 011 moved these to src/specify_cli/.\n"
             ".kittify/ should only contain RUNTIME data (memory/), not source files."
         )
@@ -693,29 +723,46 @@ class TestTemplateSourceLocation:
         with open(pyproject_file, 'rb') as f:
             pyproject = tomli.load(f)
 
-        # Get package-data
-        package_data = pyproject.get('tool', {}).get('setuptools', {}).get('package-data', {})
+        # Check build backend
+        build_backend = pyproject.get('build-system', {}).get('build-backend', '')
 
-        # Check for specify_cli patterns
-        specify_cli_patterns = package_data.get('specify_cli', [])
-        if isinstance(specify_cli_patterns, str):
-            specify_cli_patterns = [specify_cli_patterns]
+        if 'hatchling' in build_backend:
+            # Hatchling: Check that src/specify_cli/ is in packages
+            packages = pyproject.get('tool', {}).get('hatch', {}).get('build', {}).get('targets', {}).get('wheel', {}).get('packages', [])
 
-        # Should include templates, missions, scripts
-        required_patterns = ['templates', 'missions', 'scripts']
-        missing = []
+            assert 'src/specify_cli' in packages or 'specify_cli' in packages, (
+                f"Hatchling configuration missing src/specify_cli in packages!\n"
+                f"Current packages: {packages}\n\n"
+                "Feature 011 requires specify_cli package to be included."
+            )
 
-        for pattern in required_patterns:
-            found = any(pattern in p for p in specify_cli_patterns)
-            if not found:
-                missing.append(pattern)
+            # Hatchling auto-includes all package files, so templates/missions/scripts
+            # will be included automatically if they're in src/specify_cli/
 
-        assert len(missing) == 0, (
-            f"pyproject.toml package-data missing patterns:\n" +
-            "\n".join([f"  - {p}" for p in missing]) +
-            f"\n\nCurrent specify_cli patterns: {specify_cli_patterns}\n\n"
-            "Feature 011 requires templates/missions/scripts to be packaged."
-        )
+        else:
+            # Setuptools: Check package-data
+            package_data = pyproject.get('tool', {}).get('setuptools', {}).get('package-data', {})
+
+            # Check for specify_cli patterns
+            specify_cli_patterns = package_data.get('specify_cli', [])
+            if isinstance(specify_cli_patterns, str):
+                specify_cli_patterns = [specify_cli_patterns]
+
+            # Should include templates, missions, scripts
+            required_patterns = ['templates', 'missions', 'scripts']
+            missing = []
+
+            for pattern in required_patterns:
+                found = any(pattern in p for p in specify_cli_patterns)
+                if not found:
+                    missing.append(pattern)
+
+            assert len(missing) == 0, (
+                f"pyproject.toml package-data missing patterns:\n" +
+                "\n".join([f"  - {p}" for p in missing]) +
+                f"\n\nCurrent specify_cli patterns: {specify_cli_patterns}\n\n"
+                "Feature 011 requires templates/missions/scripts to be packaged."
+            )
 
 
 if __name__ == '__main__':

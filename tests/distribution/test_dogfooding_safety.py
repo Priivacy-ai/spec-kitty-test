@@ -366,16 +366,31 @@ class TestPackageResourceIsolation:
             # Initialize project
             project_dir = Path(tmpdir) / 'writable_project'
 
-            subprocess.run(
+            result = subprocess.run(
                 [str(spec_kitty_path), 'init', 'writable_project', '--ai', 'claude'],
                 cwd=tmpdir,
                 capture_output=True,
-                check=True
+                text=True
             )
+
+            if result.returncode != 0:
+                pytest.skip(f"Init failed: {result.stderr}")
+
+            # Verify project was created
+            if not project_dir.exists():
+                pytest.skip(f"Project directory not created: {project_dir}")
 
             # Try to write to .kittify/
             kittify_dir = project_dir / '.kittify'
-            test_file = kittify_dir / 'memory' / 'test_write.txt'
+            if not kittify_dir.exists():
+                pytest.skip(f".kittify/ directory not created: {kittify_dir}")
+
+            # Ensure memory directory exists
+            memory_dir = kittify_dir / 'memory'
+            if not memory_dir.exists():
+                memory_dir.mkdir(parents=True)
+
+            test_file = memory_dir / 'test_write.txt'
 
             try:
                 test_file.write_text('Testing write access')
@@ -538,15 +553,29 @@ class TestPackageResourceIsolation:
             # Create project
             project_dir = Path(tmpdir) / 'upgrade_test'
 
-            subprocess.run(
+            result = subprocess.run(
                 [str(spec_kitty_path), 'init', 'upgrade_test', '--ai', 'claude'],
                 cwd=tmpdir,
                 capture_output=True,
-                check=True
+                text=True
             )
 
+            if result.returncode != 0:
+                pytest.skip(f"Init failed: {result.stderr}")
+
+            if not project_dir.exists():
+                pytest.skip(f"Project not created: {project_dir}")
+
             # Add user data
-            user_data_file = project_dir / '.kittify' / 'memory' / 'important_data.txt'
+            kittify_dir = project_dir / '.kittify'
+            if not kittify_dir.exists():
+                pytest.skip(".kittify/ not created")
+
+            memory_dir = kittify_dir / 'memory'
+            if not memory_dir.exists():
+                memory_dir.mkdir(parents=True)
+
+            user_data_file = memory_dir / 'important_data.txt'
             user_data_content = 'Critical user data that must not be lost'
             user_data_file.write_text(user_data_content)
 

@@ -62,7 +62,7 @@ class TestMigration_0_10_6_TemplateCopyOrder:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -114,7 +114,7 @@ class TestMigration_0_10_6_TemplateCopyOrder:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -145,7 +145,7 @@ class TestMigration_0_10_6_TemplateCopyOrder:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -193,7 +193,7 @@ class TestMigration_0_10_6_TemplateCopyOrder:
 
             # Run upgrade twice
             result1 = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -201,7 +201,7 @@ class TestMigration_0_10_6_TemplateCopyOrder:
             )
 
             result2 = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -231,7 +231,7 @@ class TestMigration_0_10_6_TemplateCopyOrder:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,

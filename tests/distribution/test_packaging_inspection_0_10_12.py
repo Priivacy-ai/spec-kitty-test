@@ -205,6 +205,16 @@ class TestPackageContentValidation:
             ]
 
             for const_file in constitution_files:
+                # Skip template files (these are supposed to be in the package)
+                if 'command-templates/constitution.md' in const_file:
+                    continue  # This is the template, not filled data
+                if 'templates/constitution.md' in const_file:
+                    continue  # This is the template, not filled data
+
+                # Only check files in memory/ or .kittify/memory/ (filled data)
+                if 'memory/' not in const_file and '.kittify/' not in const_file:
+                    continue  # Not in user data location
+
                 # Read content
                 content = zf.read(const_file).decode('utf-8', errors='ignore')
 

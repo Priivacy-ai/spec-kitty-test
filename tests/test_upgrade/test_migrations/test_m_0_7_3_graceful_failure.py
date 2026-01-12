@@ -65,7 +65,7 @@ class TestMigration_0_7_3_GracefulFailure:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -103,7 +103,7 @@ class TestMigration_0_7_3_GracefulFailure:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -134,7 +134,7 @@ class TestMigration_0_7_3_GracefulFailure:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -169,7 +169,7 @@ class TestMigration_0_7_3_GracefulFailure:
 
             # Run upgrade twice
             result1 = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -177,7 +177,7 @@ class TestMigration_0_7_3_GracefulFailure:
             )
 
             result2 = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -217,7 +217,7 @@ class TestMigration_0_7_3_GracefulFailure:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
@@ -319,7 +319,7 @@ class TestMigration_0_7_3_GracefulFailure:
 
             # Run upgrade
             result = subprocess.run(
-                ['spec-kitty', 'upgrade'],
+                ['spec-kitty', 'upgrade', '--force'],
                 cwd=project,
                 capture_output=True,
                 text=True,
