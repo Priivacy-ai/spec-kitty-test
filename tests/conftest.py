@@ -178,6 +178,20 @@ def workspace_is_per_wp(spec_kitty_version):
     return spec_kitty_version >= (0, 11, 0)
 
 
+@pytest.fixture
+def requires_v010_12(spec_kitty_version):
+    """Skip test if spec-kitty < 0.10.12
+
+    Use for tests requiring Feature 011 (constitution packaging safety).
+
+    Example:
+        def test_packaging_safety(requires_v010_12):
+            # This test only runs on v0.10.12+
+    """
+    if spec_kitty_version < (0, 10, 12):
+        pytest.skip("Requires spec-kitty >= 0.10.12 (Feature 011: constitution packaging safety)")
+
+
 @pytest.fixture(autouse=True)
 def clean_env():
     """Ensure clean environment for each test"""
