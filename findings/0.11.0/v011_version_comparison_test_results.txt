@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-8.4.2, pluggy-1.6.0 -- /Users/robert/Code/spec-kitty-test/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0, base-url-2.1.0, playwright-0.7.1
+collecting ... collected 19 items
+
+tests/functional/test_worktree_behavior_version_comparison.py::TestPlanningWorkflowComparison::test_specify_command_behavior PASSED [  5%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestPlanningWorkflowComparison::test_plan_command_location PASSED [ 10%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestPlanningWorkflowComparison::test_tasks_command_location PASSED [ 15%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestPlanningWorkflowComparison::test_planning_artifact_location PASSED [ 21%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestPlanningWorkflowComparison::test_git_branch_during_planning PASSED [ 26%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestPlanningWorkflowComparison::test_git_commits_during_planning PASSED [ 31%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestImplementationWorkflowComparison::test_implementation_entry_point PASSED [ 36%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestImplementationWorkflowComparison::test_worktree_creation_timing PASSED [ 42%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestImplementationWorkflowComparison::test_worktree_naming_convention PASSED [ 47%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestImplementationWorkflowComparison::test_parallel_implementation_support PASSED [ 52%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestImplementationWorkflowComparison::test_dependency_tracking PASSED [ 57%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestCommandAvailability::test_implement_command_exists PASSED [ 63%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestCommandAvailability::test_finalize_tasks_command_exists FAILED [ 68%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestCommandAvailability::test_list_legacy_features_command PASSED [ 73%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestCommandAvailability::test_specify_command_compatibility PASSED [ 78%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestMigrationPathValidation::test_v010_project_detectable SKIPPED [ 84%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestMigrationPathValidation::test_v011_project_detectable PASSED [ 89%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestMigrationPathValidation::test_mixed_structure_warning PASSED [ 94%]
+tests/functional/test_worktree_behavior_version_comparison.py::TestMigrationPathValidation::test_upgrade_path_documented PASSED [100%]
+
+=================================== FAILURES ===================================
+__________ TestCommandAvailability.test_finalize_tasks_command_exists __________
+tests/functional/test_worktree_behavior_version_comparison.py:614: in test_finalize_tasks_command_exists
+    assert result.returncode == 0, \
+E   AssertionError: v0.11.0+ should have finalize-tasks command
+E   assert 2 == 0
+E    +  where 2 = CompletedProcess(args=['spec-kitty', 'agent', 'tasks', 'finalize-tasks', '--help'], returncode=2, stdout='', stderr="Usage: spec-kitty agent tasks [OPTIONS] COMMAND [ARGS]...\nTry 'spec-kitty agent tasks --help' for help.\n╭─ Error ──────────────────────────────────────────────────────────────────────╮\n│ No such command 'finalize-tasks'. Did you mean 'list-tasks'?                 │\n╰──────────────────────────────────────────────────────────────────────────────╯\n").returncode
+=========================== short test summary info ============================
+FAILED tests/functional/test_worktree_behavior_version_comparison.py::TestCommandAvailability::test_finalize_tasks_command_exists
+=================== 1 failed, 17 passed, 1 skipped in 15.81s ===================

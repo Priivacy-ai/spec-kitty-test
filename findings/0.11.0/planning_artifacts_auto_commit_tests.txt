@@ -1,0 +1,43 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-8.4.2, pluggy-1.6.0 -- /Users/robert/Code/spec-kitty-test/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0, base-url-2.1.0, playwright-0.7.1
+collecting ... collected 15 items
+
+tests/functional/test_planning_artifacts_auto_commit.py::TestPlanningArtifactsAutoCommit::test_untracked_planning_files_committed_before_worktree FAILED [  6%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestPlanningArtifactsAutoCommit::test_auto_commit_creates_proper_commit_message SKIPPED [ 13%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestPlanningArtifactsAutoCommit::test_modified_planning_files_also_committed SKIPPED [ 20%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestAutoCommitOnlyForFirstWP::test_dependent_wp_does_not_auto_commit SKIPPED [ 26%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestAutoCommitOnlyForFirstWP::test_first_wp_auto_commits_only_feature_directory SKIPPED [ 33%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestAutoCommitBranchValidation::test_error_if_not_on_main_branch FAILED [ 40%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestAutoCommitBranchValidation::test_auto_commit_works_on_master_branch PASSED [ 46%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestWorktreeHasPlanningFiles::test_worktree_has_spec_file SKIPPED [ 53%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestWorktreeHasPlanningFiles::test_worktree_has_all_wp_files SKIPPED [ 60%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestWorktreeHasPlanningFiles::test_worktree_has_quickstart_file SKIPPED [ 66%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestRegressionPrevention::test_no_empty_planning_files_in_worktree SKIPPED [ 73%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestRegressionPrevention::test_agent_can_access_all_planning_context SKIPPED [ 80%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestAutoCommitUserFeedback::test_user_sees_auto_commit_message PASSED [ 86%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestEdgeCases::test_empty_feature_directory_does_not_crash PASSED [ 93%]
+tests/functional/test_planning_artifacts_auto_commit.py::TestEdgeCases::test_already_committed_files_not_recommitted SKIPPED [100%]
+
+=================================== FAILURES ===================================
+_ TestPlanningArtifactsAutoCommit.test_untracked_planning_files_committed_before_worktree _
+tests/functional/test_planning_artifacts_auto_commit.py:138: in test_untracked_planning_files_committed_before_worktree
+    assert result.returncode == 0, f"Implement should succeed: {result.stderr}"
+E   AssertionError: Implement should succeed: 
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['spec-kitty', 'implement', 'WP01', '--feature', '001-test-feature'], returncode=1, stdout='\nImplement WP01\n├── ● Detect feature context (Feature: 001-test-feature)\n├── ● Validate dependencies (WP file not found for WP01 in \n│   /private/var/folders/gj/bxx0438j003b20kn5b6s7bsh0000gn/T/tmp79fj9gf0/test-pr\n│   oject/kitty-specs/001-test-feature/tasks)\n└── ○ Create workspace\n', stderr='').returncode
+_______ TestAutoCommitBranchValidation.test_error_if_not_on_main_branch ________
+tests/functional/test_planning_artifacts_auto_commit.py:440: in test_error_if_not_on_main_branch
+    assert 'main' in output.lower() or 'branch' in output.lower(), \
+E   AssertionError: Error should mention main branch requirement
+E   assert ('main' in '\nimplement wp01\n├── ● detect feature context (feature: 001-test-feature)\n├── ● validate dependencies (wp file not found for wp01 in \n│   /private/var/folders/gj/bxx0438j003b20kn5b6s7bsh0000gn/t/tmpy801nw8b/test-pr\n│   oject/kitty-specs/001-test-feature/tasks)\n└── ○ create workspace\n' or 'branch' in '\nimplement wp01\n├── ● detect feature context (feature: 001-test-feature)\n├── ● validate dependencies (wp file not found for wp01 in \n│   /private/var/folders/gj/bxx0438j003b20kn5b6s7bsh0000gn/t/tmpy801nw8b/test-pr\n│   oject/kitty-specs/001-test-feature/tasks)\n└── ○ create workspace\n')
+E    +  where '\nimplement wp01\n├── ● detect feature context (feature: 001-test-feature)\n├── ● validate dependencies (wp file not found for wp01 in \n│   /private/var/folders/gj/bxx0438j003b20kn5b6s7bsh0000gn/t/tmpy801nw8b/test-pr\n│   oject/kitty-specs/001-test-feature/tasks)\n└── ○ create workspace\n' = <built-in method lower of str object at 0x13680c0e0>()
+E    +    where <built-in method lower of str object at 0x13680c0e0> = '\nImplement WP01\n├── ● Detect feature context (Feature: 001-test-feature)\n├── ● Validate dependencies (WP file not found for WP01 in \n│   /private/var/folders/gj/bxx0438j003b20kn5b6s7bsh0000gn/T/tmpy801nw8b/test-pr\n│   oject/kitty-specs/001-test-feature/tasks)\n└── ○ Create workspace\n'.lower
+E    +  and   '\nimplement wp01\n├── ● detect feature context (feature: 001-test-feature)\n├── ● validate dependencies (wp file not found for wp01 in \n│   /private/var/folders/gj/bxx0438j003b20kn5b6s7bsh0000gn/t/tmpy801nw8b/test-pr\n│   oject/kitty-specs/001-test-feature/tasks)\n└── ○ create workspace\n' = <built-in method lower of str object at 0x13680c0e0>()
+E    +    where <built-in method lower of str object at 0x13680c0e0> = '\nImplement WP01\n├── ● Detect feature context (Feature: 001-test-feature)\n├── ● Validate dependencies (WP file not found for WP01 in \n│   /private/var/folders/gj/bxx0438j003b20kn5b6s7bsh0000gn/T/tmpy801nw8b/test-pr\n│   oject/kitty-specs/001-test-feature/tasks)\n└── ○ Create workspace\n'.lower
+=========================== short test summary info ============================
+FAILED tests/functional/test_planning_artifacts_auto_commit.py::TestPlanningArtifactsAutoCommit::test_untracked_planning_files_committed_before_worktree
+FAILED tests/functional/test_planning_artifacts_auto_commit.py::TestAutoCommitBranchValidation::test_error_if_not_on_main_branch
+=================== 2 failed, 3 passed, 10 skipped in 21.03s ===================

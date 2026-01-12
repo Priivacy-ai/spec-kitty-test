@@ -134,6 +134,50 @@ def mission_is_per_feature(spec_kitty_version):
     return spec_kitty_version >= (0, 8, 0)
 
 
+@pytest.fixture
+def requires_v011(spec_kitty_version):
+    """Skip test if spec-kitty < 0.11.0
+
+    Use for tests that require workspace-per-WP features (v0.11.0+).
+
+    Example:
+        def test_implement_command(requires_v011):
+            # This test only runs on v0.11.0+
+    """
+    if spec_kitty_version < (0, 11, 0):
+        pytest.skip("Requires spec-kitty >= 0.11.0 (workspace-per-WP)")
+
+
+@pytest.fixture
+def requires_pre_v011(spec_kitty_version):
+    """Skip test if spec-kitty >= 0.11.0
+
+    Use for legacy tests that test single worktree per feature (< v0.11.0).
+
+    Example:
+        def test_legacy_worktree_creation(requires_pre_v011):
+            # This test only runs on < v0.11.0
+    """
+    if spec_kitty_version >= (0, 11, 0):
+        pytest.skip("Legacy test for spec-kitty < 0.11.0 (single worktree per feature)")
+
+
+@pytest.fixture
+def workspace_is_per_wp(spec_kitty_version):
+    """Returns True if workspace-per-WP (v0.11.0+), False if legacy.
+
+    Use for adaptive tests that need to test both versions.
+
+    Example:
+        def test_worktree_creation(workspace_is_per_wp):
+            if workspace_is_per_wp:
+                # Test spec-kitty implement WP01
+            else:
+                # Test legacy /spec-kitty.specify creates worktree
+    """
+    return spec_kitty_version >= (0, 11, 0)
+
+
 @pytest.fixture(autouse=True)
 def clean_env():
     """Ensure clean environment for each test"""

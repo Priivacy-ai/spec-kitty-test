@@ -1,0 +1,213 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-8.4.2, pluggy-1.6.0 -- /Users/robert/Code/spec-kitty-test/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0, base-url-2.1.0, playwright-0.7.1
+collecting ... collected 19 items
+
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionFromWorktree::test_detect_from_worktree_strips_wp_suffix ERROR [  5%]
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionFromWorktree::test_worktree_branch_name_strips_wp_suffix ERROR [ 10%]
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionFromWorktree::test_multiple_wp_suffix_formats ERROR [ 15%]
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionFromMainRepo::test_single_feature_auto_detected FAILED [ 21%]
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionErrorMessages::test_helpful_error_when_no_feature_found FAILED [ 26%]
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionErrorMessages::test_helpful_error_when_multiple_features_exist FAILED [ 31%]
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugStrippingLogic::test_strip_wp01_suffix PASSED [ 36%]
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugStrippingLogic::test_does_not_strip_non_wp_suffixes PASSED [ 42%]
+tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugStrippingLogic::test_case_insensitive_stripping PASSED [ 47%]
+tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandWithFeatureFlag::test_feature_flag_overrides_detection ERROR [ 52%]
+tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandWithFeatureFlag::test_feature_flag_with_wp_suffix_is_stripped ERROR [ 57%]
+tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandFromDifferentLocations::test_from_main_repo_root ERROR [ 63%]
+tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandFromDifferentLocations::test_from_feature_directory_in_main ERROR [ 68%]
+tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandFromDifferentLocations::test_from_feature_branch_in_main ERROR [ 73%]
+tests/functional/test_agent_workflow_feature_detection.py::TestRegressionPrevention::test_no_silent_error_1_failure FAILED [ 78%]
+tests/functional/test_agent_workflow_feature_detection.py::TestRegressionPrevention::test_no_incorrect_wp_suffix_in_paths ERROR [ 84%]
+tests/functional/test_agent_workflow_feature_detection.py::TestEdgeCasesForSlugDetection::test_detection_with_different_wp_numbers PASSED [ 89%]
+tests/functional/test_agent_workflow_feature_detection.py::TestEdgeCasesForSlugDetection::test_detection_with_feature_names_containing_numbers PASSED [ 94%]
+tests/functional/test_agent_workflow_feature_detection.py::TestEdgeCasesForSlugDetection::test_detection_with_hyphens_in_feature_name PASSED [100%]
+
+==================================== ERRORS ====================================
+_ ERROR at setup of TestFeatureSlugDetectionFromWorktree.test_detect_from_worktree_strips_wp_suffix _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ ERROR at setup of TestFeatureSlugDetectionFromWorktree.test_worktree_branch_name_strips_wp_suffix _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ ERROR at setup of TestFeatureSlugDetectionFromWorktree.test_multiple_wp_suffix_formats _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ ERROR at setup of TestWorkflowCommandWithFeatureFlag.test_feature_flag_overrides_detection _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ ERROR at setup of TestWorkflowCommandWithFeatureFlag.test_feature_flag_with_wp_suffix_is_stripped _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ ERROR at setup of TestWorkflowCommandFromDifferentLocations.test_from_main_repo_root _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ ERROR at setup of TestWorkflowCommandFromDifferentLocations.test_from_feature_directory_in_main _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ ERROR at setup of TestWorkflowCommandFromDifferentLocations.test_from_feature_branch_in_main _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ ERROR at setup of TestRegressionPrevention.test_no_incorrect_wp_suffix_in_paths _
+tests/functional/test_agent_workflow_feature_detection.py:41: in init_project_with_worktree
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+=================================== FAILURES ===================================
+____ TestFeatureSlugDetectionFromMainRepo.test_single_feature_auto_detected ____
+tests/functional/test_agent_workflow_feature_detection.py:217: in test_single_feature_auto_detected
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ TestFeatureSlugDetectionErrorMessages.test_helpful_error_when_no_feature_found _
+tests/functional/test_agent_workflow_feature_detection.py:287: in test_helpful_error_when_no_feature_found
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_ TestFeatureSlugDetectionErrorMessages.test_helpful_error_when_multiple_features_exist _
+tests/functional/test_agent_workflow_feature_detection.py:342: in test_helpful_error_when_multiple_features_exist
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+___________ TestRegressionPrevention.test_no_silent_error_1_failure ____________
+tests/functional/test_agent_workflow_feature_detection.py:641: in test_no_silent_error_1_failure
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+=========================== short test summary info ============================
+FAILED tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionFromMainRepo::test_single_feature_auto_detected
+FAILED tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionErrorMessages::test_helpful_error_when_no_feature_found
+FAILED tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionErrorMessages::test_helpful_error_when_multiple_features_exist
+FAILED tests/functional/test_agent_workflow_feature_detection.py::TestRegressionPrevention::test_no_silent_error_1_failure
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionFromWorktree::test_detect_from_worktree_strips_wp_suffix
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionFromWorktree::test_worktree_branch_name_strips_wp_suffix
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestFeatureSlugDetectionFromWorktree::test_multiple_wp_suffix_formats
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandWithFeatureFlag::test_feature_flag_overrides_detection
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandWithFeatureFlag::test_feature_flag_with_wp_suffix_is_stripped
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandFromDifferentLocations::test_from_main_repo_root
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandFromDifferentLocations::test_from_feature_directory_in_main
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestWorkflowCommandFromDifferentLocations::test_from_feature_branch_in_main
+ERROR tests/functional/test_agent_workflow_feature_detection.py::TestRegressionPrevention::test_no_incorrect_wp_suffix_in_paths
+==================== 4 failed, 6 passed, 9 errors in 0.54s =====================

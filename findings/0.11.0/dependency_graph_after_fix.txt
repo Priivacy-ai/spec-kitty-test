@@ -1,0 +1,86 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-8.4.2, pluggy-1.6.0 -- /Users/robert/Code/spec-kitty-test/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0, base-url-2.1.0, playwright-0.7.1
+collecting ... collected 31 items
+
+tests/functional/test_dependency_graph_comprehensive.py::TestGraphBuilding::test_build_empty_graph PASSED [  3%]
+tests/functional/test_dependency_graph_comprehensive.py::TestGraphBuilding::test_build_single_wp_graph PASSED [  6%]
+tests/functional/test_dependency_graph_comprehensive.py::TestGraphBuilding::test_build_linear_graph PASSED [  9%]
+tests/functional/test_dependency_graph_comprehensive.py::TestGraphBuilding::test_build_diamond_graph PASSED [ 12%]
+tests/functional/test_dependency_graph_comprehensive.py::TestGraphBuilding::test_build_complex_graph PASSED [ 16%]
+tests/functional/test_dependency_graph_comprehensive.py::TestGraphBuilding::test_graph_parsing_from_frontmatter PASSED [ 19%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_no_cycle_linear_chain PASSED [ 22%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_simple_two_node_cycle FAILED [ 25%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_three_node_cycle FAILED [ 29%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_self_loop_cycle FAILED [ 32%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_cycle_in_subgraph FAILED [ 35%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_multiple_cycles_in_graph FAILED [ 38%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_cycle_detection_performance FAILED [ 41%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_large_acyclic_graph FAILED [ 45%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_cycle_error_message_clarity FAILED [ 48%]
+tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_dfs_visited_state_management PASSED [ 51%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_all_dependencies_exist FAILED [ 54%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_no_self_dependencies FAILED [ 58%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_wp_id_format FAILED [ 61%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_empty_dependency_list_ok FAILED [ 64%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_missing_dependency_field_ok FAILED [ 67%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_duplicate_dependencies PASSED [ 70%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_all_wps_in_feature FAILED [ 74%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_dependency_order_irrelevant FAILED [ 77%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_get_dependents_single FAILED [ 80%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_get_dependents_multiple FAILED [ 83%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_get_dependents_transitive FAILED [ 87%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_get_dependents_empty FAILED [ 90%]
+tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_inverse_graph_construction FAILED [ 93%]
+tests/functional/test_dependency_graph_comprehensive.py::TestGraphAlgorithms::test_topological_sort FAILED [ 96%]
+tests/functional/test_dependency_graph_comprehensive.py::TestGraphAlgorithms::test_topological_sort_with_cycle FAILED [100%]
+
+=================================== FAILURES ===================================
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:361: TypeError: cannot use 'list' as a set element (unhashable type: 'list')
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:397: TypeError: cannot use 'list' as a set element (unhashable type: 'list')
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:428: AssertionError: assert 'WP01' in [['WP01', 'WP01']]
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:469: TypeError: cannot use 'list' as a set element (unhashable type: 'list')
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:508: TypeError: cannot use 'list' as a set element (unhashable type: 'list')
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:543: AssertionError: assert ([['WP10', 'WP99', 'WP98', 'WP97', 'WP96', 'WP95', ...]] is None or [['WP10', 'WP... 'WP95', ...]] == []
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:608: AssertionError: assert 99 == 100
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:650: assert 'cycle' in "validate_dependencies() missing 1 required positional argument: 'graph'"
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:719: assert 'WP02' in "validate_dependencies() missing 1 required positional argument: 'graph'"
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:747: assert 'WP01' in "validate_dependencies() missing 1 required positional argument: 'graph'"
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:764: ImportError: cannot import name 'validate_wp_id_format' from 'specify_cli.core.dependency_graph' (/Users/robert/Code/spec-kitty/.worktrees/010-workspace-per-work-package-for-parallel-development/src/specify_cli/core/dependency_graph.py)
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:805: TypeError: validate_dependencies() missing 1 required positional argument: 'graph'
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:839: TypeError: validate_dependencies() missing 1 required positional argument: 'graph'
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:897: assert '002-other-feature-WP01' in "validate_dependencies() missing 1 required positional argument: 'graph'"
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:927: TypeError: validate_dependencies() missing 1 required positional argument: 'graph'
+/Users/robert/Code/spec-kitty/.worktrees/010-workspace-per-work-package-for-parallel-development/src/specify_cli/core/dependency_graph.py:279: AttributeError: 'str' object has no attribute 'items'
+/Users/robert/Code/spec-kitty/.worktrees/010-workspace-per-work-package-for-parallel-development/src/specify_cli/core/dependency_graph.py:279: AttributeError: 'str' object has no attribute 'items'
+/Users/robert/Code/spec-kitty/.worktrees/010-workspace-per-work-package-for-parallel-development/src/specify_cli/core/dependency_graph.py:279: AttributeError: 'str' object has no attribute 'items'
+/Users/robert/Code/spec-kitty/.worktrees/010-workspace-per-work-package-for-parallel-development/src/specify_cli/core/dependency_graph.py:279: AttributeError: 'str' object has no attribute 'items'
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:1068: ImportError: cannot import name 'build_inverse_graph' from 'specify_cli.core.dependency_graph' (/Users/robert/Code/spec-kitty/.worktrees/010-workspace-per-work-package-for-parallel-development/src/specify_cli/core/dependency_graph.py)
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:1119: ImportError: cannot import name 'topological_sort' from 'specify_cli.core.dependency_graph' (/Users/robert/Code/spec-kitty/.worktrees/010-workspace-per-work-package-for-parallel-development/src/specify_cli/core/dependency_graph.py)
+/Users/robert/Code/spec-kitty-test/tests/functional/test_dependency_graph_comprehensive.py:1158: ImportError: cannot import name 'topological_sort' from 'specify_cli.core.dependency_graph' (/Users/robert/Code/spec-kitty/.worktrees/010-workspace-per-work-package-for-parallel-development/src/specify_cli/core/dependency_graph.py)
+=========================== short test summary info ============================
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_simple_two_node_cycle
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_three_node_cycle
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_self_loop_cycle
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_cycle_in_subgraph
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_multiple_cycles_in_graph
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_cycle_detection_performance
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_large_acyclic_graph
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestCycleDetection::test_cycle_error_message_clarity
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_all_dependencies_exist
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_no_self_dependencies
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_wp_id_format
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_empty_dependency_list_ok
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_missing_dependency_field_ok
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_all_wps_in_feature
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependencyValidation::test_validate_dependency_order_irrelevant
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_get_dependents_single
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_get_dependents_multiple
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_get_dependents_transitive
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_get_dependents_empty
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestDependentLookup::test_inverse_graph_construction
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestGraphAlgorithms::test_topological_sort
+FAILED tests/functional/test_dependency_graph_comprehensive.py::TestGraphAlgorithms::test_topological_sort_with_cycle
+========================= 22 failed, 9 passed in 0.71s =========================

@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-8.4.2, pluggy-1.6.0 -- /Users/robert/Code/spec-kitty-test/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0, base-url-2.1.0, playwright-0.7.1
+collecting ... collected 8 items
+
+tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_implement_wp_no_dependencies_from_main FAILED [ 12%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_implement_wp_with_dependencies_from_base FAILED [ 25%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_workspace_path_format SKIPPED [ 37%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_workspace_git_branch_created SKIPPED [ 50%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_planning_artifacts_accessible_in_workspace SKIPPED [ 62%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_feature_context_detection_from_branch PASSED [ 75%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_feature_context_detection_from_directory SKIPPED [ 87%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_workspace_includes_kittify_directory SKIPPED [100%]
+
+=================================== FAILURES ===================================
+/Users/robert/Code/spec-kitty-test/tests/functional/test_comprehensive_workspace_per_wp.py:314: AssertionError: Implement WP01 failed:
+/Users/robert/Code/spec-kitty-test/tests/functional/test_comprehensive_workspace_per_wp.py:346: AssertionError: Implement WP01 should succeed
+=========================== short test summary info ============================
+FAILED tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_implement_wp_no_dependencies_from_main
+FAILED tests/functional/test_comprehensive_workspace_per_wp.py::TestImplementCommandBasics::test_implement_wp_with_dependencies_from_base
+=================== 2 failed, 1 passed, 5 skipped in 12.18s ====================

@@ -1,0 +1,163 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-8.4.2, pluggy-1.6.0 -- /Users/robert/Code/spec-kitty-test/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0, base-url-2.1.0, playwright-0.7.1
+collecting ... collected 11 items
+
+tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_all_command_templates_have_valid_frontmatter FAILED [  9%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_specific_malformed_templates FAILED [ 18%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_all_templates_have_description_field PASSED [ 27%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestGeneratedAgentCommandFrontmatter::test_init_generates_valid_frontmatter FAILED [ 36%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestGeneratedAgentCommandFrontmatter::test_no_single_delimiter_files FAILED [ 45%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestWorkPackageFrontmatterValidity::test_wp_files_have_valid_frontmatter FAILED [ 54%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestWorkPackageFrontmatterValidity::test_dependencies_field_is_valid_yaml_list PASSED [ 63%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestFrontmatterDelimiterCounting::test_delimiter_count_detection PASSED [ 72%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestAllRepositoryMarkdownFiles::test_scan_all_md_files_in_kittify FAILED [ 81%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestFrontmatterRegressionPrevention::test_no_files_with_single_delimiter_in_repo FAILED [ 90%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestFrontmatterYAMLValidity::test_yaml_parsing_all_templates PASSED [100%]
+
+=================================== FAILURES ===================================
+_ TestTemplateFrontmatterValidity.test_all_command_templates_have_valid_frontmatter _
+tests/functional/test_frontmatter_validation_comprehensive.py:104: in test_all_command_templates_have_valid_frontmatter
+    pytest.fail(error_msg)
+E   Failed: Template frontmatter validation failed:
+E     - accept.md: Missing closing --- delimiter (found 1, need 2)
+E     - analyze.md: Missing closing --- delimiter (found 1, need 2)
+E     - clarify.md: Missing closing --- delimiter (found 1, need 2)
+E     - checklist.md: Missing closing --- delimiter (found 1, need 2)
+E     - merge.md: Missing closing --- delimiter (found 1, need 2)
+______ TestTemplateFrontmatterValidity.test_specific_malformed_templates _______
+tests/functional/test_frontmatter_validation_comprehensive.py:138: in test_specific_malformed_templates
+    assert delimiter_count >= 2, (
+E   AssertionError: analyze.md has malformed frontmatter: found 1 --- delimiters, need at least 2
+E     
+E     First 10 lines:
+E     ---
+E     description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
+E     
+E     ## User Input
+E     
+E     ```text
+E     $ARGUMENTS
+E     ```
+E     
+E     You **MUST** consider the user input before proceeding (if not empty).
+E   assert 1 >= 2
+__ TestGeneratedAgentCommandFrontmatter.test_init_generates_valid_frontmatter __
+tests/functional/test_frontmatter_validation_comprehensive.py:236: in test_init_generates_valid_frontmatter
+    pytest.fail(error_msg)
+E   Failed: Generated command files have malformed frontmatter:
+E     - .claude/commands/spec-kitty.clarify.md: Missing closing --- delimiter (found 1, need 2)
+E     - .claude/commands/spec-kitty.merge.md: Missing closing --- delimiter (found 1, need 2)
+E     - .claude/commands/spec-kitty.accept.md: Missing closing --- delimiter (found 1, need 2)
+E     - .claude/commands/spec-kitty.analyze.md: Missing closing --- delimiter (found 1, need 2)
+E     - .claude/commands/spec-kitty.checklist.md: Missing closing --- delimiter (found 1, need 2)
+_____ TestGeneratedAgentCommandFrontmatter.test_no_single_delimiter_files ______
+tests/functional/test_frontmatter_validation_comprehensive.py:288: in test_no_single_delimiter_files
+    pytest.fail(
+E   Failed: Found 18 files with malformed frontmatter (only 1 ---):
+E     - .kittify/missions/software-dev/command-templates/accept.md
+E     - .kittify/missions/software-dev/command-templates/analyze.md
+E     - .kittify/missions/software-dev/command-templates/clarify.md
+E     - .kittify/missions/software-dev/command-templates/checklist.md
+E     - .kittify/missions/software-dev/command-templates/merge.md
+E     - .kittify/missions/research/command-templates/merge.md
+E     - .kittify/missions/research/command-templates/plan.md
+E     - .kittify/missions/research/command-templates/review.md
+E     - .codex/prompts/spec-kitty.clarify.md
+E     - .codex/prompts/spec-kitty.merge.md
+E     - .codex/prompts/spec-kitty.accept.md
+E     - .codex/prompts/spec-kitty.analyze.md
+E     - .codex/prompts/spec-kitty.checklist.md
+E     - .claude/commands/spec-kitty.clarify.md
+E     - .claude/commands/spec-kitty.merge.md
+E     - .claude/commands/spec-kitty.accept.md
+E     - .claude/commands/spec-kitty.analyze.md
+E     - .claude/commands/spec-kitty.checklist.md
+E   
+E   All frontmatter must have opening AND closing --- delimiters:
+E   ---
+E   field: value
+E   ---
+___ TestWorkPackageFrontmatterValidity.test_wp_files_have_valid_frontmatter ____
+tests/functional/test_frontmatter_validation_comprehensive.py:317: in test_wp_files_have_valid_frontmatter
+    subprocess.run(
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:556: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1220: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: in _communicate
+    input_view = memoryview(self._input)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: memoryview: a bytes-like object is required, not 'str'
+_______ TestAllRepositoryMarkdownFiles.test_scan_all_md_files_in_kittify _______
+tests/functional/test_frontmatter_validation_comprehensive.py:518: in test_scan_all_md_files_in_kittify
+    pytest.fail(error_msg)
+E   Failed: Found 8 files with malformed frontmatter out of 49 checked:
+E     - .kittify/missions/software-dev/command-templates/accept.md: Missing closing --- delimiter (found 1, need 2)
+E     - .kittify/missions/software-dev/command-templates/analyze.md: Missing closing --- delimiter (found 1, need 2)
+E     - .kittify/missions/software-dev/command-templates/clarify.md: Missing closing --- delimiter (found 1, need 2)
+E     - .kittify/missions/software-dev/command-templates/checklist.md: Missing closing --- delimiter (found 1, need 2)
+E     - .kittify/missions/software-dev/command-templates/merge.md: Missing closing --- delimiter (found 1, need 2)
+E     - .kittify/missions/research/command-templates/merge.md: Missing closing --- delimiter (found 1, need 2)
+E     - .kittify/missions/research/command-templates/plan.md: Missing closing --- delimiter (found 1, need 2)
+E     - .kittify/missions/research/command-templates/review.md: Missing closing --- delimiter (found 1, need 2)
+_ TestFrontmatterRegressionPrevention.test_no_files_with_single_delimiter_in_repo _
+tests/functional/test_frontmatter_validation_comprehensive.py:586: in test_no_files_with_single_delimiter_in_repo
+    pytest.fail(error_msg)
+E   Failed: 🚨 CRITICAL: Found 5 template files with malformed frontmatter!
+E   
+E   These files have opening --- but NO closing --- delimiter:
+E   
+E   accept.md:
+E   ---
+E   description: Validate feature readiness and guide final acceptance steps.
+E   
+E   ## User Input
+E   
+E   
+E   analyze.md:
+E   ---
+E   description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
+E   
+E   ## User Input
+E   
+E   
+E   clarify.md:
+E   ---
+E   description: Identify underspecified areas in the current feature spec by asking up to 5 highly targeted clarification questions and encoding answers back into the spec.
+E   
+E   ## User Input
+E   
+E   
+E   checklist.md:
+E   ---
+E   description: Generate a custom checklist for the current feature based on user requirements.
+E   
+E   ## Checklist Purpose: "Unit Tests for English"
+E   
+E   
+E   merge.md:
+E   ---
+E   description: Merge a completed feature into the main branch and clean up worktree
+E   
+E   # Merge Feature Branch
+E   
+E   
+E   ⚠️ This causes ConfigFrontmatterError for all agents!
+E   Fix: Add closing --- after frontmatter fields:
+E     ---
+E     description: value
+E     ---  ← ADD THIS LINE
+=========================== short test summary info ============================
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_all_command_templates_have_valid_frontmatter
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_specific_malformed_templates
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestGeneratedAgentCommandFrontmatter::test_init_generates_valid_frontmatter
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestGeneratedAgentCommandFrontmatter::test_no_single_delimiter_files
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestWorkPackageFrontmatterValidity::test_wp_files_have_valid_frontmatter
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestAllRepositoryMarkdownFiles::test_scan_all_md_files_in_kittify
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestFrontmatterRegressionPrevention::test_no_files_with_single_delimiter_in_repo
+========================= 7 failed, 4 passed in 1.85s ==========================

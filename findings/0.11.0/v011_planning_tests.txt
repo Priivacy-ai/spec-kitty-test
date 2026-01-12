@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-8.4.2, pluggy-1.6.0 -- /Users/robert/Code/spec-kitty-test/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0, base-url-2.1.0, playwright-0.7.1
+collecting ... collected 6 items
+
+tests/functional/test_comprehensive_workspace_per_wp.py::TestPlanningInMain::test_specify_no_worktree_created PASSED [ 16%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestPlanningInMain::test_plan_no_worktree_created FAILED [ 33%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestPlanningInMain::test_tasks_no_worktree_created SKIPPED [ 50%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestPlanningInMain::test_finalize_tasks_injects_dependencies SKIPPED [ 66%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestPlanningInMain::test_all_planning_artifacts_committed_to_main PASSED [ 83%]
+tests/functional/test_comprehensive_workspace_per_wp.py::TestPlanningInMain::test_planning_workflow_git_history PASSED [100%]
+
+=================================== FAILURES ===================================
+_______________ TestPlanningInMain.test_plan_no_worktree_created _______________
+tests/functional/test_comprehensive_workspace_per_wp.py:128: in test_plan_no_worktree_created
+    assert result.returncode == 0, f"Plan failed: {result.stderr}"
+E   AssertionError: Plan failed: 
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['spec-kitty', 'agent', 'feature', 'setup-plan', '--json'], returncode=1, stdout='{"error": "Plan template not found in repository"}\n', stderr='').returncode
+=========================== short test summary info ============================
+FAILED tests/functional/test_comprehensive_workspace_per_wp.py::TestPlanningInMain::test_plan_no_worktree_created
+==================== 1 failed, 3 passed, 2 skipped in 8.92s ====================

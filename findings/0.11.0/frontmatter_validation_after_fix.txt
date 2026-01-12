@@ -1,0 +1,36 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-8.4.2, pluggy-1.6.0 -- /Users/robert/Code/spec-kitty-test/venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0, base-url-2.1.0, playwright-0.7.1
+collecting ... collected 11 items
+
+tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_all_command_templates_have_valid_frontmatter FAILED [  9%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_specific_malformed_templates FAILED [ 18%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_all_templates_have_description_field PASSED [ 27%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestGeneratedAgentCommandFrontmatter::test_init_generates_valid_frontmatter FAILED [ 36%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestGeneratedAgentCommandFrontmatter::test_no_single_delimiter_files FAILED [ 45%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestWorkPackageFrontmatterValidity::test_wp_files_have_valid_frontmatter FAILED [ 54%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestWorkPackageFrontmatterValidity::test_dependencies_field_is_valid_yaml_list PASSED [ 63%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestFrontmatterDelimiterCounting::test_delimiter_count_detection PASSED [ 72%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestAllRepositoryMarkdownFiles::test_scan_all_md_files_in_kittify FAILED [ 81%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestFrontmatterRegressionPrevention::test_no_files_with_single_delimiter_in_repo FAILED [ 90%]
+tests/functional/test_frontmatter_validation_comprehensive.py::TestFrontmatterYAMLValidity::test_yaml_parsing_all_templates PASSED [100%]
+
+=================================== FAILURES ===================================
+/Users/robert/Code/spec-kitty-test/tests/functional/test_frontmatter_validation_comprehensive.py:104: Failed: Template frontmatter validation failed:
+/Users/robert/Code/spec-kitty-test/tests/functional/test_frontmatter_validation_comprehensive.py:138: AssertionError: analyze.md has malformed frontmatter: found 1 --- delimiters, need at least 2
+/Users/robert/Code/spec-kitty-test/tests/functional/test_frontmatter_validation_comprehensive.py:236: Failed: Generated command files have malformed frontmatter:
+/Users/robert/Code/spec-kitty-test/tests/functional/test_frontmatter_validation_comprehensive.py:288: Failed: Found 18 files with malformed frontmatter (only 1 ---):
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:2106: TypeError: memoryview: a bytes-like object is required, not 'str'
+/Users/robert/Code/spec-kitty-test/tests/functional/test_frontmatter_validation_comprehensive.py:518: Failed: Found 8 files with malformed frontmatter out of 49 checked:
+/Users/robert/Code/spec-kitty-test/tests/functional/test_frontmatter_validation_comprehensive.py:586: Failed: 🚨 CRITICAL: Found 5 template files with malformed frontmatter!
+=========================== short test summary info ============================
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_all_command_templates_have_valid_frontmatter
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestTemplateFrontmatterValidity::test_specific_malformed_templates
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestGeneratedAgentCommandFrontmatter::test_init_generates_valid_frontmatter
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestGeneratedAgentCommandFrontmatter::test_no_single_delimiter_files
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestWorkPackageFrontmatterValidity::test_wp_files_have_valid_frontmatter
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestAllRepositoryMarkdownFiles::test_scan_all_md_files_in_kittify
+FAILED tests/functional/test_frontmatter_validation_comprehensive.py::TestFrontmatterRegressionPrevention::test_no_files_with_single_delimiter_in_repo
+========================= 7 failed, 4 passed in 2.03s ==========================
