@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Sparse-Checkout Integration & Validation
-lane: planned
+lane: "doing"
 dependencies:
 - WP02
 subtasks:
@@ -12,8 +12,8 @@ subtasks:
 - T056
 phase: Phase 1 - Sparse-Checkout Track (Final Integration)
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "52131"
 review_status: ''
 reviewed_by: ''
 history:
@@ -611,3 +611,4 @@ Total bugs found: 12
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-14T16:26:51Z – claude-opus – shell_pid=52131 – lane=doing – Started implementation via workflow command
