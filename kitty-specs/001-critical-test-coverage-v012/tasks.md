@@ -352,7 +352,7 @@
 - [x] T079: Test specify command template accessible and non-empty
 - [x] T080: Test plan command template accessible and non-empty
 - [x] T081: Test tasks command template accessible and non-empty
-- [ ] T082: Test implement command template accessible and non-empty
+- [x] T082: Test implement command template accessible and non-empty
 - [ ] T083: Test review command template accessible and non-empty
 - [ ] T084: Test all templates have expected structure (frontmatter, sections, instructions)
 - [ ] T085: Test templates load via importlib.resources (from package, not local repo)
