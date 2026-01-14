@@ -18,10 +18,10 @@ subtasks:
   - "T071"
 title: "Doc Generators Distribution Tests"
 phase: "Phase 2 - Documentation Mission Track (Risk-First)"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "Codex"
+shell_pid: "57727"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -596,3 +596,4 @@ pytest tests/distribution/test_doc_generators_distribution.py -xvs
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-14T12:12:06Z – Codex – shell_pid=57727 – lane=doing – Started implementation via workflow command
