@@ -212,7 +212,7 @@
 ### Included Subtasks
 
 **Suite 2: Path Resolution (6 subtasks)**
-- [ ] T040: Test tasks command finds kitty-specs in main repo (not worktree copy)
+- [x] T040: Test tasks command finds kitty-specs in main repo (not worktree copy)
 - [ ] T041: Test move-task finds WP file in main repo
 - [ ] T042: Test workflow finds WP file in main repo
 - [ ] T043: Test feature slug detection strips -WPxx suffix (e.g., 012-docs-WP04 → 012-docs)
