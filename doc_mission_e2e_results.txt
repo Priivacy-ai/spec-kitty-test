@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0
+collecting ... collected 15 items
+
+tests/functional/test_documentation_mission_end_to_end.py::TestInitialMode::test_initial_mode_workflow PASSED [  6%]
+tests/functional/test_documentation_mission_end_to_end.py::TestInitialMode::test_initial_mode_stores_state PASSED [ 13%]
+tests/functional/test_documentation_mission_end_to_end.py::TestGapFillingMode::test_gap_analysis_runs_automatically PASSED [ 20%]
+tests/functional/test_documentation_mission_end_to_end.py::TestGapFillingMode::test_classification_by_divio_type PASSED [ 26%]
+tests/functional/test_documentation_mission_end_to_end.py::TestGapFillingMode::test_framework_detection PASSED [ 33%]
+tests/functional/test_documentation_mission_end_to_end.py::TestGapFillingMode::test_divio_classification_heuristics PASSED [ 40%]
+tests/functional/test_documentation_mission_end_to_end.py::TestGapFillingMode::test_coverage_matrix_generation PASSED [ 46%]
+tests/functional/test_documentation_mission_end_to_end.py::TestGapFillingMode::test_gap_prioritization PASSED [ 53%]
+tests/functional/test_documentation_mission_end_to_end.py::TestStatePersistence::test_state_survives_git_operations PASSED [ 60%]
+tests/functional/test_documentation_mission_end_to_end.py::TestStatePersistence::test_divio_templates_accessible_during_workflow PASSED [ 66%]
+tests/functional/test_documentation_mission_end_to_end.py::TestStatePersistence::test_generators_configured_correctly PASSED [ 73%]
+tests/functional/test_documentation_mission_end_to_end.py::TestMigration::test_migration_installs_mission PASSED [ 80%]
+tests/functional/test_documentation_mission_end_to_end.py::TestMigration::test_migration_idempotent PASSED [ 86%]
+tests/functional/test_documentation_mission_end_to_end.py::TestValidation::test_backward_compatibility PASSED [ 93%]
+tests/functional/test_documentation_mission_end_to_end.py::TestValidation::test_state_validation_rejects_invalid PASSED [100%]
+
+============================== 15 passed in 0.30s ==============================

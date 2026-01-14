@@ -1,0 +1,29 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/robert/Code/spec-kitty-test
+plugins: anyio-4.11.0
+collecting ... collected 20 items
+
+tests/distribution/test_documentation_mission_distribution.py::TestMissionLoading::test_documentation_mission_loads_from_package PASSED [  5%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionLoading::test_mission_yaml_accessible_and_valid PASSED [ 10%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionLoading::test_mission_metadata_correct PASSED [ 15%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionLoading::test_workflow_phases_order PASSED [ 20%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionLoading::test_required_artifacts_defined PASSED [ 25%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionLoading::test_optional_artifacts_defined PASSED [ 30%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionLoading::test_workspace_conventions_correct PASSED [ 35%]
+tests/distribution/test_documentation_mission_distribution.py::TestCommandTemplates::test_specify_template_accessible PASSED [ 40%]
+tests/distribution/test_documentation_mission_distribution.py::TestCommandTemplates::test_plan_template_accessible PASSED [ 45%]
+tests/distribution/test_documentation_mission_distribution.py::TestCommandTemplates::test_tasks_template_accessible PASSED [ 50%]
+tests/distribution/test_documentation_mission_distribution.py::TestCommandTemplates::test_implement_template_accessible PASSED [ 55%]
+tests/distribution/test_documentation_mission_distribution.py::TestCommandTemplates::test_review_template_accessible PASSED [ 60%]
+tests/distribution/test_documentation_mission_distribution.py::TestCommandTemplates::test_templates_have_expected_structure PASSED [ 65%]
+tests/distribution/test_documentation_mission_distribution.py::TestTemplatePackaging::test_templates_load_via_importlib PASSED [ 70%]
+tests/distribution/test_documentation_mission_distribution.py::TestTemplatePackaging::test_no_template_path_leakage PASSED [ 75%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionRegistry::test_mission_registered_in_registry PASSED [ 80%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionRegistry::test_mission_metadata_correct_in_registry PASSED [ 85%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionRegistry::test_get_mission_by_name_returns_valid_mission PASSED [ 90%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionRegistry::test_mission_validation_passes_pydantic PASSED [ 95%]
+tests/distribution/test_documentation_mission_distribution.py::TestMissionRegistry::test_all_divio_templates_present PASSED [100%]
+
+============================== 20 passed in 0.35s ==============================
