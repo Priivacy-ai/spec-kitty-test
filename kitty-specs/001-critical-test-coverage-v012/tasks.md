@@ -133,7 +133,7 @@
 - [x] T022: Test move-task commits WP file to main (specific file, not all changes)
 - [x] T023: Test mark-status commits tasks.md to main
 - [x] T024: Test workflow implement commits status change when claiming WP
-- [ ] T025: Test workflow review commits status change when claiming WP
+- [x] T025: Test workflow review commits status change when claiming WP
 - [ ] T026: Test commit messages include agent name (format: "chore: Action [agent]")
 - [ ] T027: Test commit messages include ISO 8601 UTC timestamp
 - [ ] T028: Test multiple agents working in parallel → all commits visible to each other
