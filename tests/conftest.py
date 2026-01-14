@@ -26,8 +26,23 @@ def spec_kitty_repo_root():
     if env_path:
         repo_path = Path(env_path).expanduser().resolve()
     else:
-        # Default: sibling directory to spec-kitty-test
-        repo_path = Path(__file__).parent.parent.parent / "spec-kitty"
+        # Default: prefer sibling to spec-kitty-test, with worktree awareness.
+        # When running from a worktree, __file__ is under .worktrees/<wp>/...
+        file_path = Path(__file__).resolve()
+        worktrees_parent = next(
+            (parent for parent in file_path.parents if parent.name == ".worktrees"),
+            None
+        )
+        if worktrees_parent is not None:
+            spec_kitty_test_root = worktrees_parent.parent
+        else:
+            spec_kitty_test_root = file_path.parent.parent.parent
+
+        candidates = [
+            spec_kitty_test_root / "spec-kitty",
+            spec_kitty_test_root.parent / "spec-kitty",
+        ]
+        repo_path = next((path for path in candidates if path.exists()), candidates[0])
 
     # Validate path exists
     if not repo_path.exists():
@@ -36,7 +51,7 @@ def spec_kitty_repo_root():
             f"Please either:\n"
             f"  1. Set SPEC_KITTY_REPO environment variable:\n"
             f"     export SPEC_KITTY_REPO=/path/to/spec-kitty\n"
-            f"  2. Clone spec-kitty to default location:\n"
+            f"  2. Clone spec-kitty to default location (sibling to spec-kitty-test):\n"
             f"     git clone <repo-url> {repo_path}\n"
         )
 

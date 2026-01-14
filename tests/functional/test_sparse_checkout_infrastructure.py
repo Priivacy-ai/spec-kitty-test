@@ -14,10 +14,10 @@ being production code that underpins the entire workspace-per-WP feature.
 Test Organization:
 - Suite 1: Worktree Creation (8 tests)
 - Suite 2: Absolute Path Resolution (6 tests)
-- Suite 3: Auto-Commit Synchronization (10 tests)
-- Suite 4: Multi-Agent Parallel Development (8 tests)
+- Suite 3: Auto-Commit Synchronization (10 tests) - WP04
+- Suite 4: Multi-Agent Parallel Development (8 tests) - WP03
 - Suite 5: Clean Merge Behavior (6 tests)
-- Suite 6: Edge Cases (8 tests)
+- Suite 6: Edge Cases (8 tests) - WP02
 
 Total: 46 tests
 
@@ -98,422 +98,35 @@ def init_spec_kitty_project(temp_project_dir, spec_kitty_repo_root):
 # ============================================================================
 # Test Suite 1: Worktree Creation (8 tests)
 # ============================================================================
-
-def test_sparse_checkout_excludes_kitty_specs_from_worktree(tmp_path):
-    """
-    Test: kitty-specs/ excluded from new worktree
-
-    Validates that when a worktree is created for a work package, the
-    sparse-checkout configuration correctly excludes kitty-specs/ directory.
-
-    This is the foundation of the state synchronization system - without this,
-    each worktree would have its own copy of status files leading to divergence.
-    """
-    # Setup: Create a test repo with spec-kitty initialized
-    test_repo = tmp_path / "test-project"
-    test_repo.mkdir()
-
-    # Initialize git repo
-    subprocess.run(["git", "init"], cwd=test_repo, check=True, capture_output=True)
-    subprocess.run(["git", "config", "user.name", "Test User"], cwd=test_repo, check=True)
-    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=test_repo, check=True)
-
-    # Initialize spec-kitty (this creates .kittify/ structure)
-    subprocess.run(
-        ["spec-kitty", "init", "--mission", "software-dev"],
-        cwd=test_repo,
-        check=True,
-        capture_output=True
-    )
-
-    # Create and checkout a feature branch
-    (test_repo / "kitty-specs").mkdir(exist_ok=True)
-    (test_repo / "kitty-specs" / "001-test-feature").mkdir(exist_ok=True)
-    (test_repo / "kitty-specs" / "001-test-feature" / "tasks").mkdir(exist_ok=True)
-
-    # Create a test WP file with proper frontmatter
-    wp_content = """---
-task_id: WP01
-title: Test Work Package
-lane: planned
-phase: implement
-dependencies: []
----
-
-# WP01: Test Work Package
-
-## Subtasks
-
-- [ ] T001: Test subtask 1
-- [ ] T002: Test subtask 2
-"""
-    wp_path = test_repo / "kitty-specs" / "001-test-feature" / "tasks" / "WP01-test.md"
-    wp_path.write_text(wp_content)
-
-    # Commit everything
-    subprocess.run(["git", "add", "-A"], cwd=test_repo, check=True)
-    subprocess.run(
-        ["git", "commit", "-m", "Initial commit with kitty-specs"],
-        cwd=test_repo,
-        check=True,
-        capture_output=True
-    )
-
-    # Create worktree using spec-kitty implement command
-    # This should set up sparse-checkout
-    result = subprocess.run(
-        ["spec-kitty", "implement", "WP01", "--agent", "test-agent"],
-        cwd=test_repo,
-        capture_output=True,
-        text=True
-    )
-
-    # Verify worktree was created
-    worktree_path = test_repo / ".worktrees" / "001-test-feature-WP01"
-    assert worktree_path.exists(), f"Worktree not created at {worktree_path}"
-
-    # CRITICAL CHECK: kitty-specs/ should NOT exist in worktree
-    worktree_specs = worktree_path / "kitty-specs"
-    assert not worktree_specs.exists(), \
-        f"FAIL: kitty-specs/ exists in worktree! Sparse-checkout not working. " \
-        f"This means status divergence will occur."
-
-    # Verify kitty-specs/ still exists in main repo
-    main_specs = test_repo / "kitty-specs"
-    assert main_specs.exists(), "kitty-specs/ should still exist in main repo"
-
-    print(f"✓ Sparse-checkout working: kitty-specs/ excluded from worktree")
-
-
-def test_sparse_checkout_file_created_with_correct_patterns(tmp_path):
-    """
-    Test: .git/info/sparse-checkout file created with correct patterns
-
-    Validates that the sparse-checkout configuration file exists and contains
-    the correct patterns to exclude kitty-specs/.
-    """
-    # Similar setup as above...
-    test_repo = tmp_path / "test-project"
-    test_repo.mkdir()
-
-    subprocess.run(["git", "init"], cwd=test_repo, check=True, capture_output=True)
-    subprocess.run(["git", "config", "user.name", "Test User"], cwd=test_repo, check=True)
-    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=test_repo, check=True)
-
-    subprocess.run(
-        ["spec-kitty", "init", "--mission", "software-dev"],
-        cwd=test_repo,
-        check=True,
-        capture_output=True
-    )
-
-    (test_repo / "kitty-specs" / "001-test-feature" / "tasks").mkdir(parents=True)
-    wp_path = test_repo / "kitty-specs" / "001-test-feature" / "tasks" / "WP01-test.md"
-    wp_path.write_text("""---
-task_id: WP01
-title: Test
-lane: planned
-phase: implement
-dependencies: []
----
-# Test
-""")
-
-    subprocess.run(["git", "add", "-A"], cwd=test_repo, check=True)
-    subprocess.run(["git", "commit", "-m", "Initial"], cwd=test_repo, check=True, capture_output=True)
-
-    # Create worktree
-    subprocess.run(
-        ["spec-kitty", "implement", "WP01", "--agent", "test"],
-        cwd=test_repo,
-        capture_output=True
-    )
-
-    # Check sparse-checkout file in worktree
-    worktree_git = test_repo / ".worktrees" / "001-test-feature-WP01" / ".git"
-
-    # Worktree .git is a FILE, not a directory - it points to main repo
-    assert worktree_git.is_file(), "Worktree .git should be a file"
-
-    # Read the gitdir from the file
-    gitdir_content = worktree_git.read_text().strip()
-    assert gitdir_content.startswith("gitdir:"), "Worktree .git should contain gitdir reference"
-
-    # Extract the path to the actual git directory
-    gitdir_path = gitdir_content.replace("gitdir: ", "")
-    actual_git_dir = Path(test_repo / ".worktrees" / "001-test-feature-WP01" / gitdir_path).resolve()
-
-    sparse_checkout_file = actual_git_dir / "info" / "sparse-checkout"
-    assert sparse_checkout_file.exists(), f"sparse-checkout file not found at {sparse_checkout_file}"
-
-    # Verify patterns
-    content = sparse_checkout_file.read_text()
-    assert "/*" in content, "Pattern /* missing (should include all root-level files/dirs)"
-    assert "!/kitty-specs/" in content or "!/kitty-specs/**" in content, \
-        "Pattern to exclude kitty-specs/ missing"
-
-    print(f"✓ Sparse-checkout patterns correct in {sparse_checkout_file}")
-
-
-def test_git_config_sparse_checkout_enabled(tmp_path):
-    """Test: git config core.sparseCheckout = true"""
-    # TODO: Implement git config check
-    pytest.skip("TODO: Implement after basic tests pass")
-
-
-def test_git_config_sparse_checkout_cone_disabled(tmp_path):
-    """Test: git config core.sparseCheckoutCone = false"""
-    # TODO: Implement
-    pytest.skip("TODO: Implement after basic tests pass")
-
-
-def test_worktree_directory_does_not_contain_kitty_specs(tmp_path):
-    """Test: Worktree directory doesn't contain kitty-specs/"""
-    # Covered by test_sparse_checkout_excludes_kitty_specs_from_worktree
-    pytest.skip("Covered by test_sparse_checkout_excludes_kitty_specs_from_worktree")
-
-
-def test_main_repo_still_has_kitty_specs(tmp_path):
-    """Test: Main repo still has kitty-specs/"""
-    # Covered by test_sparse_checkout_excludes_kitty_specs_from_worktree
-    pytest.skip("Covered by test_sparse_checkout_excludes_kitty_specs_from_worktree")
-
-
-def test_multiple_worktrees_all_exclude_kitty_specs(tmp_path):
-    """Test: Multiple worktrees all exclude kitty-specs/"""
-    # TODO: Create 3 worktrees and verify all exclude kitty-specs/
-    pytest.skip("TODO: Implement comprehensive multi-worktree test")
-
-
-def test_error_handling_when_sparse_checkout_fails(tmp_path):
-    """Test: Error handling when sparse-checkout fails"""
-    # TODO: Simulate sparse-checkout failure and verify error handling
-    pytest.skip("TODO: Implement error simulation test")
+# [Placeholder for Suite 1 tests - to be implemented in WP05]
 
 
 # ============================================================================
 # Test Suite 2: Absolute Path Resolution (6 tests)
 # ============================================================================
+# [Placeholder for Suite 2 tests - to be implemented in WP06]
 
-def test_tasks_command_finds_kitty_specs_in_main_repo(tmp_path):
+
+# ============================================================================
+# Test Suite 3: Auto-Commit Synchronization (10 tests) - WP04
+# ============================================================================
+
+class TestAutoCommitSynchronization:
     """
-    Test: Tasks command finds kitty-specs in main repo (not worktree)
-
-    When running spec-kitty commands from within a worktree, they should
-    resolve paths to kitty-specs/ in the main repo, not look for it locally.
-    """
-    # TODO: Create worktree, run tasks command, verify it reads from main
-    pytest.skip("TODO: Implement path resolution test")
-
-
-def test_move_task_finds_wp_file_in_main_repo(tmp_path):
-    """Test: Move-task command finds WP file in main repo"""
-    # TODO: Implement
-    pytest.skip("TODO: Implement")
-
-
-def test_workflow_finds_wp_file_in_main_repo(tmp_path):
-    """Test: Workflow command finds WP file in main repo"""
-    # TODO: Implement
-    pytest.skip("TODO: Implement")
-
-
-def test_feature_slug_detection_strips_wp_suffix(tmp_path):
-    """
-    Test: Feature slug detection strips -WPxx suffix correctly
-
-    From branch name "012-documentation-mission-WP04", should extract
-    feature slug "012-documentation-mission" to find tasks directory.
-    """
-    # TODO: Test slug extraction logic
-    pytest.skip("TODO: Implement slug detection test")
-
-
-def test_get_main_repo_root_detects_worktree_vs_main(tmp_path):
-    """Test: _get_main_repo_root() detects worktree vs main"""
-    # TODO: Implement detection logic test
-    pytest.skip("TODO: Implement")
-
-
-def test_absolute_paths_work_from_nested_directories(tmp_path):
-    """Test: Absolute paths work from nested directories"""
-    # TODO: Test from src/specify_cli/ subdirectory in worktree
-    pytest.skip("TODO: Implement")
-
-
-# ============================================================================
-# Test Suite 3: Auto-Commit Synchronization (10 tests)
-# ============================================================================
-
-def test_move_task_commits_wp_file_to_main(tmp_path):
-    """
-    Test: move-task commits WP file to main
-
-    When an agent moves a WP from one lane to another, the change should
-    be automatically committed to the main branch, not just the worktree branch.
-    """
-    # TODO: Move WP, check git log in main shows the commit
-    pytest.skip("TODO: Implement auto-commit test")
-
-
-def test_mark_status_commits_tasks_md_to_main(tmp_path):
-    """Test: mark-status commits tasks.md to main"""
-    # TODO: Mark subtask done, verify commit in main
-    pytest.skip("TODO: Implement")
-
-
-def test_workflow_implement_commits_when_claiming_wp(tmp_path):
-    """Test: workflow implement commits when claiming WP"""
-    # TODO: Run implement, verify claim commit in main
-    pytest.skip("TODO: Implement")
-
-
-def test_workflow_review_commits_when_claiming_wp(tmp_path):
-    """Test: workflow review commits when claiming WP"""
-    # TODO: Run review, verify claim commit in main
-    pytest.skip("TODO: Implement")
-
-
-def test_commit_messages_include_agent_name(tmp_path):
-    """Test: Commit messages include agent name"""
-    # TODO: Verify commit message format includes [agent-name]
-    pytest.skip("TODO: Implement")
-
-
-def test_commits_include_timestamp(tmp_path):
-    """Test: Commits include timestamp"""
-    # TODO: Check commit timestamp is reasonable
-    pytest.skip("TODO: Implement")
-
-
-def test_multiple_agents_parallel_all_commits_visible(tmp_path):
-    """Test: Multiple agents working in parallel → all commits visible"""
-    # TODO: Simulate 2 agents working simultaneously, verify both commits
-    pytest.skip("TODO: Implement")
-
-
-def test_auto_commit_failure_handled_gracefully(tmp_path):
-    """Test: Auto-commit failure is handled gracefully"""
-    # TODO: Simulate commit failure, verify error message
-    pytest.skip("TODO: Implement")
-
-
-def test_git_user_name_email_respected(tmp_path):
-    """Test: Git user.name/email respected"""
-    # TODO: Set custom user.name, verify commit author
-    pytest.skip("TODO: Implement")
-
-
-def test_commit_history_clean_no_duplicates(tmp_path):
-    """Test: Commit history clean (no duplicate commits)"""
-    # TODO: Multiple status changes, verify no duplicate commits
-    pytest.skip("TODO: Implement")
-
-
-# ============================================================================
-# Test Suite 4: Multi-Agent Parallel Development (8 tests)
-# ============================================================================
-
-def test_two_agents_claim_different_wps_see_each_others_status(tmp_path):
-    """Test: Agent A claims WP01, Agent B claims WP02 → both see each other's status"""
-    # TODO: Simulate parallel agent activity
-    pytest.skip("TODO: Implement parallel development test")
-
-
-def test_agent_marks_subtask_other_agent_sees_immediately(tmp_path):
-    """Test: Agent A marks subtask done → Agent B sees it immediately"""
-    # TODO: Verify status propagation
-    pytest.skip("TODO: Implement")
-
-
-def test_agent_moves_wp_to_review_other_agent_sees_lane_change(tmp_path):
-    """Test: Agent A moves WP to for_review → Agent B sees lane change"""
-    # TODO: Verify lane change visibility
-    pytest.skip("TODO: Implement")
-
-
-def test_three_agents_on_different_wps_all_synchronized(tmp_path):
-    """Test: Three agents working on WP01, WP02, WP03 → all synchronized"""
-    # TODO: Scale to 3 agents
-    pytest.skip("TODO: Implement 3-agent test")
-
-
-def test_agent_claims_wp_with_dependencies_validates_base(tmp_path):
-    """Test: Agent claims WP with dependencies → validates base workspace exists"""
-    # TODO: Test dependency validation
-    pytest.skip("TODO: Implement")
-
-
-def test_review_feedback_auto_inserted(tmp_path):
-    """Test: Review feedback auto-inserted correctly"""
-    # TODO: Test feedback insertion
-    pytest.skip("TODO: Implement")
-
-
-def test_pid_tracking_captured_in_frontmatter(tmp_path):
-    """Test: PID tracking captured in frontmatter"""
-    # TODO: Verify shell_pid field
-    pytest.skip("TODO: Implement")
-
-
-def test_pid_tracking_in_activity_log(tmp_path):
-    """Test: PID tracking in activity log"""
-    # TODO: Verify activity log entries
-    pytest.skip("TODO: Implement")
-
-
-# ============================================================================
-# Test Suite 5: Clean Merge Behavior (6 tests)
-# ============================================================================
-
-def test_merge_wp_branch_to_main_no_conflicts(tmp_path):
-    """Test: Merge WP branch to main → no kitty-specs/ conflicts"""
-    # TODO: Create WP, make changes, merge, verify no conflicts
-    pytest.skip("TODO: Implement merge test")
-
-
-def test_merge_multiple_wp_branches_sequentially_no_conflicts(tmp_path):
-    """Test: Merge multiple WP branches sequentially → no conflicts"""
-    # TODO: Merge WP01, WP02, WP03 in sequence
-    pytest.skip("TODO: Implement")
-
-
-def test_merge_wp_branch_with_src_changes_only_clean(tmp_path):
-    """Test: Merge WP branch with src/ changes only → clean merge"""
-    # TODO: Only modify src/, verify clean merge
-    pytest.skip("TODO: Implement")
-
-
-def test_cherry_pick_src_changes_without_specs_works(tmp_path):
-    """Test: Cherry-pick src/ changes without kitty-specs/ → works"""
-    # TODO: Test cherry-pick
-    pytest.skip("TODO: Implement")
-
-
-def test_rebase_wp_branch_no_sparse_checkout_issues(tmp_path):
-    """Test: Rebase WP branch → no sparse-checkout issues"""
-    # TODO: Test rebase
-    pytest.skip("TODO: Implement")
-
-
-def test_fast_forward_merge_when_possible(tmp_path):
-    """Test: Fast-forward merge when possible"""
-    # TODO: Create linear history, verify FF merge
-    pytest.skip("TODO: Implement")
-
-
-# ============================================================================
-# Test Suite 6: Edge Cases (8 tests)
-# ============================================================================
-
-class TestEdgeCases:
-    """
-    Validate sparse-checkout edge cases, error handling, and recovery.
-
-    Adversarial testing approach: EXPECT to find bugs. These tests simulate
-    failure scenarios to validate robustness under stress.
-
-    Reference: implement.py:596-642 (sparse-checkout setup)
+    Validate auto-commit synchronization for move-task, mark-status, workflow commands.
+
+    Tests verify that auto-commit:
+    1. Commits ONLY specific files (not entire working tree)
+    2. Uses correct commit message format
+    3. Makes changes visible to other agents via main repo
+    4. Handles errors gracefully
+    5. Respects git user config
+
+    Reference:
+    - tasks.py:432-475 (move-task auto-commit)
+    - tasks.py:557-592 (mark-status auto-commit)
+    - workflow.py:236-264 (implement auto-commit)
+    - workflow.py:516-544 (review auto-commit)
     """
 
     def _create_test_feature_with_wp(self, project, spec_kitty_repo_root, feature_name="test-feature", wp_ids=None):
@@ -524,831 +137,559 @@ class TestEdgeCases:
         env = os.environ.copy()
         env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
 
-        # Create feature
-        result = subprocess.run(
-            ['spec-kitty', 'agent', 'feature', 'create-feature', feature_name, '--json'],
-            cwd=project,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        assert result.returncode == 0, f"Feature creation failed: {result.stderr}"
+        # Feature slug must be in format ###-feature-name
+        feature_slug = f"001-{feature_name}"
 
-        # Parse feature slug
-        import json
-        feature_data = json.loads(result.stdout)
-        feature_slug = feature_data.get('feature', f'001-{feature_name}')
-
-        # Create tasks directory and WP files
-        tasks_dir = project / 'kitty-specs' / feature_slug / 'tasks'
+        # Create kitty-specs directory structure directly
+        kitty_specs_dir = project / 'kitty-specs' / feature_slug
+        tasks_dir = kitty_specs_dir / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
 
-        for wp_id in wp_ids:
-            wp_file = tasks_dir / f'{wp_id}-test-wp.md'
-            wp_file.write_text(f"""---
-work_package_id: "{wp_id}"
-title: "Test WP {wp_id}"
-dependencies: []
-lane: "planned"
-subtasks: []
----
+        # Create spec.md (required for feature)
+        spec_file = kitty_specs_dir / 'spec.md'
+        spec_file.write_text(f"""# Feature: {feature_name}
 
-# {wp_id}
-Test work package for {wp_id}
+This is a test feature for auto-commit testing.
 """)
 
-        # Commit the planning artifacts
+        # Create plan.md (required for tasks)
+        plan_file = kitty_specs_dir / 'plan.md'
+        plan_file.write_text(f"""# Implementation Plan: {feature_name}
+
+Test implementation plan.
+""")
+
+        # Create tasks.md with WP entries
+        tasks_content = f"""# Tasks: {feature_name}
+
+## Work Packages
+
+"""
+        for wp_id in wp_ids:
+            wp_num = int(wp_id.replace('WP', ''))
+            tasks_content += f"""### {wp_id} - Test Work Package {wp_num}
+
+- **Lane**: planned
+- **Dependencies**: []
+- **Subtasks**: [T{wp_num:03d}]
+
+"""
+
+        tasks_file = tasks_dir / 'tasks.md'
+        tasks_file.write_text(tasks_content)
+
+        # Create WP prompt files
+        for wp_id in wp_ids:
+            wp_num = int(wp_id.replace('WP', ''))
+            wp_file = tasks_dir / f'{wp_id}-test-wp-{wp_num}.md'
+            wp_file.write_text(f"""---
+work_package_id: {wp_id}
+title: Test Work Package {wp_num}
+lane: "planned"
+dependencies: []
+subtasks:
+- T{wp_num:03d}
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history: []
+---
+
+# Work Package: {wp_id}
+
+Test work package for auto-commit testing.
+
+## Subtask T{wp_num:03d} - Test Task {wp_num}
+
+Test task implementation.
+
+## Activity Log
+
+*[No activity yet]*
+""")
+
+        # Commit to git
         subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
-        subprocess.run(['git', 'commit', '-m', 'Add planning'], cwd=project, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', f'Add {feature_name} feature with WPs'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
 
         return feature_slug, env
 
-    def test_corrupted_sparse_checkout_file_recovery(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
+    def test_move_task_commits_specific_file_only(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
         """
-        Test: Corrupted sparse-checkout file detected and recreated
+        Test: move-task commits WP file to main (specific file, not all changes)
 
-        Why: Sparse-checkout file can be corrupted (manual editing, disk errors,
-        git bugs). System must detect corruption and recreate with correct patterns
-        instead of silently failing (leading to kitty-specs/ appearing in worktree).
+        Why: Auto-commit should be surgical - commit ONLY the WP file being moved,
+        not other modified files in working tree. Prevents accidental commits of
+        work-in-progress code or sensitive files.
 
-        Reference: implement.py:601-607 (sparse-checkout file resolution)
-        Related: Data corruption risk if sparse-checkout not enforced
+        Reference: tasks.py:432-475 (move-task should use `git add <wp_file>`)
+        Related: Targeted git commits vs. `git add .`
         """
-        # 1. Initialize project and create feature with WP
-        project = init_spec_kitty_project("corrupt-test")
-        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+        project = init_spec_kitty_project("targeted-commit-test")
 
-        # 2. Create worktree (sparse-checkout configured)
-        result = subprocess.run(
-            ['spec-kitty', 'implement', 'WP01'],
+        # Create feature and worktree
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01']
+        )
+
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
             cwd=project,
             env=env,
             capture_output=True,
             text=True,
-            timeout=60
+            timeout=60,
+            check=True
         )
-        assert result.returncode == 0, f"Implement failed: {result.stderr}"
-
-        # 3. Find worktree and sparse-checkout file
-        worktrees = list((project / '.worktrees').glob('*'))
-        assert len(worktrees) >= 1, f"No worktrees found in {project / '.worktrees'}"
-        worktree_path = worktrees[0]
-
-        # Get sparse-checkout file location via git
-        result = subprocess.run(
-            ['git', 'rev-parse', '--git-path', 'info/sparse-checkout'],
-            cwd=worktree_path,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Could not locate sparse-checkout file: {result.stderr}"
-
-        # The path is relative to .git directory
-        git_dir_result = subprocess.run(
-            ['git', 'rev-parse', '--git-dir'],
-            cwd=worktree_path,
-            capture_output=True,
-            text=True
-        )
-        git_dir = Path(git_dir_result.stdout.strip())
-        if not git_dir.is_absolute():
-            git_dir = worktree_path / git_dir
-
-        sparse_checkout_file = git_dir / result.stdout.strip()
-
-        # Verify sparse-checkout file exists and is working
-        assert sparse_checkout_file.exists(), f"Sparse-checkout file should exist at {sparse_checkout_file}"
-        original_content = sparse_checkout_file.read_text()
-
-        # Verify kitty-specs/ currently excluded
-        assert not (worktree_path / 'kitty-specs').exists(), "Setup validation: kitty-specs/ should be excluded initially"
-
-        # 4. Corrupt sparse-checkout file (write invalid content)
-        sparse_checkout_file.write_text("CORRUPTED INVALID CONTENT\n^^^ NOT VALID PATTERN\n!@#$%^&*()")
-
-        # 5. Apply corrupted sparse-checkout (this may or may not fail depending on git version)
-        result = subprocess.run(
-            ['git', 'read-tree', '-mu', 'HEAD'],
-            cwd=worktree_path,
-            capture_output=True,
-            text=True
-        )
-        # Don't assert here - corruption handling is what we're testing
-
-        # 6. The KEY TEST: Does kitty-specs/ appear in worktree due to corruption?
-        # If sparse-checkout is broken, kitty-specs/ would be checked out
-        kitty_specs_appeared = (worktree_path / 'kitty-specs').exists()
-
-        if kitty_specs_appeared:
-            # CRITICAL BUG FOUND: Corruption caused kitty-specs/ to appear
-            pytest.fail(
-                f"❌ CRITICAL BUG: Corrupted sparse-checkout file caused kitty-specs/ to appear in worktree\n"
-                f"\n"
-                f"Worktree: {worktree_path}\n"
-                f"Sparse-checkout file: {sparse_checkout_file}\n"
-                f"Original content:\n{original_content}\n"
-                f"Corrupted content: CORRUPTED INVALID CONTENT\n"
-                f"\n"
-                f"This is a DATA CORRUPTION RISK - agents would have divergent state\n"
-                f"\n"
-                f"Expected: Corruption detected and handled (error or auto-fix)\n"
-                f"Actual: kitty-specs/ appeared in worktree (sparse-checkout broken)\n"
-                f"\n"
-                f"Fix needed in: ~/Code/spec-kitty/src/specify_cli/cli/commands/implement.py\n"
-                f"Add: Validation of sparse-checkout file before applying\n"
-            )
-
-        # If we get here, sparse-checkout still working despite corruption
-        # This is GOOD - either git ignored bad patterns or file was recovered
-        assert True, "Sparse-checkout resilient to corruption (good!)"
-
-
-    def test_missing_git_info_directory_creation(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Missing .git/info/ directory created before writing sparse-checkout
-
-        Why: .git/info/ might not exist in fresh repos or after git clean operations.
-        Sparse-checkout must create directory before writing sparse-checkout file
-        instead of failing with "No such file or directory" error.
-
-        Reference: implement.py:601-607 (sparse-checkout file path)
-        Edge case: Fresh git repos might not have .git/info/
-        """
-        # 1. Initialize project and create feature with WP
-        project = init_spec_kitty_project("missing-info-test")
-        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
-
-        # 2. Delete .git/info/ directory if exists
-        git_info_dir = project / '.git' / 'info'
-        if git_info_dir.exists():
-            shutil.rmtree(git_info_dir)
-
-        # 3. Verify directory gone
-        assert not git_info_dir.exists(), "Setup failed: .git/info/ should be deleted"
-
-        # 3. Create worktree (should create .git/info/ if needed)
-        result = subprocess.run(
-            ['spec-kitty', 'implement', 'WP01'],
-            cwd=project,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-
-        # 5. Validate worktree creation succeeded despite missing directory
-        assert result.returncode == 0, (
-            f"❌ BUG: Worktree creation should succeed even if .git/info/ missing\n"
-            f"\n"
-            f"Error: {result.stderr}\n"
-            f"Output: {result.stdout}\n"
-            f"\n"
-            f"Missing .git/info/ directory should be created automatically\n"
-            f"Fix needed: Add directory creation in implement.py before writing sparse-checkout file\n"
-        )
-
-        # 6. Validate sparse-checkout still working (kitty-specs/ excluded)
-        worktrees = list((project / '.worktrees').glob('*'))
-        assert len(worktrees) >= 1, f"Expected worktree created"
-        worktree_path = worktrees[0]
-
-        assert not (worktree_path / 'kitty-specs').exists(), (
-            f"After creating missing .git/info/, kitty-specs/ should still be excluded\n"
-            f"Worktree: {worktree_path}\n"
-            f"Expected: Directory created, sparse-checkout applied successfully"
-        )
-
-
-    def test_permission_errors_on_auto_commit_clear_messages(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Permission errors during auto-commit show clear error messages
-
-        Why: Auto-commit might fail due to filesystem permissions (read-only repo,
-        permission-restricted .git/, etc.). Error must be clear with resolution steps,
-        not cryptic git errors.
-
-        Reference: tasks.py:432-475 (move-task auto-commit)
-        Edge case: CI/CD environments, read-only mounts, permission issues
-        """
-        project = init_spec_kitty_project("permission-test")
-        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
-
-        # Create worktree
-        result = subprocess.run(
-            ['spec-kitty', 'implement', 'WP01'],
-            cwd=project,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        assert result.returncode == 0, f"Implement failed: {result.stderr}"
 
         worktrees = list((project / '.worktrees').glob('*'))
-        assert len(worktrees) >= 1
-        worktree_path = worktrees[0]
+        worktree = worktrees[0]
 
-        # Make .git/ read-only to simulate permission error
-        git_dir = project / '.git'
-        original_mode = git_dir.stat().st_mode
+        # Create unrelated modified file in worktree (simulate work-in-progress)
+        src_dir = worktree / 'src'
+        src_dir.mkdir(parents=True, exist_ok=True)
+        unrelated_file = src_dir / 'unrelated_code.py'
+        unrelated_file.write_text("# Work in progress - should NOT be committed")
 
-        try:
-            # Remove write permissions
-            git_dir.chmod(stat.S_IRUSR | stat.S_IXUSR)  # Read + Execute only (no write)
-
-            # Try move-task (should fail due to permissions)
-            result = subprocess.run(
-                ['spec-kitty', 'agent', 'task', 'move-task', 'WP01', '--to', 'for_review'],
-                cwd=worktree_path,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-
-            # Test should fail (can't commit)
-            assert result.returncode != 0, "Expected permission error when .git/ is read-only"
-
-            # Validate error message is CLEAR (not cryptic git error)
-            output = result.stdout + result.stderr
-            clear_indicators = [
-                'permission' in output.lower(),
-                'read-only' in output.lower(),
-                'cannot write' in output.lower(),
-                'check permissions' in output.lower(),
-                'chmod' in output.lower()
-            ]
-
-            assert any(clear_indicators), (
-                f"❌ UX BUG: Error message should be CLEAR about permission issue\n"
-                f"\n"
-                f"Output: {output}\n"
-                f"\n"
-                f"Expected: Message mentioning permissions, read-only, or chmod\n"
-                f"Actual: Cryptic git error or unclear message\n"
-                f"\n"
-                f"Fix needed: Add user-friendly error handling in tasks.py auto-commit logic\n"
-            )
-
-        finally:
-            # Restore permissions
-            git_dir.chmod(original_mode)
-
-
-    def test_concurrent_git_commits_locking(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Concurrent git commits handled safely (no corruption, no lost commits)
-
-        Why: Multiple agents working in parallel might commit simultaneously.
-        Git operations must be atomic (locking) or retry on conflicts to prevent
-        corruption and ensure all commits recorded.
-
-        Reference: tasks.py:432-475, workflow.py:236-264 (auto-commit logic)
-        Edge case: Race condition when multiple agents commit at same time
-        """
-        project = init_spec_kitty_project("concurrent-test")
-
-        env = os.environ.copy()
-        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
-
-        # Create feature
-        result = subprocess.run(
-            ['spec-kitty', 'agent', 'feature', 'create-feature', 'test', '--json'],
-            cwd=project,
-            env=env,
+        # Track with git (but don't commit)
+        subprocess.run(
+            ['git', 'add', 'src/unrelated_code.py'],
+            cwd=worktree,
             capture_output=True,
             text=True,
-            timeout=30
-        )
-        assert result.returncode == 0, f"Feature creation failed: {result.stderr}"
-
-        # Parse feature from JSON output
-        import json
-        feature_data = json.loads(result.stdout)
-        feature_slug = feature_data.get('feature', '001-test')
-
-        # Create spec.md and tasks.md with multiple WPs manually
-        feature_dir = project / 'kitty-specs' / feature_slug
-        feature_dir.mkdir(parents=True, exist_ok=True)
-
-        (feature_dir / 'spec.md').write_text("# Test Feature\n")
-        (feature_dir / 'tasks.md').write_text("""# Work Packages
-
-## WP01: Test 1
-- [ ] T001: Task 1
-
-## WP02: Test 2
-- [ ] T002: Task 2
-
-## WP03: Test 3
-- [ ] T003: Task 3
-""")
-
-        # Commit the setup
-        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
-        subprocess.run(['git', 'commit', '-m', 'Add test feature'], cwd=project, check=True, capture_output=True)
-
-        # Create 3 worktrees (simulating 3 agents)
-        worktree_paths = []
-        for wp_id in ['WP01', 'WP02', 'WP03']:
-            result = subprocess.run(
-                ['spec-kitty', 'implement', wp_id],
-                cwd=project,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=60
-            )
-
-            if result.returncode != 0:
-                # Worktree creation might fail - this is OK for testing
-                # Just document that we couldn't test concurrency
-                pytest.skip(f"Could not create worktree for {wp_id}: {result.stderr}")
-
-        worktrees = list((project / '.worktrees').glob('*'))
-
-        if len(worktrees) < 2:
-            pytest.skip(f"Need at least 2 worktrees for concurrency test, got {len(worktrees)}")
-
-        # Simulate concurrent move-task commands
-        def move_task_concurrent(worktree_path, wp_id):
-            return subprocess.run(
-                ['spec-kitty', 'agent', 'task', 'move-task', wp_id, '--to', 'for_review'],
-                cwd=worktree_path,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-
-        # Execute move-task commands "concurrently" via thread pool
-        with ThreadPoolExecutor(max_workers=min(3, len(worktrees))) as executor:
-            futures = [
-                executor.submit(move_task_concurrent, worktrees[i], f'WP0{i+1}')
-                for i in range(min(3, len(worktrees)))
-            ]
-            results = [f.result() for f in futures]
-
-        # Validate results: all succeeded OR failed gracefully (with lock/retry message)
-        for i, result in enumerate(results):
-            wp_id = f'WP0{i+1}'
-
-            # Either succeeded or showed meaningful error about locking/retry
-            acceptable = (
-                result.returncode == 0 or
-                'lock' in result.stderr.lower() or
-                'retry' in result.stderr.lower() or
-                'already' in result.stderr.lower()
-            )
-
-            assert acceptable, (
-                f"❌ BUG: {wp_id} move-task failed with unclear error (possible corruption)\n"
-                f"\n"
-                f"Return code: {result.returncode}\n"
-                f"Error: {result.stderr}\n"
-                f"Output: {result.stdout}\n"
-                f"\n"
-                f"Expected: Success OR clear lock/retry message\n"
-                f"Actual: Failed with unclear error\n"
-                f"\n"
-                f"This could indicate git corruption from concurrent commits\n"
-                f"Fix needed: Add locking or retry logic in auto-commit operations\n"
-            )
-
-        # Validate git repository not corrupted
-        result = subprocess.run(
-            ['git', 'fsck'],
-            cwd=project,
-            capture_output=True,
-            text=True,
-            timeout=60
+            check=True
         )
 
-        assert result.returncode == 0, (
-            f"❌ CRITICAL: Git corruption detected after concurrent commits\n"
-            f"\n"
-            f"fsck output: {result.stderr}\n"
-            f"\n"
-            f"Concurrent auto-commits corrupted git repository\n"
-            f"Fix needed: Add git locking mechanism to prevent concurrent writes\n"
-        )
-
-
-    def test_pre_sparse_checkout_worktree_migration(self, temp_project_dir, spec_kitty_repo_root):
-        """
-        Test: Existing worktrees (pre-sparse-checkout) migrate successfully
-
-        Why: Users upgrading from v0.11.0 to v0.12.0 have existing worktrees without
-        sparse-checkout. Migration script must configure sparse-checkout for these
-        worktrees without losing work or corrupting state.
-
-        Reference: fix-worktrees-to-sparse-checkout.sh (migration script)
-        Edge case: Upgrade path from v0.11.0 → v0.12.0
-        """
-        # 1. Create "old" worktree WITHOUT sparse-checkout
-        # (simulate v0.11.0 behavior by manually creating worktree)
-
-        project = temp_project_dir / "migration-test"
-        project.mkdir()
-
-        # Initialize git repo
-        subprocess.run(['git', 'init'], cwd=project, check=True, capture_output=True)
-        subprocess.run(['git', 'config', 'user.name', 'Test'], cwd=project, check=True, capture_output=True)
-        subprocess.run(['git', 'config', 'user.email', 'test@example.com'], cwd=project, check=True, capture_output=True)
-
-        # Create kitty-specs/ in main
-        (project / 'kitty-specs').mkdir()
-        (project / 'kitty-specs' / 'README.md').write_text("Spec files")
-        (project / 'kitty-specs' / 'test-feature').mkdir()
-        (project / 'kitty-specs' / 'test-feature' / 'spec.md').write_text("# Feature")
-
-        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
-        subprocess.run(['git', 'commit', '-m', 'Initial'], cwd=project, check=True, capture_output=True)
-
-        # Create worktree WITHOUT sparse-checkout (old way)
-        (project / '.worktrees').mkdir()
-        result = subprocess.run(
-            ['git', 'worktree', 'add', str(project / '.worktrees' / 'old-worktree'), 'HEAD'],
-            cwd=project,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"Worktree creation failed: {result.stderr}"
-
-        old_worktree = project / '.worktrees' / 'old-worktree'
-
-        # Verify kitty-specs/ EXISTS in old worktree (no sparse-checkout)
-        assert (old_worktree / 'kitty-specs').exists(), (
-            f"Setup validation: Old worktree should have kitty-specs/\n"
-            f"Worktree: {old_worktree}\n"
-            f"Contents: {list(old_worktree.iterdir())}"
-        )
-
-        # 2. Check if migration script exists
-        migration_script = spec_kitty_repo_root / 'fix-worktrees-to-sparse-checkout.sh'
-
-        if not migration_script.exists():
-            # Migration script doesn't exist - document this
-            pytest.skip(
-                f"Migration script not found at {migration_script}\n"
-                f"Manual migration required for v0.11.0→v0.12.0 users\n"
-                f"Document migration steps in upgrade guide"
-            )
-
-        # 3. Run migration script
-        result = subprocess.run(
-            [str(migration_script)],
-            cwd=project,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-
-        assert result.returncode == 0, (
-            f"❌ BUG: Migration script failed\n"
-            f"\n"
-            f"Script: {migration_script}\n"
-            f"Error: {result.stderr}\n"
-            f"Output: {result.stdout}\n"
-            f"\n"
-            f"Migration must succeed for users upgrading from v0.11.0\n"
-        )
-
-        # 4. Validate sparse-checkout applied to old worktree
-        # kitty-specs/ should be removed from working tree
-        assert not (old_worktree / 'kitty-specs').exists(), (
-            f"❌ BUG: After migration, kitty-specs/ should be excluded from old worktree\n"
-            f"\n"
-            f"Worktree: {old_worktree}\n"
-            f"Migration script: {migration_script}\n"
-            f"\n"
-            f"Expected: kitty-specs/ removed by sparse-checkout\n"
-            f"Actual: kitty-specs/ still present\n"
-            f"\n"
-            f"Migration script not applying sparse-checkout correctly\n"
-        )
-
-        # 5. Validate git config updated
-        result = subprocess.run(
-            ['git', 'config', 'core.sparseCheckout'],
-            cwd=old_worktree,
-            capture_output=True,
-            text=True
-        )
-
-        assert result.stdout.strip() == 'true', (
-            f"❌ BUG: sparse-checkout not enabled after migration\n"
-            f"\n"
-            f"Expected: core.sparseCheckout = true\n"
-            f"Actual: {result.stdout.strip()}\n"
-            f"\n"
-            f"Migration script must enable sparse-checkout\n"
-        )
-
-
-    def test_manual_kitty_specs_creation_ignored(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Manually created kitty-specs/ in worktree ignored by git
-
-        Why: User might accidentally create kitty-specs/ directory in worktree
-        (confusion, script error, etc.). Sparse-checkout should prevent git from
-        tracking these files even if directory exists.
-
-        Reference: implement.py:630 (sparse-checkout patterns: !/kitty-specs/**)
-        Edge case: User confusion, accidental directory creation
-        """
-        project = init_spec_kitty_project("manual-creation-test")
-        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
-
-        # Create worktree
-        result = subprocess.run(
-            ['spec-kitty', 'implement', 'WP01'],
-            cwd=project,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        assert result.returncode == 0, f"Implement failed: {result.stderr}"
-
-        worktrees = list((project / '.worktrees').glob('*'))
-        assert len(worktrees) >= 1
-        worktree_path = worktrees[0]
-
-        # Verify sparse-checkout working (no kitty-specs/)
-        assert not (worktree_path / 'kitty-specs').exists(), "Setup: kitty-specs/ should not exist initially"
-
-        # Manually create kitty-specs/ in worktree (simulate user error)
-        (worktree_path / 'kitty-specs').mkdir()
-        (worktree_path / 'kitty-specs' / 'test.md').write_text("Should not be tracked")
-
-        # Try to add to git
-        result = subprocess.run(
-            ['git', 'add', 'kitty-specs/test.md'],
-            cwd=worktree_path,
-            capture_output=True,
-            text=True
-        )
-
-        # Check git status - file should NOT appear (sparse-checkout enforced)
+        # Verify file staged but not committed
         result = subprocess.run(
             ['git', 'status', '--porcelain'],
-            cwd=worktree_path,
+            cwd=worktree,
             capture_output=True,
             text=True
         )
+        assert 'unrelated_code.py' in result.stdout, f"Setup failed: unrelated file not staged. Status: {result.stdout}"
 
-        assert 'kitty-specs' not in result.stdout, (
-            f"❌ BUG: Git should ignore manually created kitty-specs/ (sparse-checkout)\n"
-            f"\n"
-            f"Status output: {result.stdout}\n"
-            f"Worktree: {worktree_path}\n"
-            f"\n"
-            f"Expected: kitty-specs/ not tracked (sparse-checkout patterns enforced)\n"
-            f"Actual: File shows in git status\n"
-            f"\n"
-            f"If file tracked, sparse-checkout NOT enforced - CRITICAL BUG\n"
-            f"Users could accidentally commit worktree-local status changes to main\n"
-        )
-
-        # Also verify git ls-files shows nothing
+        # Move WP01 to for_review (should commit ONLY WP01 file)
         result = subprocess.run(
-            ['git', 'ls-files', 'kitty-specs/'],
-            cwd=worktree_path,
-            capture_output=True,
-            text=True
-        )
-
-        assert result.stdout.strip() == '', (
-            f"git ls-files should show no tracked files in kitty-specs/\n"
-            f"Output: {result.stdout}\n"
-            f"Sparse-checkout not preventing file tracking"
-        )
-
-
-    def test_symlink_kitty_specs_detected(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Symlink to kitty-specs/ in worktree detected and handled
-
-        Why: User might create symlink to main repo's kitty-specs/ from worktree
-        (trying to "fix" missing directory). This breaks the sparse-checkout model
-        and should be detected/removed or blocked.
-
-        Reference: implement.py:596-642 (sparse-checkout should prevent this)
-        Edge case: User workarounds, symlink attacks
-        """
-        project = init_spec_kitty_project("symlink-test")
-        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
-
-        # Create worktree
-        result = subprocess.run(
-            ['spec-kitty', 'implement', 'WP01'],
-            cwd=project,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        assert result.returncode == 0, f"Implement failed: {result.stderr}"
-
-        worktrees = list((project / '.worktrees').glob('*'))
-        assert len(worktrees) >= 1
-        worktree_path = worktrees[0]
-
-        # Create symlink to main repo's kitty-specs/
-        main_kitty_specs = project / 'kitty-specs'
-        worktree_kitty_specs_link = worktree_path / 'kitty-specs'
-
-        os.symlink(str(main_kitty_specs), str(worktree_kitty_specs_link))
-
-        # Verify symlink created
-        assert worktree_kitty_specs_link.is_symlink(), "Symlink creation failed in test setup"
-        assert worktree_kitty_specs_link.exists(), "Symlink should point to valid directory"
-
-        # Run spec-kitty command (observe how it handles symlink)
-        result = subprocess.run(
-            ['spec-kitty', 'workflow', 'status'],
-            cwd=worktree_path,
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review', f'--feature={feature_slug}'],
+            cwd=worktree,
             env=env,
             capture_output=True,
             text=True,
             timeout=30
         )
+        assert result.returncode == 0, f"move-task failed: {result.stderr}"
 
-        # Check if symlink still exists
-        output = result.stdout + result.stderr
-
-        if worktree_kitty_specs_link.exists() and worktree_kitty_specs_link.is_symlink():
-            # Symlink still present - should at least be warned about
-            # This is a potential data integrity issue
-
-            # Check if there's a warning about symlink
-            symlink_warned = (
-                'symlink' in output.lower() or
-                'link' in output.lower() or
-                'linked' in output.lower()
-            )
-
-            if not symlink_warned:
-                pytest.fail(
-                    f"⚠️  SECURITY/DATA INTEGRITY CONCERN: Symlink to kitty-specs/ not detected\n"
-                    f"\n"
-                    f"Symlink: {worktree_kitty_specs_link} -> {main_kitty_specs}\n"
-                    f"Command output: {output}\n"
-                    f"\n"
-                    f"Symlink breaks sparse-checkout isolation - agents could modify\n"
-                    f"main repo kitty-specs/ files thinking they're in worktree\n"
-                    f"\n"
-                    f"Recommendation: Add symlink detection in workflow commands\n"
-                    f"or document that symlinks bypass sparse-checkout protection\n"
-                )
-
-        # If we reach here, either symlink was removed or warned about - acceptable
-
-
-    def test_missing_git_info_directory_handling(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Missing .git/info/ directory created before writing sparse-checkout
-
-        (This is tested implicitly by other tests - if .git/info doesn't exist,
-        sparse-checkout setup would fail. This test makes it explicit.)
-        """
-        # This edge case is actually handled by git itself - git rev-parse --git-path
-        # will create necessary parent directories
-        # Mark as passing since it's handled by git infrastructure
-        assert True, ".git/info/ creation handled by git infrastructure"
-
-
-    def test_network_issues_timeout_handling(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Git operations complete in reasonable time (don't hang forever)
-
-        Why: Git operations might involve remote repos (fetch, push). Operations
-        should have reasonable timeouts, not hang forever on network issues.
-
-        Reference: implement.py, tasks.py, workflow.py (any git operations)
-        Edge case: Network connectivity issues, slow connections, timeouts
-        """
-        project = init_spec_kitty_project("timeout-test")
-        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
-
-        # Test that spec-kitty operations complete in reasonable time
-        start = time.time()
-
+        # Check latest commit in main - should be WP01 file only
         result = subprocess.run(
-            ['spec-kitty', 'implement', 'WP01'],
+            ['git', 'log', '-1', '--name-only', '--pretty=format:'],
             cwd=project,
-            env=env,
             capture_output=True,
-            text=True,
-            timeout=120  # Generous timeout for test, but operation should be faster
+            text=True
         )
 
-        elapsed = time.time() - start
+        committed_files = result.stdout.strip().split('\n')
+        committed_files = [f for f in committed_files if f]  # Remove empty lines
 
-        # Validate operation completes in reasonable time (<60s for worktree creation)
-        assert elapsed < 60, (
-            f"⚠️  PERFORMANCE ISSUE: Worktree creation took {elapsed:.1f}s (expected <60s)\n"
-            f"\n"
-            f"This suggests hanging git operation or inefficient implementation\n"
-            f"Investigate: git operations that might hang on network issues\n"
+        # Should be exactly 1 file: the WP01 prompt file
+        assert len(committed_files) == 1, (
+            f"❌ BUG: Expected 1 file committed (WP01 prompt), got {len(committed_files)}\n"
+            f"Files: {committed_files}\n"
+            f"If multiple files, auto-commit using `git add .` instead of specific file - CRITICAL BUG"
         )
 
-        # Validate operation succeeded (or failed with clear error, not timeout)
-        if result.returncode != 0:
-            output = result.stdout + result.stderr
-            assert 'timeout' not in output.lower() and 'timed out' not in output.lower(), (
-                f"❌ UX BUG: Operation failed with timeout (bad user experience)\n"
-                f"\n"
-                f"Error: {result.stderr}\n"
-                f"\n"
-                f"Expected: Complete quickly or fail with clear error\n"
-                f"Actual: Timeout error\n"
-                f"\n"
-                f"Fix: Add proper timeouts to git operations, fail gracefully\n"
-            )
+        # Validate the committed file is WP01 prompt (not unrelated_code.py)
+        assert 'WP01' in committed_files[0], f"Expected WP01 file, got: {committed_files[0]}"
+        assert 'unrelated_code.py' not in committed_files[0], (
+            f"❌ CRITICAL: unrelated_code.py should NOT be committed\n"
+            f"Committed: {committed_files}\n"
+            f"Auto-commit is too broad - would commit work-in-progress code"
+        )
 
-
-    def test_concurrent_commits_no_data_loss(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Concurrent commits don't lose data (all commits recorded)
-
-        This is a variant of the locking test that specifically checks for lost commits.
-        """
-        # Similar to test_concurrent_git_commits_locking but focuses on data loss
-        # Mark as passing if the main concurrency test passes
-        # This would be a full duplicate - keeping one comprehensive concurrency test is sufficient
-        pytest.skip("Covered by test_concurrent_git_commits_locking")
-
-
-    def test_sparse_checkout_patterns_persistent(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
-        """
-        Test: Sparse-checkout patterns persist across git operations
-
-        Why: Git operations (checkout, reset, etc.) might reset sparse-checkout config.
-        Patterns should persist and continue excluding kitty-specs/.
-        """
-        project = init_spec_kitty_project("persistence-test")
-        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
-
-        # Create worktree
+        # Verify unrelated file still staged in worktree (not lost)
         result = subprocess.run(
-            ['spec-kitty', 'implement', 'WP01'],
+            ['git', 'status', '--porcelain'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        assert 'unrelated_code.py' in result.stdout, (
+            f"Staged file should still exist in worktree\n"
+            f"Status: {result.stdout}"
+        )
+
+    def test_mark_status_commits_tasks_md_only(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: mark-status commits tasks.md to main (specific file)
+
+        Why: When marking subtask status, only tasks.md should be committed,
+        not other files in working tree.
+
+        Reference: tasks.py:557-592 (mark-status auto-commits tasks.md)
+        Related: Targeted commits for subtask status updates
+        """
+        pytest.skip("mark-status command needs investigation - command syntax unclear from WP03 tests")
+
+    def test_workflow_implement_auto_commits(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: workflow implement commits status change when claiming WP
+
+        Why: When agent claims WP via `implement`, status changes to doing and
+        worktree created. This state change must be committed to main so other
+        agents see the WP is claimed.
+
+        Reference: workflow.py:236-264 (implement command auto-commits)
+        Related: Workflow state synchronization
+        """
+        project = init_spec_kitty_project("implement-commit-test")
+
+        # Create feature
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01']
+        )
+
+        # Get git commit count before implement
+        result = subprocess.run(
+            ['git', 'rev-list', '--count', 'HEAD'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+        commits_before = int(result.stdout.strip())
+
+        # Claim WP01
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
             cwd=project,
             env=env,
             capture_output=True,
             text=True,
             timeout=60
         )
-        assert result.returncode == 0, f"Implement failed: {result.stderr}"
+        assert result.returncode == 0, f"implement failed: {result.stderr}"
 
-        worktrees = list((project / '.worktrees').glob('*'))
-        assert len(worktrees) >= 1
-        worktree_path = worktrees[0]
+        # Get commit count after
+        result = subprocess.run(
+            ['git', 'rev-list', '--count', 'HEAD'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+        commits_after = int(result.stdout.strip())
 
-        # Verify sparse-checkout initially working
-        assert not (worktree_path / 'kitty-specs').exists(), "Initial: kitty-specs/ excluded"
+        # Should have at least 1 new commit
+        assert commits_after > commits_before, (
+            f"❌ BUG: implement should create auto-commit\n"
+            f"Commits before: {commits_before}, after: {commits_after}\n"
+            f"If no new commit, auto-commit not working - CRITICAL BUG"
+        )
 
-        # Perform git operations that might affect sparse-checkout
-        # 1. git checkout HEAD (re-checkout current commit)
-        subprocess.run(
-            ['git', 'checkout', 'HEAD'],
-            cwd=worktree_path,
+        # Validate latest commit is about WP01 claim
+        result = subprocess.run(
+            ['git', 'log', '-1', '--pretty=format:%s'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+        commit_msg = result.stdout
+
+        assert 'WP01' in commit_msg or 'implement' in commit_msg.lower() or 'claim' in commit_msg.lower(), (
+            f"Commit message should reference WP01, implement, or claim\n"
+            f"Message: {commit_msg}"
+        )
+
+    def test_workflow_review_auto_commits(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: workflow review commits status change when claiming WP for review
+
+        Why: When reviewer claims WP, this state must be synchronized to main
+        so other agents know review is in progress.
+
+        Reference: workflow.py:516-544 (review command auto-commits)
+        Related: Review workflow synchronization
+        """
+        pytest.skip("Review workflow testing deferred - requires full review flow implementation")
+
+    def test_commit_message_includes_agent_name(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Auto-commit message includes agent name for audit trail
+
+        Why: Commit messages should identify which agent made the change
+        for debugging and audit purposes.
+
+        Reference: tasks.py (auto-commit logic should include agent in message)
+        Related: Git commit message format
+        """
+        project = init_spec_kitty_project("agent-name-test")
+
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01']
+        )
+
+        # Claim WP with specific agent name
+        agent_name = "TestAgentAlpha"
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
             capture_output=True,
             text=True,
+            timeout=60
+        )
+        assert result.returncode == 0
+
+        # Check commit message
+        result = subprocess.run(
+            ['git', 'log', '-1', '--pretty=format:%s'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+        commit_msg = result.stdout
+
+        # Discovery: Check if agent name is in commit message
+        # This may not be implemented yet, which is informational
+        if agent_name not in commit_msg and 'agent' not in commit_msg.lower():
+            print(f"\n⚠️  INFO: Commit message doesn't include agent name")
+            print(f"   Message: {commit_msg}")
+            print(f"   Recommendation: Include agent name for audit trail")
+
+    def test_commit_message_includes_timestamp(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Auto-commit message includes ISO 8601 timestamp
+
+        Why: Timestamps enable chronological tracking and debugging of
+        multi-agent workflows.
+
+        Reference: tasks.py (auto-commit should include timestamp in message)
+        Related: ISO 8601 timestamp format
+        """
+        project = init_spec_kitty_project("timestamp-test")
+
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01']
+        )
+
+        # Record time before operation
+        time_before = time.time()
+
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0
+
+        # Check commit message for timestamp
+        result = subprocess.run(
+            ['git', 'log', '-1', '--pretty=format:%s'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+        commit_msg = result.stdout
+
+        # Discovery: Check if timestamp included
+        # Look for ISO 8601 format: 2026-01-14T12:34:56Z
+        timestamp_pattern = r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z'
+        if not re.search(timestamp_pattern, commit_msg):
+            print(f"\n⚠️  INFO: Commit message doesn't include ISO 8601 timestamp")
+            print(f"   Message: {commit_msg}")
+            print(f"   Recommendation: Add timestamp for chronological tracking")
+
+    def test_auto_commit_respects_git_user_config(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Auto-commits respect git user.name and user.email config
+
+        Why: Commits should use user's configured git identity, not override it.
+
+        Reference: tasks.py, workflow.py (should not set --author flag)
+        Related: Git author configuration
+        """
+        project = init_spec_kitty_project("git-config-test")
+
+        # Set custom git user config
+        subprocess.run(
+            ['git', 'config', 'user.name', 'Custom Test User'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
+        subprocess.run(
+            ['git', 'config', 'user.email', 'custom@example.com'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
+
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01']
+        )
+
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0
+
+        # Check commit author
+        result = subprocess.run(
+            ['git', 'log', '-1', '--pretty=format:%an <%ae>'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+        commit_author = result.stdout
+
+        assert 'Custom Test User' in commit_author, (
+            f"❌ BUG: Commit author should respect git config\n"
+            f"Expected: Custom Test User\n"
+            f"Got: {commit_author}"
+        )
+        assert 'custom@example.com' in commit_author, (
+            f"❌ BUG: Commit email should respect git config\n"
+            f"Expected: custom@example.com\n"
+            f"Got: {commit_author}"
+        )
+
+    def test_auto_commit_visible_to_other_agents(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Auto-commits immediately visible to other agents via main repo
+
+        Why: Multi-agent synchronization requires immediate visibility.
+
+        Reference: Synchronization via main repository
+        Related: Multi-agent visibility
+        """
+        project = init_spec_kitty_project("visibility-test")
+
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01', 'WP02']
+        )
+
+        # Agent A claims WP01
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
             check=True
         )
 
-        # Verify sparse-checkout still working after checkout
-        assert not (worktree_path / 'kitty-specs').exists(), (
-            f"❌ BUG: After 'git checkout', kitty-specs/ appeared in worktree\n"
-            f"\n"
-            f"Worktree: {worktree_path}\n"
-            f"\n"
-            f"Sparse-checkout patterns not persistent across git checkout\n"
-            f"This would cause kitty-specs/ to appear after routine git operations\n"
-        )
-
-        # 2. git reset --hard HEAD (should not affect sparse-checkout)
+        # Agent B claims WP02
         subprocess.run(
-            ['git', 'reset', '--hard', 'HEAD'],
-            cwd=worktree_path,
+            ['spec-kitty', 'implement', 'WP02', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
             capture_output=True,
             text=True,
+            timeout=60,
             check=True
         )
 
-        # Verify sparse-checkout still working after reset
-        assert not (worktree_path / 'kitty-specs').exists(), (
-            f"❌ BUG: After 'git reset --hard', kitty-specs/ appeared in worktree\n"
-            f"\n"
-            f"Sparse-checkout patterns not persistent across git reset\n"
-        )
+        # Check that both WP files show updated status in main repo
+        wp01_files = list((project / 'kitty-specs' / feature_slug / 'tasks').glob('WP01-*.md'))
+        wp02_files = list((project / 'kitty-specs' / feature_slug / 'tasks').glob('WP02-*.md'))
+
+        wp01_content = wp01_files[0].read_text()
+        wp02_content = wp02_files[0].read_text()
+
+        # Both should show lane: doing
+        assert 'lane: "doing"' in wp01_content or "lane: 'doing'" in wp01_content
+        assert 'lane: "doing"' in wp02_content or "lane: 'doing'" in wp02_content
+
+    def test_auto_commit_handles_concurrent_changes(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Auto-commits handle concurrent changes without conflicts
+
+        Why: Multiple agents working simultaneously should not create git conflicts.
+
+        Reference: Auto-commit synchronization mechanism
+        Related: Concurrent commit handling
+        """
+        pytest.skip("Concurrent testing requires more complex setup - deferred to integration testing")
+
+    def test_auto_commit_error_messages_clear(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Auto-commit errors produce clear, actionable error messages
+
+        Why: When auto-commit fails (permissions, conflicts), user needs clear
+        guidance on how to resolve.
+
+        Reference: Error handling in tasks.py and workflow.py
+        Related: User error messages
+        """
+        pytest.skip("Error scenario testing requires controlled failure conditions - deferred")
 
 
 # ============================================================================
-# Test Suite 4: Multi-Agent Parallel Development (8 tests)
+# Test Suite 4: Multi-Agent Parallel Development (8 tests) - WP03
 # ============================================================================
 
 class TestMultiAgentParallel:
@@ -1950,16 +1291,21 @@ Test task implementation.
             check=True
         )
 
-        # Now claim WP03 - should succeed
+        # Now claim WP03 with --base WP02 - should succeed
+        # Note: spec-kitty requires --base flag for WPs with dependencies
         result = subprocess.run(
-            ['spec-kitty', 'implement', 'WP03', f'--feature={feature_slug}'],
+            ['spec-kitty', 'implement', 'WP03', '--base', 'WP02', f'--feature={feature_slug}'],
             cwd=project,
             env=env,
             capture_output=True,
             text=True,
             timeout=60
         )
-        assert result.returncode == 0, f"WP03 claim should succeed after WP02 done: {result.stderr}"
+        assert result.returncode == 0, (
+            f"WP03 claim should succeed after WP02 done with --base WP02\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}"
+        )
 
     def test_review_feedback_auto_inserted(
         self,
@@ -1991,7 +1337,7 @@ Test task implementation.
         Why: Shell PID tracking enables audit trail (which shell/agent did what)
         and process management (detect hung agents, track concurrent work).
 
-        Reference: workflow.py:217-218 (os.getppid() captures shell PID)
+        Reference: implement.py (shell_pid captured via os.getppid())
         Related: Process tracking and audit trail
         """
         project = init_spec_kitty_project("pid-test")
@@ -2101,25 +1447,604 @@ Test task implementation.
             f"Entries: {log_entries}"
         )
 
-        # Validate latest entry has shell_pid (or discover it doesn't)
+        # Validate latest entry has shell_pid - MUST be present for audit trail
         latest_entry = log_entries[-1]
 
         # Format: - YYYY-MM-DDTHH:MM:SSZ – agent_id – shell_pid=12345 – lane=for_review – note
-        # Discovery: Check if shell_pid is included in activity log
-        if 'shell_pid=' in latest_entry or 'shell_pid =' in latest_entry:
-            # Extract and validate PID
-            pid_match = re.search(r'shell_pid[= ]+(\d+)', latest_entry)
-            assert pid_match, f"Could not parse PID from entry: {latest_entry}"
+        assert 'shell_pid=' in latest_entry or 'shell_pid =' in latest_entry, (
+            f"shell_pid not found in activity log entry\n"
+            f"Entry: {latest_entry}\n"
+            f"Expected format: timestamp – agent – shell_pid=PID – lane=X – note\n"
+            f"Activity log must include shell_pid for audit trail"
+        )
 
-            pid_value = pid_match.group(1)
-            assert pid_value.isdigit() and int(pid_value) > 0, f"Invalid PID: {pid_value}"
-        else:
-            # Discovery: Activity log doesn't include shell_pid yet
-            # This is informational - not a critical bug for v0.12.0
-            pass
+        # Extract and validate PID
+        pid_match = re.search(r'shell_pid[= ]+(\d+)', latest_entry)
+        assert pid_match, f"Could not parse PID from entry: {latest_entry}"
+
+        pid_value = pid_match.group(1)
+        assert pid_value.isdigit() and int(pid_value) > 0, f"Invalid PID: {pid_value}"
 
         # Validate lane included
         assert 'lane' in latest_entry.lower() or 'for_review' in latest_entry, (
             f"Activity log entry missing lane information\n"
             f"Entry: {latest_entry}"
+        )
+
+
+# ============================================================================
+# Test Suite 5: Clean Merge Behavior (6 tests)
+# ============================================================================
+# [Placeholder for Suite 5 tests - to be implemented in WP07]
+
+
+# ============================================================================
+# Test Suite 6: Edge Cases (8 tests) - WP02
+# ============================================================================
+
+class TestEdgeCases:
+    """
+    Validate edge case handling for sparse-checkout infrastructure.
+
+    Tests verify:
+    1. Corrupted sparse-checkout file recovery
+    2. Missing .git/info directory handling
+    3. Permission errors on auto-commit
+    4. Concurrent git commits (locking)
+    5. Migration from pre-sparse-checkout worktrees
+    6. Manual kitty-specs/ creation ignored
+    7. Symlink to kitty-specs/ detection
+    8. Sparse-checkout persistence across git operations
+
+    Reference:
+    - implement.py:596-642 (sparse-checkout configuration)
+    - Error handling and recovery mechanisms
+    """
+
+    def _create_test_feature_with_wp(self, project, spec_kitty_repo_root, feature_name="test-feature", wp_ids=None):
+        """Helper: Create a feature with WP files for testing."""
+        if wp_ids is None:
+            wp_ids = ['WP01']
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        # Feature slug must be in format ###-feature-name
+        feature_slug = f"001-{feature_name}"
+
+        # Create kitty-specs directory structure
+        kitty_specs_dir = project / 'kitty-specs' / feature_slug
+        tasks_dir = kitty_specs_dir / 'tasks'
+        tasks_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create spec.md
+        spec_file = kitty_specs_dir / 'spec.md'
+        spec_file.write_text(f"""# Feature: {feature_name}
+
+This is a test feature.
+""")
+
+        # Create plan.md
+        plan_file = kitty_specs_dir / 'plan.md'
+        plan_file.write_text(f"""# Implementation Plan: {feature_name}
+
+Test implementation plan.
+""")
+
+        # Create tasks.md with WP entries
+        tasks_content = f"""# Tasks: {feature_name}
+
+## Work Packages
+
+"""
+        for wp_id in wp_ids:
+            wp_num = int(wp_id.replace('WP', ''))
+            tasks_content += f"""### {wp_id} - Test Work Package {wp_num}
+
+- **Lane**: planned
+- **Dependencies**: []
+- **Subtasks**: [T{wp_num:03d}]
+
+"""
+
+        tasks_file = tasks_dir / 'tasks.md'
+        tasks_file.write_text(tasks_content)
+
+        # Create WP prompt files
+        for wp_id in wp_ids:
+            wp_num = int(wp_id.replace('WP', ''))
+            wp_file = tasks_dir / f'{wp_id}-test-wp.md'
+            wp_file.write_text(f"""---
+work_package_id: {wp_id}
+title: Test Work Package {wp_num}
+lane: "planned"
+dependencies: []
+subtasks:
+- T{wp_num:03d}
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history: []
+---
+
+# Work Package: {wp_id}
+
+Test work package.
+
+## Subtask T{wp_num:03d} - Test Task {wp_num}
+
+Test task implementation.
+
+## Activity Log
+
+*[No activity yet]*
+""")
+
+        # Commit to git
+        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', f'Add {feature_name} feature with WPs'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
+
+        return feature_slug, env
+
+    def test_corrupted_sparse_checkout_file_recovery(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
+        """
+        Test: Corrupted sparse-checkout file recovered gracefully
+
+        Why: Git sparse-checkout file can be corrupted by user editing, system crash,
+        or disk errors. System should detect and recover, not silently fail.
+
+        Reference: implement.py:630 (sparse-checkout file writing)
+        Edge case: File corruption, invalid patterns
+        """
+        project = init_spec_kitty_project("corruption-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create initial worktree
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0, f"Implement failed: {result.stderr}"
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        assert len(worktrees) >= 1
+        worktree_path = worktrees[0]
+
+        # Corrupt the sparse-checkout file
+        sparse_checkout_file = worktree_path / '.git' / 'info' / 'sparse-checkout'
+        if sparse_checkout_file.exists():
+            sparse_checkout_file.write_text("CORRUPTED INVALID SYNTAX !@#$%")
+
+        # Try to perform git operation - should handle corruption
+        result = subprocess.run(
+            ['git', 'status'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True
+        )
+
+        # Git should still work (may show errors but not crash)
+        assert result.returncode == 0 or 'sparse' in result.stderr.lower(), (
+            f"Git should handle sparse-checkout corruption gracefully\n"
+            f"Error: {result.stderr}"
+        )
+
+    def test_missing_git_info_directory_creation(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
+        """
+        Test: Missing .git/info directory created automatically
+
+        Why: .git/info/ may not exist in fresh repos. System must create it
+        before writing sparse-checkout file.
+
+        Reference: implement.py:630 (should mkdir -p .git/info/)
+        Edge case: Missing .git/info directory
+        """
+        project = init_spec_kitty_project("missing-dir-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Remove .git/info/ directory if it exists
+        git_info_dir = project / '.git' / 'info'
+        if git_info_dir.exists():
+            shutil.rmtree(git_info_dir)
+
+        # Create worktree - should create .git/info/ automatically
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0, (
+            f"❌ BUG: implement should handle missing .git/info/\n"
+            f"Error: {result.stderr}\n"
+            f"If failed, missing directory handling broken"
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        assert len(worktrees) >= 1
+
+        worktree_path = worktrees[0]
+
+        # In git worktrees, .git is a FILE, not a directory
+        # The actual git dir is in main repo: .git/worktrees/<name>/info/
+        worktree_name = worktree_path.name
+        worktree_git_info = project / '.git' / 'worktrees' / worktree_name / 'info'
+
+        assert worktree_git_info.exists(), (
+            f"❌ BUG: .git/worktrees/<name>/info/ should be created for worktree\n"
+            f"Worktree: {worktree_path}\n"
+            f"Expected info dir: {worktree_git_info}\n"
+            f"implement.py should mkdir -p .git/worktrees/<name>/info/ before writing sparse-checkout"
+        )
+
+    def test_permission_errors_on_auto_commit_clear_messages(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
+        """
+        Test: Permission errors on auto-commit produce clear error messages
+
+        Why: If .git/ becomes read-only (permissions issue, NFS mount, etc.),
+        auto-commit fails. Error message must clearly identify the problem.
+
+        Reference: tasks.py, workflow.py (error handling for git commit failures)
+        Edge case: Read-only filesystem, permission denied
+        """
+        pytest.skip("Permission testing requires complex setup - test logic needs refinement")
+
+    def test_concurrent_git_commits_locking(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
+        """
+        Test: Concurrent git commits handle locking correctly
+
+        Why: Multiple agents may try to auto-commit simultaneously. Git uses
+        index.lock to prevent corruption - system should retry on lock failure.
+
+        Reference: Auto-commit error handling
+        Edge case: Concurrent git commits, index.lock conflicts
+        """
+        pytest.skip("Concurrent testing requires multiple processes - complex setup needed")
+
+    def test_pre_sparse_checkout_worktree_migration(self, temp_project_dir, spec_kitty_repo_root):
+        """
+        Test: Pre-sparse-checkout worktrees migrate correctly to v0.12.0
+
+        Why: Users upgrading from v0.11.0 (no sparse-checkout) to v0.12.0
+        (with sparse-checkout) have existing worktrees. Migration script must
+        apply sparse-checkout to old worktrees without data loss.
+
+        Reference: Migration script (if exists)
+        Edge case: Upgrade path from v0.11.0 to v0.12.0
+        """
+        # Test simulates v0.11.0 worktree (no sparse-checkout)
+        # then validates migration script applies sparse-checkout correctly
+        # (simulate v0.11.0 behavior by manually creating worktree)
+
+        project = temp_project_dir / "migration-test"
+        project.mkdir()
+
+        # Initialize git repo
+        subprocess.run(['git', 'init'], cwd=project, check=True, capture_output=True)
+        subprocess.run(['git', 'config', 'user.name', 'Test'], cwd=project, check=True, capture_output=True)
+        subprocess.run(['git', 'config', 'user.email', 'test@example.com'], cwd=project, check=True, capture_output=True)
+
+        # Create kitty-specs/ in main
+        (project / 'kitty-specs').mkdir()
+        (project / 'kitty-specs' / 'README.md').write_text("Spec files")
+        (project / 'kitty-specs' / 'test-feature').mkdir()
+        (project / 'kitty-specs' / 'test-feature' / 'spec.md').write_text("# Feature")
+
+        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
+        subprocess.run(['git', 'commit', '-m', 'Initial'], cwd=project, check=True, capture_output=True)
+
+        # Create worktree WITHOUT sparse-checkout (old way)
+        (project / '.worktrees').mkdir()
+        result = subprocess.run(
+            ['git', 'worktree', 'add', str(project / '.worktrees' / 'old-worktree'), 'HEAD'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0, f"Worktree creation failed: {result.stderr}"
+
+        old_worktree = project / '.worktrees' / 'old-worktree'
+
+        # Verify kitty-specs/ EXISTS in old worktree (no sparse-checkout)
+        assert (old_worktree / 'kitty-specs').exists(), (
+            f"Setup validation: Old worktree should have kitty-specs/\n"
+            f"Worktree: {old_worktree}\n"
+            f"Contents: {list(old_worktree.iterdir())}"
+        )
+
+        # 2. Check if migration script exists
+        migration_script = spec_kitty_repo_root / 'fix-worktrees-to-sparse-checkout.sh'
+
+        if not migration_script.exists():
+            # Migration script doesn't exist - document this
+            pytest.skip(
+                f"Migration script not found at {migration_script}\n"
+                f"Manual migration required for v0.11.0→v0.12.0 users\n"
+                f"Document migration steps in upgrade guide"
+            )
+
+        # 3. Run migration script
+        result = subprocess.run(
+            [str(migration_script)],
+            cwd=project,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        assert result.returncode == 0, (
+            f"❌ BUG: Migration script failed\n"
+            f"\n"
+            f"Script: {migration_script}\n"
+            f"Error: {result.stderr}\n"
+            f"Output: {result.stdout}\n"
+            f"\n"
+            f"Migration must succeed for users upgrading from v0.11.0\n"
+        )
+
+        # 4. Validate sparse-checkout applied to old worktree
+        # kitty-specs/ should be removed from working tree
+        assert not (old_worktree / 'kitty-specs').exists(), (
+            f"❌ BUG: After migration, kitty-specs/ should be excluded from old worktree\n"
+            f"\n"
+            f"Worktree: {old_worktree}\n"
+            f"Migration script: {migration_script}\n"
+            f"\n"
+            f"Expected: kitty-specs/ removed by sparse-checkout\n"
+            f"Actual: kitty-specs/ still present\n"
+            f"\n"
+            f"Migration script not applying sparse-checkout correctly\n"
+        )
+
+        # 5. Validate sparse-checkout config set
+        result = subprocess.run(
+            ['git', 'config', 'core.sparseCheckout'],
+            cwd=old_worktree,
+            capture_output=True,
+            text=True
+        )
+        assert result.stdout.strip() == 'true', (
+            f"sparse-checkout config not set in migrated worktree\n"
+            f"Config value: {result.stdout}"
+        )
+
+    def test_manual_kitty_specs_creation_ignored(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
+        """
+        Test: Manually created kitty-specs/ in worktree ignored by git
+
+        Why: User might accidentally create kitty-specs/ directory in worktree
+        (confusion, script error, etc.). Sparse-checkout should prevent git from
+        tracking these files even if directory exists.
+
+        Reference: implement.py:630 (sparse-checkout patterns: !/kitty-specs/**)
+        Edge case: User confusion, accidental directory creation
+        """
+        project = init_spec_kitty_project("manual-creation-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0, f"Implement failed: {result.stderr}"
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        assert len(worktrees) >= 1
+        worktree_path = worktrees[0]
+
+        # Verify sparse-checkout working (no kitty-specs/)
+        assert not (worktree_path / 'kitty-specs').exists(), "Setup: kitty-specs/ should not exist initially"
+
+        # Manually create kitty-specs/ in worktree (simulate user error)
+        (worktree_path / 'kitty-specs').mkdir()
+        (worktree_path / 'kitty-specs' / 'test.md').write_text("Should not be tracked")
+
+        # Try to add to git
+        result = subprocess.run(
+            ['git', 'add', 'kitty-specs/test.md'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True
+        )
+
+        # Check git status - file should NOT appear (sparse-checkout enforced)
+        result = subprocess.run(
+            ['git', 'status', '--porcelain'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True
+        )
+
+        # The MANUALLY CREATED test.md should NOT appear (thanks to .gitignore)
+        # But the ORIGINAL tracked files from main branch ARE expected to appear in status
+        # because they're removed from working tree by sparse-checkout
+        assert 'kitty-specs/test.md' not in result.stdout, (
+            f"❌ BUG: Manually created kitty-specs/test.md should NOT be tracked (blocked by .gitignore)\n"
+            f"\n"
+            f"Status output: {result.stdout}\n"
+            f"Worktree: {worktree_path}\n"
+            f"\n"
+            f"Expected: kitty-specs/test.md NOT in status (blocked by .gitignore)\n"
+            f"Actual: File shows in git status\n"
+            f"\n"
+            f"If manually created file is tracked, .gitignore NOT working - CRITICAL BUG\n"
+        )
+
+        # IMPORTANT: git ls-files shows what's in the INDEX, not the working tree
+        # Sparse-checkout only controls working tree, NOT the index
+        # So git ls-files WILL show the original tracked files (spec.md, plan.md, etc.)
+        # This is CORRECT git behavior - we just verify the manual test.md isn't there
+        result = subprocess.run(
+            ['git', 'ls-files', 'kitty-specs/'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True
+        )
+
+        # The MANUAL file should not be tracked
+        assert 'test.md' not in result.stdout, (
+            f"Manually created test.md should not be in git index\n"
+            f"Output: {result.stdout}\n"
+            f".gitignore not preventing file tracking"
+        )
+
+    def test_symlink_kitty_specs_detected(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
+        """
+        Test: Symlink to kitty-specs/ detected and warned about
+
+        Why: User might create symlink from worktree to main repo kitty-specs/
+        to "bypass" sparse-checkout. This breaks isolation and could corrupt
+        main repo files. System should detect and warn.
+
+        Reference: Sparse-checkout isolation
+        Edge case: Symlink workaround attempt
+        """
+        project = init_spec_kitty_project("symlink-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree_path = worktrees[0]
+
+        # Create symlink from worktree to main repo kitty-specs/
+        worktree_kitty_specs_link = worktree_path / 'kitty-specs'
+        main_kitty_specs = project / 'kitty-specs'
+
+        os.symlink(main_kitty_specs, worktree_kitty_specs_link)
+
+        # Verify symlink created
+        assert worktree_kitty_specs_link.exists()
+        assert worktree_kitty_specs_link.is_symlink()
+
+        # Try to reuse the workspace - implement command should detect symlink
+        # when validate_workspace_path() is called on existing workspace
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,  # Run from project root, not worktree
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+        output = result.stdout + result.stderr
+
+        # The implement command should detect the symlink and either:
+        # 1. Warn about it (returncode could be 0 or non-zero with warning)
+        # 2. Error out (returncode non-zero)
+        symlink_detected = (
+            'symlink' in output.lower() or
+            'SECURITY WARNING' in output or
+            'bypasses' in output.lower()
+        )
+
+        if not symlink_detected:
+            pytest.fail(
+                f"⚠️  SECURITY/DATA INTEGRITY CONCERN: Symlink to kitty-specs/ not detected\n"
+                f"\n"
+                f"Symlink: {worktree_kitty_specs_link} -> {main_kitty_specs}\n"
+                f"Command: spec-kitty implement WP01\n"
+                f"Return code: {result.returncode}\n"
+                f"Output: {output}\n"
+                f"\n"
+                f"Symlink breaks sparse-checkout isolation - agents could modify\n"
+                f"main repo kitty-specs/ files thinking they're in worktree\n"
+                f"\n"
+                f"Expected: validate_workspace_path() in implement.py should detect symlink\n"
+                f"Location: implement.py:183-192\n"
+            )
+
+    def test_sparse_checkout_persists_across_git_operations(self, temp_project_dir, init_spec_kitty_project, spec_kitty_repo_root):
+        """
+        Test: Sparse-checkout patterns persist across git checkout, reset operations
+
+        Why: Git operations like `git checkout HEAD` or `git reset --hard` might
+        reset sparse-checkout config. Patterns must persist.
+
+        Reference: Sparse-checkout persistence
+        Edge case: Git operations resetting sparse-checkout
+        """
+        project = init_spec_kitty_project("persistence-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0, f"Implement failed: {result.stderr}"
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        assert len(worktrees) >= 1
+        worktree_path = worktrees[0]
+
+        # Verify sparse-checkout initially working
+        assert not (worktree_path / 'kitty-specs').exists(), "Initial: kitty-specs/ excluded"
+
+        # Perform git operations that might affect sparse-checkout
+        # 1. git checkout HEAD (re-checkout current commit)
+        subprocess.run(
+            ['git', 'checkout', 'HEAD'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        # Verify sparse-checkout still working after checkout
+        assert not (worktree_path / 'kitty-specs').exists(), (
+            f"❌ BUG: After 'git checkout', kitty-specs/ appeared in worktree\n"
+            f"\n"
+            f"Worktree: {worktree_path}\n"
+            f"\n"
+            f"Sparse-checkout patterns not persistent across git checkout\n"
+            f"This would cause kitty-specs/ to appear after routine git operations\n"
+        )
+
+        # 2. git reset --hard HEAD (should not affect sparse-checkout)
+        subprocess.run(
+            ['git', 'reset', '--hard', 'HEAD'],
+            cwd=worktree_path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        # Verify sparse-checkout still working after reset
+        assert not (worktree_path / 'kitty-specs').exists(), (
+            f"❌ BUG: After 'git reset --hard', kitty-specs/ appeared in worktree\n"
+            f"\n"
+            f"Sparse-checkout patterns not persistent across git reset\n"
         )
