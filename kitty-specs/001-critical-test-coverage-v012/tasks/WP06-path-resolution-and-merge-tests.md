@@ -15,11 +15,11 @@ subtasks:
   - "T051"
 title: "Path Resolution & Merge Tests"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "codex"
 shell_pid: "50612"
-review_status: "has_feedback"
+review_status: "acknowledged"
 reviewed_by: "Robert Douglass"
 dependencies: ["WP01", "WP05"]
 history:
@@ -1058,3 +1058,5 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestCleanMergeBe
 - 2026-01-14T16:23:57Z – unknown – lane=for_review – Implemented 12 tests: 6 path resolution + 6 merge behavior. All pass.
 - 2026-01-14T16:29:20Z – unknown – lane=planned – Moved to planned
 - 2026-01-14T16:30:13Z – codex – shell_pid=50612 – lane=doing – Started implementation via workflow command
+- 2026-01-14T16:45:00Z – codex – shell_pid=50612 – lane=doing – Addressed review feedback: added nested path resolution, slug auto-detection, and merge scenarios.
+- 2026-01-14T16:32:44Z – codex – shell_pid=50612 – lane=for_review – Ready for review: addressed path resolution auto-detection, nested dir coverage, and merge scenarios
