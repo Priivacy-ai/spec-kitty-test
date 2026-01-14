@@ -11,12 +11,12 @@ subtasks:
   - "T039"
 title: "Worktree Creation & Config"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "doing"
+lane: "planned"
 assignee: ""
 agent: "codex"
 shell_pid: "10701"
-review_status: ""
-reviewed_by: ""
+review_status: "has_feedback"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-14T20:00:00Z"
@@ -41,9 +41,16 @@ history:
 
 ## Review Feedback
 
-*[This section is empty initially. Reviewers will populate it if work needs changes.]*
+**Reviewed by**: Robert Douglass
+**Status**: ❌ Changes Requested
+**Date**: 2026-01-14
 
----
+**Issue 1**: The required test command fails in the review worktree because `spec_kitty_repo_root` resolves to `/Users/robert/Code/spec-kitty-test/.worktrees/001-critical-test-coverage-v012-WP04/spec-kitty` when running from a nested worktree (`.worktrees/.../.worktrees/...`). Update `tests/conftest.py` to handle nested worktrees (e.g., climb to the outermost `.worktrees` parent or use `git rev-parse --show-toplevel` to locate the repo root) so `pytest tests/functional/test_sparse_checkout_infrastructure.py::TestWorktreeCreation -xvs` passes from the WP review workspace.
+
+**Issue 2**: `test_sparse_checkout_file_has_correct_patterns` reads `.git/info/sparse-checkout` directly, which violates the success criteria: “Tests validate behavior (observable outcomes) not implementation (internal git files).” Please rework this test to validate behavior via observable outcomes (e.g., `git ls-files`/directory presence) or remove the internal-file assertion.
+
+**Issue 3**: `test_multiple_worktrees_all_exclude_kitty_specs` skips if a worktree creation fails. This masks regressions and undermines the test’s purpose. Replace the skip with a hard failure that includes stdout/stderr so the suite reliably detects worktree creation issues.
+
 
 ## Objectives & Success Criteria
 
@@ -744,3 +751,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestWorktreeCrea
 - 2026-01-14T13:53:38Z – claude-opus – shell_pid=32547 – lane=doing – Started implementation via workflow command
 - 2026-01-14T13:57:31Z – claude-opus – shell_pid=32547 – lane=for_review – Ready for review: Implemented 8 worktree creation tests (T032-T039). All 8 passed. Validates sparse-checkout config, kitty-specs/ exclusion, main repo unchanged, multi-worktree independence.
 - 2026-01-14T13:58:08Z – codex – shell_pid=10701 – lane=doing – Started review via workflow command
+- 2026-01-14T14:00:21Z – codex – shell_pid=10701 – lane=planned – Moved to planned
