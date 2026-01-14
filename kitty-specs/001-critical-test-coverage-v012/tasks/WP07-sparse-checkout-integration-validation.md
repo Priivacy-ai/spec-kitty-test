@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Sparse-Checkout Integration & Validation
-lane: "doing"
+lane: "planned"
 dependencies:
 - WP02
 subtasks:
@@ -14,8 +14,8 @@ phase: Phase 1 - Sparse-Checkout Track (Final Integration)
 assignee: ''
 agent: "codex"
 shell_pid: "50612"
-review_status: ''
-reviewed_by: ''
+review_status: "has_feedback"
+reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-14T20:00:00Z'
   lane: planned
@@ -39,9 +39,18 @@ history:
 
 ## Review Feedback
 
-*[This section is empty initially. Reviewers will populate it if work needs changes.]*
+**Reviewed by**: Robert Douglass
+**Status**: ❌ Changes Requested
+**Date**: 2026-01-14
 
----
+**Issue 1**: Test execution does not meet success criteria. `sparse_checkout_results.txt` shows 38 passed and 8 skipped (not 46/46 pass, zero skips/xfails). Rerun the full suite and make all tests pass without skips, or fix the skips. Evidence: sparse_checkout_results.txt summary line.
+
+**Issue 2**: Suite 5 tests in the results are still the old scenarios (`test_merge_doesnt_restore_excluded_files`, `test_merge_preserves_sparse_checkout_patterns`) instead of the required fast-forward and diverged-merge cases. This indicates the WP07 worktree is not updated to the current WP06 test set (missing FF and merge-commit coverage). Rebase/update and ensure the required tests are present and passing.
+
+**Issue 3**: `findings/test-infrastructure/v0.12.0-bugs-found.md` is inconsistent and incomplete. The summary claims all bugs fixed, but individual bug sections are marked "Not yet fixed". It also documents skipped tests as passing and does not include a complete list from WP02–WP06. Update the bug report to include all bugs with correct status and verification.
+
+**Issue 4**: Performance report required by T053 is missing. Create/update `findings/test-infrastructure/v0.12.0-sparse-checkout-performance.md` with execution time from the full suite and confirm <5 minutes.
+
 
 ## Objectives & Success Criteria
 
@@ -614,3 +623,4 @@ Total bugs found: 12
 - 2026-01-14T16:26:51Z – claude-opus – shell_pid=52131 – lane=doing – Started implementation via workflow command
 - 2026-01-14T16:33:38Z – claude-opus – shell_pid=52131 – lane=for_review – Moved to for_review
 - 2026-01-14T16:34:14Z – codex – shell_pid=50612 – lane=doing – Started review via workflow command
+- 2026-01-14T16:34:55Z – codex – shell_pid=50612 – lane=planned – Moved to planned
