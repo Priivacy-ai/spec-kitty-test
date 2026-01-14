@@ -95,7 +95,7 @@
 - [x] T015: Test Agent A marks subtask done → Agent B sees change immediately
 - [x] T016: Test Agent A moves WP to for_review → Agent B sees lane change
 - [x] T017: Test three agents on WP01/02/03 → all synchronized via main
-- [ ] T018: Test agent claims WP with dependencies → validates base workspace exists
+- [x] T018: Test agent claims WP with dependencies → validates base workspace exists
 - [ ] T019: Test review feedback auto-inserted via --review-feedback-file
 - [ ] T020: Test PID tracking captured in frontmatter (via os.getppid())
 - [ ] T021: Test PID tracking in activity log (format: timestamp – agent – shell_pid=PID – lane=X – note)
