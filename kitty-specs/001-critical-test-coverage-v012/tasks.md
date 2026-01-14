@@ -98,7 +98,7 @@
 - [x] T018: Test agent claims WP with dependencies → validates base workspace exists
 - [x] T019: Test review feedback auto-inserted via --review-feedback-file
 - [x] T020: Test PID tracking captured in frontmatter (via os.getppid())
-- [ ] T021: Test PID tracking in activity log (format: timestamp – agent – shell_pid=PID – lane=X – note)
+- [x] T021: Test PID tracking in activity log (format: timestamp – agent – shell_pid=PID – lane=X – note)
 
 ### Implementation Notes
 1. Create TestMultiAgentParallel class in tests/functional/test_sparse_checkout_infrastructure.py
