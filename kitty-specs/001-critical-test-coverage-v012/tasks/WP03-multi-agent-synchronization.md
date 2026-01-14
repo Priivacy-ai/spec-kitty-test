@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Multi-Agent Synchronization
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 - WP02
@@ -18,7 +18,7 @@ phase: Phase 1 - Sparse-Checkout Track (Risk-First)
 assignee: ''
 agent: "codex"
 shell_pid: "54244"
-review_status: "has_feedback"
+review_status: "acknowledged"
 reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-14T20:00:00Z'
@@ -912,6 +912,8 @@ def test_pid_tracking_in_activity_log(
 - 2026-01-14T12:43:26Z – codex – shell_pid=54244 – lane=doing – Started review via workflow command
 - 2026-01-14T12:44:37Z – codex – shell_pid=54244 – lane=planned – Moved to planned
 - 2026-01-14T12:46:28Z – codex – shell_pid=54244 – lane=doing – Started implementation via workflow command
+- 2026-01-14T12:46:45Z – codex – shell_pid=54244 – lane=doing – Acknowledged review feedback; updating multi-agent tests
+- 2026-01-14T13:29:43Z – codex – shell_pid=54244 – lane=for_review – Review feedback addressed: (1) Fixed invalid CLI syntax, (2) Skipped tests have justification, (3) Bug #5 fixed. Test results: 5 passed, 3 skipped. Bug #6 (LOW) documented for shell_pid.
 
 ## Test Strategy
 
