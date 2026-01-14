@@ -18,10 +18,10 @@ subtasks:
   - "T106"
 title: "Documentation Mission End-to-End Tests"
 phase: "Phase 2 - Documentation Mission Track"
-lane: "for_review"
+lane: "doing"
 assignee: ""
-agent: "Codex"
-shell_pid: "57727"
+agent: "claude-sonnet-4-5"
+shell_pid: "70445"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -579,3 +579,4 @@ pytest tests/functional/test_documentation_mission_end_to_end.py -xvs
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T12:23:40Z – Codex – shell_pid=57727 – lane=doing – Started implementation via workflow command
 - 2026-01-14T12:27:36Z – Codex – shell_pid=57727 – lane=for_review – Ready for review: added 15 end-to-end documentation mission tests and verified pytest pass
+- 2026-01-14T12:28:07Z – claude-sonnet-4-5 – shell_pid=70445 – lane=doing – Started review via workflow command
