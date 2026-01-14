@@ -356,7 +356,7 @@
 - [x] T083: Test review command template accessible and non-empty
 - [x] T084: Test all templates have expected structure (frontmatter, sections, instructions)
 - [x] T085: Test templates load via importlib.resources (from package, not local repo)
-- [ ] T086: Test no template path leakage (no references to local ~/Code/spec-kitty paths)
+- [x] T086: Test no template path leakage (no references to local ~/Code/spec-kitty paths)
 - [ ] T087: Test mission registered in mission registry after installation
 - [ ] T088: Test mission metadata correct (name, domain, version)
 - [ ] T089: Test get_mission_by_name("documentation") returns valid Mission object
