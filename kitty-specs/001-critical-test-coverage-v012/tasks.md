@@ -359,7 +359,7 @@
 - [x] T086: Test no template path leakage (no references to local ~/Code/spec-kitty paths)
 - [x] T087: Test mission registered in mission registry after installation
 - [x] T088: Test mission metadata correct (name, domain, version)
-- [ ] T089: Test get_mission_by_name("documentation") returns valid Mission object
+- [x] T089: Test get_mission_by_name("documentation") returns valid Mission object
 - [ ] T090: Test mission validation passes pydantic checks
 - [ ] T091: Test all 4 Divio templates present (tutorial, howto, reference, explanation)
 
