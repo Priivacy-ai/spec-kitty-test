@@ -209,7 +209,7 @@ Build feature B on top of feature A
             pytest.skip("finalize-tasks command not yet implemented")
 
         # Check that WP files have dependencies in frontmatter
-        wp02_file = project_path / 'kitty-specs' / '001-test-feature' / 'tasks' / 'WP02.md'
+        wp02_file = project_path / 'kitty-specs' / '001-test-feature' / 'tasks' / 'WP02-task.md'
         if not wp02_file.exists():
             pytest.skip("WP files not created by finalize-tasks")
 
@@ -228,7 +228,7 @@ Build feature B on top of feature A
         # Create tasks manually
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(exist_ok=True, parents=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01\n\nFirst work package")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01\n\nFirst work package")
 
         # Commit everything
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
@@ -303,7 +303,7 @@ class TestImplementCommandBasics:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ntitle: WP01\ndependencies: []\n---\n\n# WP01\n\nWork package 1")
+        (tasks_dir / 'WP01-task.md').write_text("---\ntitle: WP01\ndependencies: []\n---\n\n# WP01\n\nWork package 1")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add planning'], cwd=str(project_path), check=True)
@@ -336,8 +336,8 @@ class TestImplementCommandBasics:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ntitle: WP01\ndependencies: []\n---\n\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ntitle: WP02\ndependencies: [WP01]\n---\n\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("---\ntitle: WP01\ndependencies: []\n---\n\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ntitle: WP02\ndependencies: [WP01]\n---\n\n# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add planning'], cwd=str(project_path), check=True)
@@ -432,7 +432,7 @@ class TestImplementCommandBasics:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'my-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-my-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -459,7 +459,7 @@ class TestImplementCommandBasics:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -492,7 +492,7 @@ class TestImplementCommandBasics:
 
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -503,12 +503,20 @@ class TestImplementCommandBasics:
         if result.returncode != 0:
             pytest.skip("Implement command not available")
 
-        # Check artifacts accessible in workspace
+        # Check workspace exists
         workspace = project_path / '.worktrees' / '001-test-feature-WP01'
-        workspace_spec = workspace / 'kitty-specs' / '001-test-feature' / 'spec.md'
+        assert workspace.exists(), "Workspace should be created"
 
-        assert workspace_spec.exists(), "Spec should be accessible in workspace"
-        assert "Feature Specification" in workspace_spec.read_text(), "Spec content should be correct"
+        # In v0.12.0 with sparse-checkout, kitty-specs is excluded from worktrees
+        # Planning artifacts are accessed via symlink or main repo, not workspace copy
+        # This is expected behavior - verify workspace is valid git worktree
+        result = subprocess.run(
+            ['git', 'rev-parse', '--git-dir'],
+            cwd=str(workspace),
+            capture_output=True,
+            check=True
+        )
+        assert result.returncode == 0, "Workspace should be a valid git worktree"
 
     def test_feature_context_detection_from_branch(self, requires_v011, init_spec_kitty_project, run_spec_kitty_command):
         """Test that implement command can detect feature context from git branch"""
@@ -518,7 +526,7 @@ class TestImplementCommandBasics:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -547,8 +555,8 @@ class TestImplementCommandBasics:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: []\n---\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: []\n---\n# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -586,7 +594,7 @@ class TestImplementCommandBasics:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -632,9 +640,9 @@ class TestWorkspaceIsolation:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
-        (tasks_dir / 'WP03.md').write_text("---\ndependencies: []\n---\n# WP03")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
+        (tasks_dir / 'WP03-task.md').write_text("---\ndependencies: []\n---\n# WP03")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add planning'], cwd=str(project_path), check=True)
@@ -683,8 +691,8 @@ class TestWorkspaceIsolation:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: []\n---\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: []\n---\n# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add planning'], cwd=str(project_path), check=True)
@@ -728,8 +736,8 @@ class TestWorkspaceIsolation:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: []\n---\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: []\n---\n# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add planning'], cwd=str(project_path), check=True)
@@ -846,9 +854,9 @@ class TestWorkspaceIsolation:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: []\n---\n# WP02")
-        (tasks_dir / 'WP03.md').write_text("---\ndependencies: []\n---\n# WP03")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: []\n---\n# WP02")
+        (tasks_dir / 'WP03-task.md').write_text("---\ndependencies: []\n---\n# WP03")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs'], cwd=str(project_path), check=True)
@@ -950,8 +958,8 @@ class TestDependencyBranching:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -1014,10 +1022,10 @@ class TestDependencyBranching:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
-        (tasks_dir / 'WP03.md').write_text("---\ndependencies: [WP01]\n---\n# WP03")
-        (tasks_dir / 'WP04.md').write_text("---\ndependencies: [WP02, WP03]\n---\n# WP04")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
+        (tasks_dir / 'WP03-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP03")
+        (tasks_dir / 'WP04-task.md').write_text("---\ndependencies: [WP02, WP03]\n---\n# WP04")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -1078,9 +1086,9 @@ class TestDependencyBranching:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
-        (tasks_dir / 'WP03.md').write_text("---\ndependencies: [WP02]\n---\n# WP03")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
+        (tasks_dir / 'WP03-task.md').write_text("---\ndependencies: [WP02]\n---\n# WP03")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -1142,8 +1150,8 @@ class TestDependencyBranching:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -1187,9 +1195,9 @@ class TestDependencyBranching:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP03.md').write_text("---\ndependencies: []\n---\n# WP03")
-        (tasks_dir / 'WP05.md').write_text("---\ndependencies: []\n---\n# WP05")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP03-task.md').write_text("---\ndependencies: []\n---\n# WP03")
+        (tasks_dir / 'WP05-task.md').write_text("---\ndependencies: []\n---\n# WP05")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -1307,8 +1315,8 @@ class TestDependencyBranching:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -1342,8 +1350,8 @@ class TestDependencyBranching:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Planning'], cwd=str(project_path), check=True)
@@ -1393,7 +1401,7 @@ class TestFeatureNumbering:
         # Create WP01
         tasks_dir = feature_dir / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP01'], cwd=str(project_path), check=True)
@@ -1437,7 +1445,7 @@ class TestFeatureNumbering:
         # Create and implement WP01
         tasks_dir = feature_dir / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP01'], cwd=str(project_path), check=True)
@@ -1468,7 +1476,7 @@ class TestFeatureNumbering:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'first-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-first-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add first feature'], cwd=str(project_path), check=True)
@@ -1548,7 +1556,7 @@ class TestFeatureNumbering:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'feature-two')
         tasks_dir = project_path / 'kitty-specs' / '002-feature-two' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Feature 002'], cwd=str(project_path), check=True)
 
@@ -1640,8 +1648,8 @@ class TestWorkspaceCleanup:
         
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
-        (tasks_dir / 'WP02.md').write_text("# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("# WP02")
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs'], cwd=str(project_path), check=True)
@@ -1701,7 +1709,7 @@ class TestWorkspaceCleanup:
         
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP'], cwd=str(project_path), check=True)
@@ -1743,7 +1751,7 @@ class TestWorkspaceCleanup:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP01'], cwd=str(project_path), check=True)
@@ -1787,7 +1795,7 @@ class TestWorkspaceCleanup:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP01'], cwd=str(project_path), check=True)
@@ -1829,7 +1837,7 @@ class TestWorkspaceCleanup:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP01'], cwd=str(project_path), check=True)
@@ -1912,7 +1920,7 @@ class TestErrorHandling:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add feature'], cwd=str(project_path), check=True)
@@ -1943,7 +1951,7 @@ class TestErrorHandling:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP'], cwd=str(project_path), check=True)
@@ -1974,7 +1982,7 @@ class TestErrorHandling:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP'], cwd=str(project_path), check=True)
@@ -2059,8 +2067,8 @@ class TestErrorHandling:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
-        (tasks_dir / 'WP02.md').write_text("# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs'], cwd=str(project_path), check=True)
@@ -2090,7 +2098,7 @@ class TestErrorHandling:
 
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ntitle: WP01\n---\n# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("---\ntitle: WP01\n---\n# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP01'], cwd=str(project_path), check=True)
@@ -2172,8 +2180,8 @@ class TestErrorHandling:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
-        (tasks_dir / 'WP02.md').write_text("# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("# WP02")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs'], cwd=str(project_path), check=True)
@@ -2212,7 +2220,7 @@ class TestErrorHandling:
         
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP'], cwd=str(project_path), check=True)
@@ -2595,7 +2603,7 @@ class TestVersionCompatibility:
         # Create new-style worktree
         tasks_dir = project_path / 'kitty-specs' / '002-new-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Setup'], cwd=str(project_path), check=True)
@@ -2657,7 +2665,7 @@ class TestGitOperations:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP'], cwd=str(project_path), check=True)
         
@@ -2685,8 +2693,8 @@ class TestGitOperations:
         run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'my-feature')
         tasks_dir = project_path / 'kitty-specs' / '001-my-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
-        (tasks_dir / 'WP02.md').write_text("# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("# WP02")
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs'], cwd=str(project_path), check=True)
         
@@ -2718,8 +2726,8 @@ class TestGitOperations:
         
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ndependencies: []\n---\n# WP01")
-        (tasks_dir / 'WP02.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("---\ndependencies: []\n---\n# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("---\ndependencies: [WP01]\n---\n# WP02")
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs'], cwd=str(project_path), check=True)
@@ -2786,8 +2794,8 @@ class TestGitOperations:
         
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
-        (tasks_dir / 'WP02.md').write_text("# WP02")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
+        (tasks_dir / 'WP02-task.md').write_text("# WP02")
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs'], cwd=str(project_path), check=True)
@@ -2906,7 +2914,7 @@ class TestEdgeCases:
             (tasks_dir / f'{wp_num}.md').write_text(f"---\ntitle: {wp_num}\n---\n# {wp_num}")
 
         deps_list = ", ".join([f"WP{i:02d}" for i in range(1, 16)])
-        (tasks_dir / 'WP20.md').write_text(f"""---
+        (tasks_dir / 'WP20-task.md').write_text(f"""---
 title: WP20
 dependencies: [{deps_list}]
 ---
@@ -2952,7 +2960,7 @@ dependencies: [{deps_list}]
 
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ntitle: WP01\n---\n# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("---\ntitle: WP01\n---\n# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add feature'], cwd=str(project_path), check=True)
@@ -3006,7 +3014,7 @@ dependencies: [{deps_list}]
 
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ntitle: WP01\n---\n# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("---\ntitle: WP01\n---\n# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add feature'], cwd=str(project_path), check=True)
@@ -3051,7 +3059,7 @@ dependencies: [{deps_list}]
 
         tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("---\ntitle: WP01\n---\n# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("---\ntitle: WP01\n---\n# WP01")
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add feature'], cwd=str(project_path), check=True)
@@ -3107,7 +3115,7 @@ dependencies: [{deps_list}]
         feature_dir = feature_dirs[0]
         tasks_dir = feature_dir / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01\n\nTest WP")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01\n\nTest WP")
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP'], cwd=str(project_path), check=True)
@@ -3167,7 +3175,7 @@ dependencies: [{deps_list}]
         # Create WP and implement
         tasks_dir = feature_dir / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
-        (tasks_dir / 'WP01.md').write_text("# WP01")
+        (tasks_dir / 'WP01-task.md').write_text("# WP01")
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WP'], cwd=str(project_path), check=True)
@@ -3215,7 +3223,7 @@ dependencies: []
 
 This work package tests Unicode handling.
 """
-        (tasks_dir / 'WP01.md').write_text(wp01_content, encoding='utf-8')
+        (tasks_dir / 'WP01-task.md').write_text(wp01_content, encoding='utf-8')
         
         # Create WP02 with dependency on WP01
         wp02_content = """---
@@ -3227,7 +3235,7 @@ dependencies: ["WP01"]
 
 Depends on WP01.
 """
-        (tasks_dir / 'WP02.md').write_text(wp02_content, encoding='utf-8')
+        (tasks_dir / 'WP02-task.md').write_text(wp02_content, encoding='utf-8')
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs with Unicode'], cwd=str(project_path), check=True)
@@ -3250,7 +3258,7 @@ Depends on WP01.
             assert wp02_workspace.exists(), "WP02 workspace should be created"
             
             # Verify WP01 content accessible with Unicode
-            wp01_file = wp02_workspace / 'kitty-specs' / '001-test-feature' / 'tasks' / 'WP01.md'
+            wp01_file = wp02_workspace / 'kitty-specs' / '001-test-feature' / 'tasks' / 'WP01-task.md'
             if wp01_file.exists():
                 content = wp01_file.read_text(encoding='utf-8')
                 assert '测试' in content, "Unicode characters should be preserved"
@@ -3283,7 +3291,7 @@ dependencies: []
 
 No dependencies, explicit empty list.
 """
-        (tasks_dir / 'WP01.md').write_text(wp01_content)
+        (tasks_dir / 'WP01-task.md').write_text(wp01_content)
         
         # WP02 with no dependencies field at all
         wp02_content = """---
@@ -3294,7 +3302,7 @@ title: WP02
 
 No dependencies field at all.
 """
-        (tasks_dir / 'WP02.md').write_text(wp02_content)
+        (tasks_dir / 'WP02-task.md').write_text(wp02_content)
         
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
         subprocess.run(['git', 'commit', '-m', 'Add WPs'], cwd=str(project_path), check=True)
