@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Multi-Agent Synchronization
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 - WP02
@@ -18,7 +18,7 @@ phase: Phase 1 - Sparse-Checkout Track (Risk-First)
 assignee: ''
 agent: "codex"
 shell_pid: "10701"
-review_status: "has_feedback"
+review_status: "acknowledged"
 reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-14T20:00:00Z'
@@ -915,6 +915,7 @@ def test_pid_tracking_in_activity_log(
 - 2026-01-14T13:31:00Z – codex – shell_pid=10701 – lane=doing – Started review via workflow command
 - 2026-01-14T13:31:54Z – codex – shell_pid=10701 – lane=planned – Moved to planned
 - 2026-01-14T13:33:15Z – codex – shell_pid=10701 – lane=doing – Started implementation via workflow command
+- 2026-01-14T13:41:57Z – codex – shell_pid=10701 – lane=for_review – Ready for review: addressed feedback, updated repo root detection + activity log PID assertion, adjusted test scaffolding, and 8/8 TestMultiAgentParallel passing
 
 ## Test Strategy
 
@@ -1033,3 +1034,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestMultiAgentPa
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-14T20:10:00Z – codex – shell_pid=10701 – lane=doing – Addressed review feedback; fixed repo root detection, enforced shell_pid activity log assertion, updated test scaffolding, and verified 8/8 multi-agent tests pass
