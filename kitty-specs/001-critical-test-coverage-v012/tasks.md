@@ -136,7 +136,7 @@
 - [x] T025: Test workflow review commits status change when claiming WP
 - [x] T026: Test commit messages include agent name (format: "chore: Action [agent]")
 - [x] T027: Test commit messages include ISO 8601 UTC timestamp
-- [ ] T028: Test multiple agents working in parallel → all commits visible to each other
+- [x] T028: Test multiple agents working in parallel → all commits visible to each other
 - [ ] T029: Test auto-commit failure handled gracefully (clear error, doesn't crash)
 - [ ] T030: Test git user.name and user.email configuration respected in commits
 - [ ] T031: Test commit history clean (no duplicate commits for same change)
