@@ -139,7 +139,7 @@
 - [x] T028: Test multiple agents working in parallel → all commits visible to each other
 - [x] T029: Test auto-commit failure handled gracefully (clear error, doesn't crash)
 - [x] T030: Test git user.name and user.email configuration respected in commits
-- [ ] T031: Test commit history clean (no duplicate commits for same change)
+- [x] T031: Test commit history clean (no duplicate commits for same change)
 
 ### Implementation Notes
 1. Create TestAutoCommitSynchronization class in tests/functional/test_sparse_checkout_infrastructure.py
