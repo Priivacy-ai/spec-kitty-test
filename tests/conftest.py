@@ -220,6 +220,38 @@ def clean_env():
     os.environ.update(original_env)
 
 
+@pytest.fixture(autouse=True)
+def cleanup_dashboard_processes():
+    """Kill any orphaned dashboard server processes after each test.
+
+    This prevents zombie processes from accumulating during test runs.
+    Dashboard servers spawned by tests should clean up, but if tests fail
+    or are interrupted, we ensure cleanup happens regardless.
+    """
+    import subprocess
+    import signal
+
+    yield  # Run the test
+
+    # After test, kill any dashboard server processes
+    try:
+        # Find and kill processes matching run_dashboard_server
+        result = subprocess.run(
+            ['pgrep', '-f', 'run_dashboard_server'],
+            capture_output=True,
+            text=True
+        )
+        if result.stdout.strip():
+            pids = result.stdout.strip().split('\n')
+            for pid in pids:
+                try:
+                    os.kill(int(pid), signal.SIGTERM)
+                except (ProcessLookupError, ValueError):
+                    pass  # Process already dead or invalid PID
+    except FileNotFoundError:
+        pass  # pgrep not available on this system
+
+
 # Playwright Configuration
 @pytest.fixture(scope="session")
 def browser_type_launch_args(browser_type_launch_args):
