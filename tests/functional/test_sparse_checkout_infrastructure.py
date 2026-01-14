@@ -2590,3 +2590,906 @@ Test task implementation.
             f"\n"
             f"Sparse-checkout patterns not persistent across git reset\n"
         )
+
+
+# ============================================================================
+# Test Suite 2: Path Resolution (6 tests) - WP06
+# ============================================================================
+
+class TestPathResolution:
+    """
+    Validate commands find kitty-specs in main repo from worktree context.
+
+    These tests verify that:
+    1. Commands executed in worktree find kitty-specs in main repo
+    2. Path resolution works with various command types
+    3. Feature slug detection handles WP suffixes correctly
+
+    Reference:
+    - tasks.py:39-68 (_get_main_repo_root)
+    - paths.py:74-94 (is_worktree_context)
+    """
+
+    def _create_test_feature_with_wp(self, project, spec_kitty_repo_root, feature_name="test-feature", wp_ids=None):
+        """Helper: Create a feature with WP files for testing."""
+        if wp_ids is None:
+            wp_ids = ['WP01']
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        feature_slug = f'001-{feature_name}'
+
+        # Create kitty-specs structure
+        kitty_specs = project / 'kitty-specs' / feature_slug / 'tasks'
+        kitty_specs.mkdir(parents=True, exist_ok=True)
+
+        # Create tasks.md
+        tasks_md = project / 'kitty-specs' / feature_slug / 'tasks.md'
+        tasks_md.write_text(f"# Tasks for {feature_name}\n\n| ID | Title |\n|---|---|\n")
+
+        # Create WP files
+        for wp_id in wp_ids:
+            wp_file = kitty_specs / f'{wp_id}-test-work-package.md'
+            wp_file.write_text(f"""---
+work_package_id: {wp_id}
+title: Test Work Package {wp_id[-1]}
+lane: "planned"
+dependencies: []
+subtasks:
+- T001
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history: []
+---
+
+# Work Package: {wp_id}
+
+Test work package for path resolution testing.
+
+## Subtask T001 - Test Task 1
+
+Test task implementation.
+
+## Activity Log
+
+*[No activity yet]*
+""")
+
+        # Commit the feature
+        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', f'Add feature {feature_slug}'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
+
+        return feature_slug, env
+
+    def test_tasks_command_finds_kitty_specs_from_worktree(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: `spec-kitty agent tasks list` executed in worktree reads from main repo (T040)
+
+        Why: Commands must find kitty-specs in main repo even when executed from
+        worktree where kitty-specs is excluded via sparse-checkout.
+
+        Reference: tasks.py:39-68 (_get_main_repo_root)
+        """
+        project = init_spec_kitty_project("path-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0, f"Implement failed: {result.stderr}"
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        assert len(worktrees) >= 1
+        worktree = worktrees[0]
+
+        # Verify kitty-specs NOT in worktree (sparse-checkout working)
+        assert not (worktree / 'kitty-specs').exists(), "Worktree should not have kitty-specs"
+
+        # Run tasks command from worktree
+        result = subprocess.run(
+            ['spec-kitty', 'agent', 'tasks', 'status', f'--feature={feature_slug}'],
+            cwd=worktree,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        # Should succeed - finds kitty-specs in main repo
+        assert result.returncode == 0, (
+            f"Tasks command failed from worktree\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}\n"
+            f"Command should find kitty-specs in main repo"
+        )
+
+    def test_move_task_finds_wp_file_from_worktree(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: `spec-kitty agent tasks move-task` finds WP file in main repo (T041)
+
+        Why: Move-task must locate and update WP file in main repo when executed
+        from worktree where file doesn't exist locally.
+
+        Reference: tasks_support.py:266-288 (locate_work_package)
+        """
+        project = init_spec_kitty_project("move-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Move task from worktree context
+        result = subprocess.run(
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review', f'--feature={feature_slug}'],
+            cwd=worktree,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        assert result.returncode == 0, (
+            f"Move-task failed from worktree\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}"
+        )
+
+        # Verify WP file updated in main repo
+        wp_files = list((project / 'kitty-specs' / feature_slug / 'tasks').glob('WP01-*.md'))
+        assert len(wp_files) == 1
+        content = wp_files[0].read_text()
+        assert 'lane: "for_review"' in content or "lane: 'for_review'" in content, (
+            f"WP file not updated in main repo\n"
+            f"Content: {content[:500]}"
+        )
+
+    def test_feature_slug_detection_strips_wp_suffix(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Path resolution strips -WPxx suffix from branch/feature names (T042)
+
+        Why: Worktree branches include WP suffix (e.g., 001-feature-WP01) but
+        feature lookup needs the base slug (001-feature). System must strip suffix.
+
+        Reference: paths.py feature detection logic
+        """
+        project = init_spec_kitty_project("suffix-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree (branch will have -WP01 suffix)
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Get branch name (should include -WP01 suffix)
+        result = subprocess.run(
+            ['git', 'branch', '--show-current'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        branch = result.stdout.strip()
+
+        # Branch should have WP suffix
+        assert 'WP01' in branch, f"Expected WP01 in branch name: {branch}"
+
+        # But feature detection should still find the feature
+        result = subprocess.run(
+            ['spec-kitty', 'agent', 'tasks', 'status', f'--feature={feature_slug}'],
+            cwd=worktree,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        assert result.returncode == 0, (
+            f"Feature detection failed with WP suffix in branch\n"
+            f"Branch: {branch}\n"
+            f"Error: {result.stderr}"
+        )
+
+    def test_workflow_command_finds_wp_prompt_from_worktree(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: `spec-kitty agent workflow implement` finds WP prompt in main repo (T043)
+
+        Why: Workflow command must read WP prompt file from main repo to display
+        to agent, even when executed from worktree.
+
+        Reference: workflow.py WP loading logic
+        """
+        project = init_spec_kitty_project("workflow-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Run workflow implement from worktree
+        result = subprocess.run(
+            ['spec-kitty', 'agent', 'workflow', 'implement', 'WP01', '--agent', 'TestAgent', f'--feature={feature_slug}'],
+            cwd=worktree,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        # Should output WP prompt content
+        assert 'WP01' in result.stdout or 'Work Package' in result.stdout, (
+            f"Workflow command didn't find WP prompt\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}"
+        )
+
+    def test_status_command_reads_all_wps_from_main(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Status command reads all WPs from main repo (T044)
+
+        Why: Status board must show all WPs from main repo, not just those
+        in current worktree (which has none via sparse-checkout).
+
+        Reference: tasks.py status command
+        """
+        project = init_spec_kitty_project("status-test")
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01', 'WP02', 'WP03']
+        )
+
+        # Create worktree for WP01 only
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Run status from WP01 worktree
+        result = subprocess.run(
+            ['spec-kitty', 'agent', 'tasks', 'status', f'--feature={feature_slug}'],
+            cwd=worktree,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        assert result.returncode == 0, f"Status failed: {result.stderr}"
+
+        # Should show all WPs, not just WP01
+        output = result.stdout
+        assert 'WP01' in output, f"WP01 not in status: {output}"
+        assert 'WP02' in output, f"WP02 not in status (should read from main): {output}"
+        assert 'WP03' in output, f"WP03 not in status (should read from main): {output}"
+
+    def test_main_repo_root_detection_from_nested_worktree(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Main repo root detected correctly from worktree (T045)
+
+        Why: _get_main_repo_root() must reliably find main repo from any
+        worktree depth. This is the foundation for all path resolution.
+
+        Reference: tasks.py:39-68 (_get_main_repo_root)
+        """
+        project = init_spec_kitty_project("root-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Get git toplevel from worktree
+        result = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        worktree_toplevel = Path(result.stdout.strip())
+
+        # Worktree toplevel should be different from main repo
+        assert worktree_toplevel != project, (
+            f"Worktree toplevel should be different from main\n"
+            f"Worktree: {worktree_toplevel}\n"
+            f"Main: {project}"
+        )
+
+        # But commands should still find main repo
+        result = subprocess.run(
+            ['spec-kitty', 'agent', 'tasks', 'status', f'--feature={feature_slug}'],
+            cwd=worktree,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        assert result.returncode == 0, (
+            f"Command failed to find main repo from worktree\n"
+            f"Worktree: {worktree}\n"
+            f"Error: {result.stderr}"
+        )
+
+
+# ============================================================================
+# Test Suite 5: Clean Merge Behavior (6 tests) - WP06
+# ============================================================================
+
+class TestCleanMergeBehavior:
+    """
+    Validate sparse-checkout doesn't interfere with git merge operations.
+
+    These tests verify that:
+    1. WP branches merge cleanly back to main
+    2. Sparse-checkout doesn't cause merge conflicts
+    3. Multiple WP branches can merge sequentially
+    4. Merge preserves sparse-checkout configuration
+
+    Reference:
+    - Git sparse-checkout only affects working tree, not index/commits
+    - Merges operate on git index, not working tree
+    """
+
+    def _create_test_feature_with_wp(self, project, spec_kitty_repo_root, feature_name="test-feature", wp_ids=None):
+        """Helper: Create a feature with WP files for testing."""
+        if wp_ids is None:
+            wp_ids = ['WP01']
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        feature_slug = f'001-{feature_name}'
+
+        # Create kitty-specs structure
+        kitty_specs = project / 'kitty-specs' / feature_slug / 'tasks'
+        kitty_specs.mkdir(parents=True, exist_ok=True)
+
+        # Create tasks.md
+        tasks_md = project / 'kitty-specs' / feature_slug / 'tasks.md'
+        tasks_md.write_text(f"# Tasks for {feature_name}\n\n| ID | Title |\n|---|---|\n")
+
+        # Create WP files
+        for wp_id in wp_ids:
+            wp_file = kitty_specs / f'{wp_id}-test-work-package.md'
+            wp_file.write_text(f"""---
+work_package_id: {wp_id}
+title: Test Work Package {wp_id[-1]}
+lane: "planned"
+dependencies: []
+subtasks:
+- T001
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history: []
+---
+
+# Work Package: {wp_id}
+
+Test work package for merge testing.
+
+## Activity Log
+
+*[No activity yet]*
+""")
+
+        # Commit the feature
+        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', f'Add feature {feature_slug}'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
+
+        return feature_slug, env
+
+    def test_wp_branch_merges_cleanly_to_main(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: WP branch with sparse-checkout merges cleanly to main (T046)
+
+        Why: Sparse-checkout only affects working tree, not git index.
+        Merges should work normally even though worktree excludes kitty-specs.
+
+        Reference: Git sparse-checkout behavior - affects working tree only
+        """
+        project = init_spec_kitty_project("merge-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree (creates branch with sparse-checkout)
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Make a change in the worktree (not in kitty-specs)
+        test_file = worktree / 'src' / 'test_change.py'
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.write_text("# Test change from WP01\n")
+
+        subprocess.run(['git', 'add', '.'], cwd=worktree, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', 'WP01: Add test file'],
+            cwd=worktree,
+            check=True,
+            capture_output=True
+        )
+
+        # Get branch name
+        result = subprocess.run(
+            ['git', 'branch', '--show-current'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        branch = result.stdout.strip()
+
+        # Merge WP branch back to main
+        result = subprocess.run(
+            ['git', 'merge', branch, '--no-edit'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode == 0, (
+            f"Merge failed - sparse-checkout may have caused conflict\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}"
+        )
+
+        # Verify test file exists in main after merge
+        assert (project / 'src' / 'test_change.py').exists(), "Merged file not in main"
+
+    def test_merge_doesnt_restore_excluded_files(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Merge doesn't restore sparse-checkout excluded files (T047)
+
+        Why: After merging WP branch to main, the worktree should still
+        have sparse-checkout active (kitty-specs still excluded).
+
+        Reference: Sparse-checkout persists across merges
+        """
+        project = init_spec_kitty_project("merge-exclude-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Verify kitty-specs excluded before merge
+        assert not (worktree / 'kitty-specs').exists(), "kitty-specs should be excluded initially"
+
+        # Get branch name
+        result = subprocess.run(
+            ['git', 'branch', '--show-current'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        branch = result.stdout.strip()
+
+        # Merge from main (pull changes)
+        subprocess.run(
+            ['git', 'merge', 'main', '--no-edit'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+
+        # Verify kitty-specs STILL excluded after merge
+        assert not (worktree / 'kitty-specs').exists(), (
+            "❌ BUG: kitty-specs appeared after merge\n"
+            "Sparse-checkout should persist across merges"
+        )
+
+    def test_sequential_wp_merges_no_conflicts(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Multiple WP branches merge sequentially without conflicts (T048)
+
+        Why: Each WP works on different code. Sequential merges to main
+        should not create conflicts due to sparse-checkout.
+
+        Reference: Standard git workflow with sparse-checkout
+        """
+        project = init_spec_kitty_project("sequential-merge-test")
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01', 'WP02']
+        )
+
+        # Create both worktrees
+        for wp_id in ['WP01', 'WP02']:
+            subprocess.run(
+                ['spec-kitty', 'implement', wp_id, f'--feature={feature_slug}'],
+                cwd=project,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=True
+            )
+
+        worktrees = sorted(list((project / '.worktrees').glob('*')))
+        assert len(worktrees) >= 2, f"Expected 2 worktrees, got {len(worktrees)}"
+
+        # Make changes in each worktree (different files)
+        for i, worktree in enumerate(worktrees[:2]):
+            test_file = worktree / 'src' / f'change_wp{i+1}.py'
+            test_file.parent.mkdir(parents=True, exist_ok=True)
+            test_file.write_text(f"# Change from WP{i+1}\n")
+
+            subprocess.run(['git', 'add', '.'], cwd=worktree, check=True, capture_output=True)
+            subprocess.run(
+                ['git', 'commit', '-m', f'WP{i+1}: Add test file'],
+                cwd=worktree,
+                check=True,
+                capture_output=True
+            )
+
+        # Get branch names
+        branches = []
+        for worktree in worktrees[:2]:
+            result = subprocess.run(
+                ['git', 'branch', '--show-current'],
+                cwd=worktree,
+                capture_output=True,
+                text=True
+            )
+            branches.append(result.stdout.strip())
+
+        # Merge sequentially
+        for i, branch in enumerate(branches):
+            result = subprocess.run(
+                ['git', 'merge', branch, '--no-edit'],
+                cwd=project,
+                capture_output=True,
+                text=True
+            )
+
+            assert result.returncode == 0, (
+                f"Sequential merge {i+1} failed\n"
+                f"Branch: {branch}\n"
+                f"stdout: {result.stdout}\n"
+                f"stderr: {result.stderr}"
+            )
+
+        # Verify both changes in main
+        assert (project / 'src' / 'change_wp1.py').exists(), "WP1 change not merged"
+        assert (project / 'src' / 'change_wp2.py').exists(), "WP2 change not merged"
+
+    def test_merge_preserves_sparse_checkout_patterns(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Merge operations preserve sparse-checkout patterns (T049)
+
+        Why: Sparse-checkout patterns are stored in .git, not working tree.
+        Merges should not affect the sparse-checkout configuration.
+
+        Reference: Git sparse-checkout stored in .git/info/sparse-checkout
+        """
+        project = init_spec_kitty_project("preserve-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Verify sparse-checkout enabled before merge
+        result = subprocess.run(
+            ['git', 'config', 'core.sparseCheckout'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        assert result.stdout.strip() == 'true', "Sparse-checkout should be enabled"
+
+        # Merge from main
+        subprocess.run(
+            ['git', 'merge', 'main', '--no-edit'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+
+        # Verify sparse-checkout STILL enabled after merge
+        result = subprocess.run(
+            ['git', 'config', 'core.sparseCheckout'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        assert result.stdout.strip() == 'true', (
+            "❌ BUG: Sparse-checkout disabled after merge\n"
+            "Merge should not affect git config"
+        )
+
+    def test_rebase_works_with_sparse_checkout(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Rebase operations work with sparse-checkout (T050)
+
+        Why: Agents may need to rebase WP branches. Sparse-checkout
+        should not interfere with rebase operations.
+
+        Reference: Git rebase works on index, not working tree
+        """
+        project = init_spec_kitty_project("rebase-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Make a commit in worktree
+        test_file = worktree / 'src' / 'rebase_test.py'
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.write_text("# Rebase test\n")
+
+        subprocess.run(['git', 'add', '.'], cwd=worktree, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', 'WP01: Add rebase test file'],
+            cwd=worktree,
+            check=True,
+            capture_output=True
+        )
+
+        # Make a commit in main (to have something to rebase onto)
+        main_file = project / 'src' / 'main_change.py'
+        main_file.parent.mkdir(parents=True, exist_ok=True)
+        main_file.write_text("# Main change\n")
+
+        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', 'Main: Add change'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
+
+        # Rebase worktree branch onto main
+        result = subprocess.run(
+            ['git', 'rebase', 'main'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode == 0, (
+            f"Rebase failed with sparse-checkout\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}"
+        )
+
+        # Verify sparse-checkout still working after rebase
+        assert not (worktree / 'kitty-specs').exists(), (
+            "❌ BUG: kitty-specs appeared after rebase\n"
+            "Sparse-checkout should persist across rebase"
+        )
+
+    def test_cherry_pick_works_with_sparse_checkout(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Cherry-pick operations work with sparse-checkout (T051)
+
+        Why: Cherry-picking commits between branches should work normally
+        with sparse-checkout enabled.
+
+        Reference: Git cherry-pick works on index, not working tree
+        """
+        project = init_spec_kitty_project("cherry-pick-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Make a commit in main
+        main_file = project / 'src' / 'cherry_pick_me.py'
+        main_file.parent.mkdir(parents=True, exist_ok=True)
+        main_file.write_text("# Cherry pick this\n")
+
+        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', 'Main: Add file to cherry-pick'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
+
+        # Get the commit hash
+        result = subprocess.run(
+            ['git', 'rev-parse', 'HEAD'],
+            cwd=project,
+            capture_output=True,
+            text=True
+        )
+        commit_hash = result.stdout.strip()
+
+        # Cherry-pick into worktree
+        result = subprocess.run(
+            ['git', 'cherry-pick', commit_hash],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode == 0, (
+            f"Cherry-pick failed with sparse-checkout\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}"
+        )
+
+        # Verify file exists in worktree after cherry-pick
+        assert (worktree / 'src' / 'cherry_pick_me.py').exists(), "Cherry-picked file not in worktree"
+
+        # Verify sparse-checkout still working
+        assert not (worktree / 'kitty-specs').exists(), (
+            "❌ BUG: kitty-specs appeared after cherry-pick"
+        )
