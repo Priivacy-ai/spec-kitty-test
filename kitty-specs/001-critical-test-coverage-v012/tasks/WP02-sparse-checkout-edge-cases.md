@@ -11,10 +11,10 @@ subtasks:
   - "T013"
 title: "Sparse-Checkout Edge Cases"
 phase: "Phase 1 - Sparse-Checkout Track (Risk-First)"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-sonnet-4-5"
+shell_pid: "55564"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -949,3 +949,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestEdgeCases::t
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-14T12:09:03Z – claude-sonnet-4-5 – shell_pid=55564 – lane=doing – Started implementation via workflow command
