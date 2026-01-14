@@ -292,7 +292,7 @@
 **Estimated Size**: ~480 lines (15 subtasks)
 
 ### Included Subtasks
-- [ ] T057: Test JSDoc generator detects JavaScript/TypeScript projects (package.json, .js/.ts files)
+- [x] T057: Test JSDoc generator detects JavaScript/TypeScript projects (package.json, .js/.ts files)
 - [ ] T058: Test JSDoc configuration template accessible from pip package
 - [ ] T059: Test JSDoc creates valid jsdoc.json configuration
 - [ ] T060: Test Sphinx generator detects Python projects (setup.py, pyproject.toml, .py files)
