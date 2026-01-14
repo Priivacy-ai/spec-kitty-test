@@ -11,7 +11,7 @@ subtasks:
   - "T039"
 title: "Worktree Creation & Config"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "32547"
@@ -742,3 +742,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestWorktreeCrea
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T13:53:38Z – claude-opus – shell_pid=32547 – lane=doing – Started implementation via workflow command
+- 2026-01-14T13:57:31Z – claude-opus – shell_pid=32547 – lane=for_review – Ready for review: Implemented 8 worktree creation tests (T032-T039). All 8 passed. Validates sparse-checkout config, kitty-specs/ exclusion, main repo unchanged, multi-worktree independence.
