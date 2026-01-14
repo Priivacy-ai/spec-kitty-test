@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Multi-Agent Synchronization
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 - WP02
@@ -16,8 +16,8 @@ subtasks:
 - T021
 phase: Phase 1 - Sparse-Checkout Track (Risk-First)
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-code"
+shell_pid: "70908"
 review_status: ''
 reviewed_by: ''
 history:
@@ -900,6 +900,7 @@ def test_pid_tracking_in_activity_log(
 **Reference**: tasks_support.py:181-198 (append_activity_log), tasks_support.py:201-222 (activity_entries for parsing)
 
 ---
+- 2026-01-14T12:28:43Z – claude-code – shell_pid=70908 – lane=doing – Started implementation via workflow command
 
 ## Test Strategy
 
