@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Multi-Agent Synchronization
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 - WP02
@@ -16,8 +16,8 @@ subtasks:
 - T021
 phase: Phase 1 - Sparse-Checkout Track (Risk-First)
 assignee: ''
-agent: "codex"
-shell_pid: "10701"
+agent: "claude-opus"
+shell_pid: "31981"
 review_status: "acknowledged"
 reviewed_by: "Robert Douglass"
 history:
@@ -916,6 +916,7 @@ def test_pid_tracking_in_activity_log(
 - 2026-01-14T13:31:54Z – codex – shell_pid=10701 – lane=planned – Moved to planned
 - 2026-01-14T13:33:15Z – codex – shell_pid=10701 – lane=doing – Started implementation via workflow command
 - 2026-01-14T13:41:57Z – codex – shell_pid=10701 – lane=for_review – Ready for review: addressed feedback, updated repo root detection + activity log PID assertion, adjusted test scaffolding, and 8/8 TestMultiAgentParallel passing
+- 2026-01-14T13:53:12Z – claude-opus – shell_pid=31981 – lane=doing – Started review via workflow command
 
 ## Test Strategy
 
