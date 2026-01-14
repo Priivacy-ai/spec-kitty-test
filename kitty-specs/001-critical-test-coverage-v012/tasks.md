@@ -130,7 +130,7 @@
 **Estimated Size**: ~520 lines (10 subtasks)
 
 ### Included Subtasks
-- [ ] T022: Test move-task commits WP file to main (specific file, not all changes)
+- [x] T022: Test move-task commits WP file to main (specific file, not all changes)
 - [ ] T023: Test mark-status commits tasks.md to main
 - [ ] T024: Test workflow implement commits status change when claiming WP
 - [ ] T025: Test workflow review commits status change when claiming WP
