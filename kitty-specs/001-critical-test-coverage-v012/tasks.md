@@ -293,7 +293,7 @@
 
 ### Included Subtasks
 - [x] T057: Test JSDoc generator detects JavaScript/TypeScript projects (package.json, .js/.ts files)
-- [ ] T058: Test JSDoc configuration template accessible from pip package
+- [x] T058: Test JSDoc configuration template accessible from pip package
 - [ ] T059: Test JSDoc creates valid jsdoc.json configuration
 - [ ] T060: Test Sphinx generator detects Python projects (setup.py, pyproject.toml, .py files)
 - [ ] T061: Test Sphinx configuration template accessible from pip package
