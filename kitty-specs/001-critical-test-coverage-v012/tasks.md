@@ -489,7 +489,7 @@
 **Estimated Size**: ~380 lines (7 subtasks)
 
 ### Included Subtasks
-- [ ] T113: Run full test suite: pytest tests/ -v --tb=line > regression_results.txt
+- [x] T113: Run full test suite: pytest tests/ -v --tb=line > regression_results.txt
 - [ ] T114: Analyze pass rate: (passed / total) ≥ 0.95 (≥519/546 tests)
 - [ ] T115: Categorize failures: expected (v0.12.0 behavior changes) vs unexpected (bugs)
 - [ ] T116: Document known failures in findings/test-infrastructure/v0.12.0-known-failures.md
