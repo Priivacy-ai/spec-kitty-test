@@ -172,7 +172,7 @@
 
 ### Included Subtasks
 - [x] T032: Test kitty-specs/ excluded from worktree working directory
-- [ ] T033: Test .git/info/sparse-checkout file created with patterns (`/*`, `!/kitty-specs/`, `!/kitty-specs/**`)
+- [x] T033: Test .git/info/sparse-checkout file created with patterns (`/*`, `!/kitty-specs/`, `!/kitty-specs/**`)
 - [ ] T034: Test git config core.sparseCheckout = true
 - [ ] T035: Test git config core.sparseCheckoutCone = false (explicitly disabled)
 - [ ] T036: Test worktree directory doesn't contain kitty-specs/ (validate absence)
