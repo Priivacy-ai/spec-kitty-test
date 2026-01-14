@@ -403,7 +403,7 @@
 - [x] T094: Test gap-filling mode runs gap analysis automatically
 - [x] T095: Test gap-filling mode classifies existing docs by Divio type
 - [x] T096: Test framework detection (Sphinx, MkDocs, Docusaurus, Jekyll, Hugo, plain markdown)
-- [ ] T097: Test Divio classification (tutorial, how-to, reference, explanation via heuristics)
+- [x] T097: Test Divio classification (tutorial, how-to, reference, explanation via heuristics)
 - [ ] T098: Test coverage matrix shows gaps (project_areas × divio_types grid)
 - [ ] T099: Test gap prioritization (HIGH for missing tutorials/reference, MEDIUM for how-tos, LOW for explanations)
 - [ ] T100: Test state persistence across git commit/checkout (meta.json survives)
