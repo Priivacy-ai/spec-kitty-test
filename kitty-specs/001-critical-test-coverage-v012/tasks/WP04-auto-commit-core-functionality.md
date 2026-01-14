@@ -13,10 +13,10 @@ subtasks:
   - "T031"
 title: "Auto-Commit Core Functionality"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "7756"
+shell_pid: "33073"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -907,3 +907,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestAutoCommitSy
 - 2026-01-14T12:50:21Z – claude-code – shell_pid=81841 – lane=for_review – Ready for review: Implemented 10 auto-commit core functionality tests (T022-T031). All 6 active tests passed. Discovery tests revealed commit messages don't include agent name/timestamp (recommendations, not bugs).
 - 2026-01-14T13:27:06Z – claude-opus – shell_pid=7756 – lane=doing – Started review via workflow command
 - 2026-01-14T13:34:37Z – claude-opus – shell_pid=7756 – lane=for_review – Ready for review: Implemented 10 auto-commit tests (T022-T031). 8 passed, 2 skipped. Discoveries: commit messages missing agent/timestamp, duplicate commits on same-lane move.
+- 2026-01-14T13:53:59Z – claude-opus – shell_pid=33073 – lane=doing – Started review via workflow command
