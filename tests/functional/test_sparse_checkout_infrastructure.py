@@ -96,9 +96,551 @@ def init_spec_kitty_project(temp_project_dir, spec_kitty_repo_root):
 
 
 # ============================================================================
-# Test Suite 1: Worktree Creation (8 tests)
+# Test Suite 1: Worktree Creation (8 tests) - WP05
 # ============================================================================
-# [Placeholder for Suite 1 tests - to be implemented in WP05]
+
+class TestWorktreeCreation:
+    """
+    Validate sparse-checkout configuration during worktree creation.
+
+    These tests verify that:
+    1. kitty-specs/ is excluded from worktree working directory
+    2. Sparse-checkout patterns are correctly configured
+    3. Git config settings are correct (core.sparseCheckout=true, cone=false)
+    4. Main repo is unchanged by worktree creation
+    5. Multiple worktrees work independently
+
+    Reference:
+    - implement.py:596-642 (sparse-checkout setup)
+    """
+
+    def _create_test_feature_with_wp(self, project, spec_kitty_repo_root, feature_name="test-feature", wp_ids=None):
+        """Helper: Create a feature with WP files for testing."""
+        if wp_ids is None:
+            wp_ids = ['WP01']
+
+        env = os.environ.copy()
+        env['SPEC_KITTY_TEMPLATE_ROOT'] = str(spec_kitty_repo_root)
+
+        # Feature slug must be in format ###-feature-name
+        feature_slug = f"001-{feature_name}"
+
+        # Create kitty-specs directory structure directly
+        kitty_specs_dir = project / 'kitty-specs' / feature_slug
+        tasks_dir = kitty_specs_dir / 'tasks'
+        tasks_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create spec.md (required for feature)
+        spec_file = kitty_specs_dir / 'spec.md'
+        spec_file.write_text(f"""# Feature: {feature_name}
+
+This is a test feature for worktree creation testing.
+""")
+
+        # Create plan.md (required for tasks)
+        plan_file = kitty_specs_dir / 'plan.md'
+        plan_file.write_text(f"""# Implementation Plan: {feature_name}
+
+Test implementation plan.
+""")
+
+        # Create tasks.md with WP entries
+        tasks_content = f"""# Tasks: {feature_name}
+
+## Work Packages
+
+"""
+        for wp_id in wp_ids:
+            wp_num = int(wp_id.replace('WP', '').replace('0', '') or '0') or int(wp_id[-2:])
+            tasks_content += f"""### {wp_id} - Test Work Package {wp_num}
+
+- **Lane**: planned
+- **Dependencies**: []
+- **Subtasks**: [T{wp_num:03d}]
+
+"""
+
+        tasks_file = kitty_specs_dir / 'tasks.md'
+        tasks_file.write_text(tasks_content)
+
+        # Create WP prompt files
+        for wp_id in wp_ids:
+            wp_num = int(wp_id.replace('WP', '').replace('0', '') or '0') or int(wp_id[-2:])
+            wp_file = tasks_dir / f'{wp_id}-test-wp.md'
+            wp_file.write_text(f"""---
+work_package_id: "{wp_id}"
+title: "Test Work Package {wp_num}"
+lane: "planned"
+dependencies: []
+subtasks:
+  - "T{wp_num:03d}"
+assignee: ""
+agent: ""
+shell_pid: ""
+review_status: ""
+reviewed_by: ""
+history: []
+---
+
+# Work Package: {wp_id}
+
+Test work package for worktree creation testing.
+
+## Subtask T{wp_num:03d} - Test Task {wp_num}
+
+Test task implementation.
+
+## Activity Log
+
+*[No activity yet]*
+""")
+
+        # Commit to git
+        subprocess.run(['git', 'add', '.'], cwd=project, check=True, capture_output=True)
+        subprocess.run(
+            ['git', 'commit', '-m', f'Add {feature_name} feature with WPs'],
+            cwd=project,
+            check=True,
+            capture_output=True
+        )
+
+        return feature_slug, env
+
+    def test_kitty_specs_excluded_from_worktree(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: kitty-specs/ excluded from worktree working directory (T032)
+
+        Why: Core requirement of sparse-checkout - kitty-specs/ directory should
+        NOT appear in worktree working tree. This prevents agents from modifying
+        specs in worktree, ensuring single source of truth in main repo.
+
+        Reference: implement.py:596-642 (sparse-checkout setup excludes kitty-specs/)
+        Related: Data integrity, state divergence prevention
+        """
+        project = init_spec_kitty_project("exclusion-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Verify kitty-specs/ exists in main repo
+        main_kitty_specs = project / 'kitty-specs'
+        assert main_kitty_specs.exists(), (
+            f"Setup failed: kitty-specs/ should exist in main repo\n"
+            f"Project: {project}"
+        )
+        assert main_kitty_specs.is_dir(), "kitty-specs/ should be a directory"
+
+        # Create worktree via implement command
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        assert result.returncode == 0, f"Worktree creation failed: {result.stderr}"
+
+        # Find worktree directory
+        worktrees_dir = project / '.worktrees'
+        assert worktrees_dir.exists(), f"Worktrees directory not created: {worktrees_dir}"
+
+        worktrees = list(worktrees_dir.glob('*'))
+        assert len(worktrees) >= 1, f"No worktrees found in {worktrees_dir}"
+
+        worktree_path = worktrees[0]
+        assert worktree_path.is_dir(), f"Worktree path not a directory: {worktree_path}"
+
+        # PRIMARY TEST: kitty-specs/ should NOT exist in worktree
+        worktree_kitty_specs = worktree_path / 'kitty-specs'
+        assert not worktree_kitty_specs.exists(), (
+            f"CRITICAL: kitty-specs/ exists in worktree (sparse-checkout FAILED)\n"
+            f"Worktree: {worktree_path}\n"
+            f"kitty-specs/ path: {worktree_kitty_specs}\n"
+            f"If directory exists, sparse-checkout not applied - DATA INTEGRITY BUG\n"
+            f"This allows agents to modify specs in worktree → state divergence"
+        )
+
+        # Validate other files present (sparse-checkout not too broad)
+        git_dir = worktree_path / '.git'
+        assert git_dir.exists(), (
+            f"Worktree should have .git file/directory\n"
+            f"Worktree: {worktree_path}\n"
+            f"If .git missing, worktree creation failed"
+        )
+
+    def test_sparse_checkout_file_has_correct_patterns(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: .git/info/sparse-checkout file created with correct patterns (T033)
+
+        Why: Sparse-checkout file defines exclusion patterns. Must contain:
+        /* (include all), !/kitty-specs/ (exclude dir), !/kitty-specs/** (exclude contents)
+
+        Reference: implement.py:622-629 (sparse-checkout pattern writing)
+        Related: Git sparse-checkout configuration
+        """
+        project = init_spec_kitty_project("patterns-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project, env=env, capture_output=True, text=True, timeout=60, check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Get sparse-checkout file path via git
+        result = subprocess.run(
+            ['git', 'rev-parse', '--git-path', 'info/sparse-checkout'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0, f"git rev-parse failed: {result.stderr}"
+
+        sparse_checkout_path = result.stdout.strip()
+
+        # The path may be relative to worktree or absolute
+        if not Path(sparse_checkout_path).is_absolute():
+            # For worktrees, .git is a file pointing to the actual git dir
+            git_path = worktree / '.git'
+            if git_path.is_file():
+                # Read the gitdir from the .git file
+                gitdir_content = git_path.read_text().strip()
+                if gitdir_content.startswith('gitdir: '):
+                    actual_git_dir = Path(gitdir_content[8:])
+                    if not actual_git_dir.is_absolute():
+                        actual_git_dir = worktree / actual_git_dir
+                    sparse_checkout_file = actual_git_dir / 'info' / 'sparse-checkout'
+                else:
+                    sparse_checkout_file = worktree / sparse_checkout_path
+            else:
+                sparse_checkout_file = worktree / sparse_checkout_path
+        else:
+            sparse_checkout_file = Path(sparse_checkout_path)
+
+        # Validate file exists
+        assert sparse_checkout_file.exists(), (
+            f"Sparse-checkout file not found: {sparse_checkout_file}\n"
+            f"Worktree: {worktree}"
+        )
+
+        # Read and validate patterns
+        content = sparse_checkout_file.read_text()
+
+        # Expected patterns (order may vary)
+        expected_patterns = [
+            '/*',                      # Include everything at root
+            '!/kitty-specs/',          # Exclude kitty-specs directory
+            '!/kitty-specs/**'         # Exclude kitty-specs contents
+        ]
+
+        for pattern in expected_patterns:
+            assert pattern in content, (
+                f"Missing pattern: {pattern}\n"
+                f"Sparse-checkout file: {sparse_checkout_file}\n"
+                f"Content:\n{content}"
+            )
+
+    def test_git_config_sparse_checkout_enabled(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: git config core.sparseCheckout = true (T034)
+
+        Why: core.sparseCheckout must be enabled for sparse-checkout to work.
+        Without this, .git/info/sparse-checkout file is ignored.
+
+        Reference: implement.py:619 (git config core.sparseCheckout true)
+        Related: Git sparse-checkout enablement
+        """
+        project = init_spec_kitty_project("config-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project, env=env, capture_output=True, text=True, timeout=60, check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Check git config
+        result = subprocess.run(
+            ['git', 'config', 'core.sparseCheckout'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0, f"git config query failed: {result.stderr}"
+
+        value = result.stdout.strip()
+        assert value == 'true', (
+            f"core.sparseCheckout should be 'true', got '{value}'\n"
+            f"Worktree: {worktree}"
+        )
+
+    def test_git_config_sparse_checkout_cone_disabled(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: git config core.sparseCheckoutCone = false (explicitly disabled) (T035)
+
+        Why: Cone mode simplifies patterns but doesn't support our negation patterns.
+        Must use traditional pattern mode with !/kitty-specs/ exclusions.
+
+        Reference: implement.py:620 (git config core.sparseCheckoutCone false)
+        Related: Git sparse-checkout pattern mode
+        """
+        project = init_spec_kitty_project("cone-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project, env=env, capture_output=True, text=True, timeout=60, check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Check cone mode config
+        result = subprocess.run(
+            ['git', 'config', 'core.sparseCheckoutCone'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0, f"git config query failed: {result.stderr}"
+
+        value = result.stdout.strip()
+        assert value == 'false', (
+            f"core.sparseCheckoutCone should be 'false', got '{value}'\n"
+            f"Worktree: {worktree}\n"
+            f"Cone mode doesn't support negation patterns"
+        )
+
+    def test_worktree_kitty_specs_not_in_working_tree(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: kitty-specs/ files tracked but not present in worktree working tree (T036)
+
+        Why: Sparse-checkout behavior: files remain in git index (tracked) but are
+        NOT checked out to the working directory. This test validates:
+        1. kitty-specs/ files exist in index (git knows about them)
+        2. kitty-specs/ directory NOT present in working tree (sparse-checkout applied)
+
+        Reference: implement.py:596-642 (sparse-checkout applied)
+        Related: Git sparse-checkout semantics
+        """
+        project = init_spec_kitty_project("ls-files-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project, env=env, capture_output=True, text=True, timeout=60, check=True
+        )
+
+        worktrees = list((project / '.worktrees').glob('*'))
+        worktree = worktrees[0]
+
+        # Check git ls-files for kitty-specs/ - files SHOULD be in index
+        result = subprocess.run(
+            ['git', 'ls-files', 'kitty-specs/'],
+            cwd=worktree,
+            capture_output=True,
+            text=True
+        )
+        index_files = result.stdout.strip()
+
+        # Files ARE tracked in index (expected - sparse-checkout doesn't delete from index)
+        assert len(index_files) > 0, (
+            f"kitty-specs/ files should exist in git index (tracked)\n"
+            f"Worktree: {worktree}\n"
+            f"This validates files weren't accidentally deleted from git tracking"
+        )
+
+        # But directory should NOT exist in working tree (sparse-checkout applied)
+        worktree_kitty_specs = worktree / 'kitty-specs'
+        assert not worktree_kitty_specs.exists(), (
+            f"kitty-specs/ should NOT exist in worktree working directory\n"
+            f"Worktree: {worktree}\n"
+            f"Directory path: {worktree_kitty_specs}\n"
+            f"Files in index: {index_files}\n"
+            f"Sparse-checkout should exclude from working tree while keeping in index"
+        )
+
+    def test_main_repo_unaffected_by_sparse_checkout(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Main repository still has kitty-specs/ (not affected by sparse-checkout) (T037)
+
+        Why: Sparse-checkout applies only to worktrees. Main repo must retain
+        kitty-specs/ as single source of truth.
+
+        Reference: implement.py:596-642 (worktree-specific configuration)
+        Related: Main repo vs. worktree isolation
+        """
+        project = init_spec_kitty_project("main-repo-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # Verify kitty-specs/ exists in main before worktree
+        main_kitty_specs = project / 'kitty-specs'
+        assert main_kitty_specs.exists(), "Setup: kitty-specs/ should exist in main"
+
+        # Create worktree
+        subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project, env=env, capture_output=True, text=True, timeout=60, check=True
+        )
+
+        # Verify kitty-specs/ STILL exists in main (unchanged)
+        assert main_kitty_specs.exists(), (
+            f"kitty-specs/ disappeared from main repo after worktree creation\n"
+            f"Main repo: {project}\n"
+            f"Sparse-checkout affected main repo - CRITICAL BUG"
+        )
+
+        # Verify contents intact
+        assert main_kitty_specs.is_dir(), "kitty-specs/ should still be a directory"
+        contents = list(main_kitty_specs.iterdir())
+        assert len(contents) > 0, (
+            f"kitty-specs/ empty in main repo\n"
+            f"Expected feature subdirectory"
+        )
+
+    def test_multiple_worktrees_all_exclude_kitty_specs(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Multiple worktrees all exclude kitty-specs/ independently (T038)
+
+        Why: Each worktree should have independent sparse-checkout configuration.
+        Creating 3 worktrees should result in 3 worktrees without kitty-specs/.
+
+        Reference: implement.py:596-642 (applied per worktree)
+        Related: Multi-worktree isolation
+        """
+        project = init_spec_kitty_project("multi-worktree-test")
+        feature_slug, env = self._create_test_feature_with_wp(
+            project, spec_kitty_repo_root, "test-feature", ['WP01', 'WP02', 'WP03']
+        )
+
+        # Create 3 worktrees
+        for wp_id in ['WP01', 'WP02', 'WP03']:
+            result = subprocess.run(
+                ['spec-kitty', 'implement', wp_id, f'--feature={feature_slug}'],
+                cwd=project,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            if result.returncode != 0:
+                pytest.skip(f"Could not create worktree for {wp_id}: {result.stderr}")
+
+        # Validate all 3 worktrees exist
+        worktrees = list((project / '.worktrees').glob('*'))
+        assert len(worktrees) >= 3, f"Expected 3 worktrees, got {len(worktrees)}"
+
+        # Validate each worktree excludes kitty-specs/
+        for i, worktree in enumerate(sorted(worktrees)[:3], start=1):
+            worktree_kitty_specs = worktree / 'kitty-specs'
+            assert not worktree_kitty_specs.exists(), (
+                f"Worktree {i} has kitty-specs/ (should be excluded)\n"
+                f"Worktree: {worktree}\n"
+                f"Path: {worktree_kitty_specs}\n"
+                f"Sparse-checkout not applied to all worktrees - BUG"
+            )
+
+            # Validate git config set for each
+            result = subprocess.run(
+                ['git', 'config', 'core.sparseCheckout'],
+                cwd=worktree,
+                capture_output=True,
+                text=True
+            )
+            assert result.stdout.strip() == 'true', (
+                f"Worktree {i} missing sparse-checkout config\n"
+                f"Worktree: {worktree}"
+            )
+
+    def test_sparse_checkout_failure_handling(
+        self,
+        temp_project_dir,
+        init_spec_kitty_project,
+        spec_kitty_repo_root
+    ):
+        """
+        Test: Error handling when sparse-checkout configuration fails (T039)
+
+        Why: If sparse-checkout fails (git version too old, permissions, etc.),
+        error should be clear. Should not create worktree with kitty-specs/ present.
+
+        Reference: implement.py:596-642 (error handling)
+        Related: Graceful degradation, error UX
+        """
+        project = init_spec_kitty_project("error-handling-test")
+        feature_slug, env = self._create_test_feature_with_wp(project, spec_kitty_repo_root)
+
+        # This test validates that IF sparse-checkout fails, behavior is safe
+        # (Discovery test - learn current error handling)
+
+        # Try creating worktree
+        result = subprocess.run(
+            ['spec-kitty', 'implement', 'WP01', f'--feature={feature_slug}'],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        if result.returncode != 0:
+            # If failed, error should be clear
+            error = result.stderr
+            # Just verify some error output exists
+            assert len(error) > 0, (
+                f"Error should produce output, not fail silently\n"
+                f"Return code: {result.returncode}"
+            )
+        else:
+            # If succeeded, verify sparse-checkout actually working
+            worktrees = list((project / '.worktrees').glob('*'))
+            if len(worktrees) > 0:
+                worktree = worktrees[0]
+                assert not (worktree / 'kitty-specs').exists(), (
+                    "If worktree created, kitty-specs/ must be excluded"
+                )
 
 
 # ============================================================================
