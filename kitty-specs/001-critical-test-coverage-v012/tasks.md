@@ -177,7 +177,7 @@
 - [x] T035: Test git config core.sparseCheckoutCone = false (explicitly disabled)
 - [x] T036: Test worktree directory doesn't contain kitty-specs/ (validate absence)
 - [x] T037: Test main repository still has kitty-specs/ (not affected by sparse-checkout)
-- [ ] T038: Test multiple worktrees all exclude kitty-specs/ independently
+- [x] T038: Test multiple worktrees all exclude kitty-specs/ independently
 - [ ] T039: Test error handling when sparse-checkout configuration fails
 
 ### Implementation Notes
