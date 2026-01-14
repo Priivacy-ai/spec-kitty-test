@@ -449,7 +449,7 @@
 **Estimated Size**: ~360 lines (6 subtasks)
 
 ### Included Subtasks
-- [ ] T107: Run test_doc_generators_distribution.py → 15/15 PASSED
+- [x] T107: Run test_doc_generators_distribution.py → 15/15 PASSED
 - [ ] T108: Run test_documentation_mission_distribution.py → 20/20 PASSED
 - [ ] T109: Run test_documentation_mission_end_to_end.py → 15/15 PASSED
 - [ ] T110: Validate distribution tests use clean_environment (no SPEC_KITTY_TEMPLATE_ROOT)
