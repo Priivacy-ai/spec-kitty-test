@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Sparse-Checkout Integration & Validation
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP02
 subtasks:
