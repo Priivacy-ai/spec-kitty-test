@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Multi-Agent Synchronization
-lane: "doing"
+lane: "planned"
 dependencies:
 - WP01
 - WP02
@@ -18,8 +18,8 @@ phase: Phase 1 - Sparse-Checkout Track (Risk-First)
 assignee: ''
 agent: "codex"
 shell_pid: "54244"
-review_status: ''
-reviewed_by: ''
+review_status: "has_feedback"
+reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-14T20:00:00Z'
   lane: planned
@@ -43,9 +43,16 @@ history:
 
 ## Review Feedback
 
-*[This section is empty initially. Reviewers will populate it if work needs changes.]*
+**Reviewed by**: Robert Douglass
+**Status**: ❌ Changes Requested
+**Date**: 2026-01-14
 
----
+**Issue 1**: `TestMultiAgentParallel` still uses/tries invalid CLI syntax (fallback to `spec-kitty agent task mark-status`), which will fail immediately. Remove the fallback and use the correct command (`spec-kitty agent tasks mark-status`), consistent with the CLI.
+
+**Issue 2**: `test_review_feedback_auto_inserted` is skipped, but the WP success criteria requires validating review feedback insertion. Implement this test using the actual review workflow command that exists (or update the test to the correct command path) and assert the Review Feedback section + `review_status` updates.
+
+**Issue 3**: The activity log says the suite is blocked by Bug #5, and there is no evidence of a passing run. The WP definition of done requires `pytest tests/functional/test_sparse_checkout_infrastructure.py::TestMultiAgentParallel -xvs` to pass 8/8 (or bugs fixed). Fix the underlying spec-kitty issues (auto-commit for implement, etc.), rerun the suite, and update findings accordingly.
+
 
 ## Objectives & Success Criteria
 
@@ -903,6 +910,7 @@ def test_pid_tracking_in_activity_log(
 - 2026-01-14T12:28:43Z – claude-code – shell_pid=70908 – lane=doing – Started implementation via workflow command
 - 2026-01-14T12:34:39Z – claude-code – shell_pid=70908 – lane=for_review – Multi-agent synchronization tests complete - FOUND BUG #5 (CRITICAL): Auto-commit not working for implement command. Worktrees created but lane changes not synchronized to main → agents don't see each other's work. Test suite (8 tests) implemented with comprehensive docstrings and adversarial validation. Bug documented in findings/. Remaining tests blocked pending Bug #5 fix.
 - 2026-01-14T12:43:26Z – codex – shell_pid=54244 – lane=doing – Started review via workflow command
+- 2026-01-14T12:44:37Z – codex – shell_pid=54244 – lane=planned – Moved to planned
 
 ## Test Strategy
 
