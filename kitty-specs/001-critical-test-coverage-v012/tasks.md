@@ -347,7 +347,7 @@
 - [x] T074: Test mission name "Documentation Kitty" version 1.0.0
 - [x] T075: Test 6 workflow phases in correct order (discover, audit, design, generate, validate, publish)
 - [x] T076: Test required artifacts defined (spec.md, plan.md, tasks.md, gap-analysis.md)
-- [ ] T077: Test optional artifacts defined (divio-templates/, generator-configs/, audit-report.md, research.md, release.md)
+- [x] T077: Test optional artifacts defined (divio-templates/, generator-configs/, audit-report.md, research.md, release.md)
 - [ ] T078: Test workspace conventions correct (workspace="docs/", deliverables="docs/output/", documentation="docs/")
 - [ ] T079: Test specify command template accessible and non-empty
 - [ ] T080: Test plan command template accessible and non-empty
