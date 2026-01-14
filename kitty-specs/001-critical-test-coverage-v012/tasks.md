@@ -220,7 +220,7 @@
 - [x] T045: Test absolute paths work from nested directories in worktree
 
 **Suite 5: Clean Merge Behavior (6 subtasks)**
-- [ ] T046: Test merge WP branch to main → no kitty-specs/ conflicts
+- [x] T046: Test merge WP branch to main → no kitty-specs/ conflicts
 - [ ] T047: Test merge multiple WP branches sequentially → no conflicts between them
 - [ ] T048: Test merge WP branch with only src/ changes → clean fast-forward merge
 - [ ] T049: Test cherry-pick src/ changes from WP branch without kitty-specs/ interference
