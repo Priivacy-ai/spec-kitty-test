@@ -302,7 +302,7 @@
 - [x] T064: Test rustdoc configuration template accessible from pip package
 - [x] T065: Test rustdoc creates rustdoc-config.md instructions
 - [x] T066: Test all generators accessible via importlib (no SPEC_KITTY_TEMPLATE_ROOT)
-- [ ] T067: Test generator detection works without development env vars
+- [x] T067: Test generator detection works without development env vars
 - [ ] T068: Test generator configs use relative paths (no local repo references)
 - [ ] T069: Test multi-language project detection (Python + JavaScript both detected)
 - [ ] T070: Test generator error handling (clear messages, installation URLs)
