@@ -8,7 +8,7 @@ subtasks:
   - "T005"
 title: "Test Environment Setup"
 phase: "Phase 0 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-sonnet-4-5"
 shell_pid: "59961"
@@ -529,3 +529,4 @@ Total bugs found: 0 (will be updated as testing progresses)
 - 2026-01-14T12:12:00Z – codex – shell_pid=54244 – lane=doing – Acknowledged review feedback and updated setup script checks
 - 2026-01-14T12:12:20Z – codex – shell_pid=54244 – lane=for_review – Ready for review: adjust setup script warnings/errors per feedback
 - 2026-01-14T12:12:58Z – claude-sonnet-4-5 – shell_pid=59961 – lane=doing – Started review via workflow command
+- 2026-01-14T12:14:42Z – claude-sonnet-4-5 – shell_pid=59961 – lane=done – Review passed: All three feedback issues resolved. Issue 1 - Missing ~/Code/spec-kitty now warns instead of errors. Issue 2 - Non-source install now fails with exit 1 instead of warning. Issue 3 - Uninstall instruction now uses correct package name 'spec-kitty-cli'. Setup script validates correctly, all tests pass.
