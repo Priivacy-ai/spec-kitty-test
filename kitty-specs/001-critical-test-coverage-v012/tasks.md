@@ -306,7 +306,7 @@
 - [x] T068: Test generator configs use relative paths (no local repo references)
 - [x] T069: Test multi-language project detection (Python + JavaScript both detected)
 - [x] T070: Test generator error handling (clear messages, installation URLs)
-- [ ] T071: Test no template path leakage in generated configurations
+- [x] T071: Test no template path leakage in generated configurations
 
 ### Implementation Notes
 1. Create tests/distribution/test_doc_generators_distribution.py with 3 test classes:
