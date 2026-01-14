@@ -399,7 +399,7 @@
 
 ### Included Subtasks
 - [x] T092: Test initial mode workflow (specify → plan → tasks phases)
-- [ ] T093: Test initial mode stores state in meta.json (documentation_state field)
+- [x] T093: Test initial mode stores state in meta.json (documentation_state field)
 - [ ] T094: Test gap-filling mode runs gap analysis automatically
 - [ ] T095: Test gap-filling mode classifies existing docs by Divio type
 - [ ] T096: Test framework detection (Sphinx, MkDocs, Docusaurus, Jekyll, Hugo, plain markdown)
