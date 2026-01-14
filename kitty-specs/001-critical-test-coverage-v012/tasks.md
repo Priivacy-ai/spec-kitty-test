@@ -56,7 +56,7 @@
 - [x] T006: Test corrupted sparse-checkout file recovery
 - [x] T007: Test missing .git/info directory creation
 - [x] T008: Test permission errors on auto-commit (clear error messages)
-- [ ] T009: Test concurrent git commits (locking/retry mechanism)
+- [x] T009: Test concurrent git commits (locking/retry mechanism)
 - [ ] T010: Test pre-sparse-checkout worktree migration (fix-worktrees script)
 - [ ] T011: Test manual kitty-specs/ creation in worktree (ignored by git)
 - [ ] T012: Test symlink to kitty-specs/ in worktree (detected/removed)
