@@ -15,12 +15,12 @@ subtasks:
   - "T051"
 title: "Path Resolution & Merge Tests"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "for_review"
+lane: "planned"
 assignee: ""
 agent: ""
 shell_pid: ""
-review_status: ""
-reviewed_by: ""
+review_status: "has_feedback"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01", "WP05"]
 history:
   - timestamp: "2026-01-14T20:00:00Z"
@@ -45,9 +45,14 @@ history:
 
 ## Review Feedback
 
-*[This section is empty initially. Reviewers will populate it if work needs changes.]*
+**Reviewed by**: Robert Douglass
+**Status**: ❌ Changes Requested
+**Date**: 2026-01-14
 
----
+**Issue 1**: `test_pid_tracking_in_activity_log` does not enforce that `shell_pid` is present. The test currently treats missing `shell_pid` as informational and passes, but the success criteria explicitly require validating PID tracking in the activity log. Make this assertion hard-fail when `shell_pid` is absent.
+
+**Issue 2**: The required test command fails in the WP review worktree because the `spec_kitty_repo_root` fixture defaults to a path that doesn't exist in `.worktrees`. Either set `SPEC_KITTY_REPO` (or equivalent) inside the test run/setup, or update the fixture to resolve the main repo root when running from a worktree so `pytest tests/functional/test_sparse_checkout_infrastructure.py::TestMultiAgentParallel -xvs` passes as required.
+
 
 ## Objectives & Success Criteria
 
@@ -1051,3 +1056,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestCleanMergeBe
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T16:23:57Z – unknown – lane=for_review – Implemented 12 tests: 6 path resolution + 6 merge behavior. All pass.
+- 2026-01-14T16:29:20Z – unknown – lane=planned – Moved to planned
