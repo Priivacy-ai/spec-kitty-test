@@ -8,11 +8,11 @@ subtasks:
   - "T005"
 title: "Test Environment Setup"
 phase: "Phase 0 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "codex"
 shell_pid: "54244"
-review_status: "has_feedback"
+review_status: "acknowledged"
 reviewed_by: "Robert Douglass"
 dependencies: []
 history:
@@ -526,3 +526,5 @@ Total bugs found: 0 (will be updated as testing progresses)
 - 2026-01-14T12:08:54Z – codex – shell_pid=54244 – lane=doing – Started review via workflow command
 - 2026-01-14T12:10:30Z – codex – shell_pid=54244 – lane=planned – Moved to planned
 - 2026-01-14T12:11:03Z – codex – shell_pid=54244 – lane=doing – Started implementation via workflow command
+- 2026-01-14T12:12:00Z – codex – shell_pid=54244 – lane=doing – Acknowledged review feedback and updated setup script checks
+- 2026-01-14T12:12:20Z – codex – shell_pid=54244 – lane=for_review – Ready for review: adjust setup script warnings/errors per feedback
