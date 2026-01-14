@@ -60,7 +60,7 @@
 - [x] T010: Test pre-sparse-checkout worktree migration (fix-worktrees script)
 - [x] T011: Test manual kitty-specs/ creation in worktree (ignored by git)
 - [x] T012: Test symlink to kitty-specs/ in worktree (detected/removed)
-- [ ] T013: Test network issues during git operations (retry logic/timeout)
+- [x] T013: Test network issues during git operations (retry logic/timeout)
 
 ### Implementation Notes
 1. Create TestEdgeCases class in tests/functional/test_sparse_checkout_infrastructure.py
