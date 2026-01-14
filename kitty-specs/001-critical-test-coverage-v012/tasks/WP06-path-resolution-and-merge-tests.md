@@ -15,10 +15,10 @@ subtasks:
   - "T051"
 title: "Path Resolution & Merge Tests"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "36230"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01", "WP05"]
@@ -1050,3 +1050,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestCleanMergeBe
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-14T13:58:25Z – claude-opus – shell_pid=36230 – lane=doing – Started implementation via workflow command
