@@ -23,7 +23,7 @@ subtasks:
   - "T091"
 title: "Documentation Mission Distribution Tests"
 phase: "Phase 2 - Documentation Mission Track"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "Codex"
 shell_pid: "57727"
@@ -666,3 +666,4 @@ pytest tests/distribution/test_documentation_mission_distribution.py -xvs
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T12:18:00Z – Codex – shell_pid=57727 – lane=doing – Started implementation via workflow command
+- 2026-01-14T12:22:23Z – Codex – shell_pid=57727 – lane=for_review – Ready for review: added 20 documentation mission distribution tests with clean env checks and verified pytest pass
