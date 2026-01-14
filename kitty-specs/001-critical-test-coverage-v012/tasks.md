@@ -305,7 +305,7 @@
 - [x] T067: Test generator detection works without development env vars
 - [x] T068: Test generator configs use relative paths (no local repo references)
 - [x] T069: Test multi-language project detection (Python + JavaScript both detected)
-- [ ] T070: Test generator error handling (clear messages, installation URLs)
+- [x] T070: Test generator error handling (clear messages, installation URLs)
 - [ ] T071: Test no template path leakage in generated configurations
 
 ### Implementation Notes
