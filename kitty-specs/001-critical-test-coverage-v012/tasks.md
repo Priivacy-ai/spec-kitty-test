@@ -91,7 +91,7 @@
 **Estimated Size**: ~460 lines (8 subtasks)
 
 ### Included Subtasks
-- [ ] T014: Test Agent A claims WP01, Agent B claims WP02 → both see each other's status
+- [x] T014: Test Agent A claims WP01, Agent B claims WP02 → both see each other's status
 - [ ] T015: Test Agent A marks subtask done → Agent B sees change immediately
 - [ ] T016: Test Agent A moves WP to for_review → Agent B sees lane change
 - [ ] T017: Test three agents on WP01/02/03 → all synchronized via main
