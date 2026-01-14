@@ -54,7 +54,7 @@
 
 ### Included Subtasks
 - [x] T006: Test corrupted sparse-checkout file recovery
-- [ ] T007: Test missing .git/info directory creation
+- [x] T007: Test missing .git/info directory creation
 - [ ] T008: Test permission errors on auto-commit (clear error messages)
 - [ ] T009: Test concurrent git commits (locking/retry mechanism)
 - [ ] T010: Test pre-sparse-checkout worktree migration (fix-worktrees script)
