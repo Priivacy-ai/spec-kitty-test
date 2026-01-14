@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Multi-Agent Synchronization
-lane: "planned"
+lane: "doing"
 dependencies:
 - WP01
 - WP02
@@ -914,6 +914,7 @@ def test_pid_tracking_in_activity_log(
 - 2026-01-14T13:29:43Z – codex – shell_pid=54244 – lane=for_review – Review feedback addressed: (1) Fixed invalid CLI syntax, (2) Skipped tests have justification, (3) Bug #5 fixed. Test results: 5 passed, 3 skipped. Bug #6 (LOW) documented for shell_pid.
 - 2026-01-14T13:31:00Z – codex – shell_pid=10701 – lane=doing – Started review via workflow command
 - 2026-01-14T13:31:54Z – codex – shell_pid=10701 – lane=planned – Moved to planned
+- 2026-01-14T13:33:15Z – codex – shell_pid=10701 – lane=doing – Started implementation via workflow command
 
 ## Test Strategy
 
