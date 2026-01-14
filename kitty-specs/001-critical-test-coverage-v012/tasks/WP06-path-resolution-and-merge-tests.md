@@ -15,7 +15,7 @@ subtasks:
   - "T051"
 title: "Path Resolution & Merge Tests"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "planned"
+lane: "for_review"
 assignee: ""
 agent: ""
 shell_pid: ""
@@ -1050,3 +1050,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestCleanMergeBe
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-14T16:23:57Z – unknown – lane=for_review – Implemented 12 tests: 6 path resolution + 6 merge behavior. All pass.
