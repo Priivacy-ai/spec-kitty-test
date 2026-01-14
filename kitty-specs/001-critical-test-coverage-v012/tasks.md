@@ -53,7 +53,7 @@
 **Estimated Size**: ~480 lines (8 subtasks)
 
 ### Included Subtasks
-- [ ] T006: Test corrupted sparse-checkout file recovery
+- [x] T006: Test corrupted sparse-checkout file recovery
 - [ ] T007: Test missing .git/info directory creation
 - [ ] T008: Test permission errors on auto-commit (clear error messages)
 - [ ] T009: Test concurrent git commits (locking/retry mechanism)
