@@ -15,6 +15,7 @@ import tempfile
 import time
 import stat
 import multiprocessing
+import shutil
 from pathlib import Path
 import pytest
 import json
@@ -376,6 +377,52 @@ class TestImplementCommandBasics:
 
         # WP02 should have WP01's test file
         assert (wp02_workspace / 'test.txt').exists(), "WP02 should have WP01's test.txt"
+
+    def test_workflow_implement_creates_worktrees_dir(self, requires_v011, init_spec_kitty_project, run_spec_kitty_command):
+        """
+        Test: workflow implement creates .worktrees when missing.
+
+        Ensures agents get a valid workspace directory path even if .worktrees/
+        has not been created yet.
+        """
+        project_path = init_spec_kitty_project()
+
+        run_spec_kitty_command(project_path, 'agent', 'feature', 'create-feature', 'test-feature', '--json')
+        tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
+        tasks_dir.mkdir(parents=True, exist_ok=True)
+        wp_path = tasks_dir / 'WP01-test.md'
+        wp_path.write_text(
+            "---\n"
+            "work_package_id: \"WP01\"\n"
+            "title: \"WP01\"\n"
+            "lane: \"planned\"\n"
+            "dependencies: []\n"
+            "---\n"
+            "\n"
+            "# WP01\n"
+        )
+
+        subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True)
+        subprocess.run(['git', 'commit', '-m', 'Add WP01'], cwd=str(project_path), check=True)
+
+        worktrees_dir = project_path / '.worktrees'
+        if worktrees_dir.exists():
+            shutil.rmtree(worktrees_dir)
+
+        result = run_spec_kitty_command(
+            project_path,
+            'agent',
+            'workflow',
+            'implement',
+            'WP01',
+            '--feature',
+            '001-test-feature',
+            '--agent',
+            'tester',
+        )
+
+        assert result.returncode == 0, f"Workflow implement failed: {result.stderr}"
+        assert worktrees_dir.exists(), ".worktrees directory should be created by workflow implement"
 
     def test_workspace_path_format(self, requires_v011, init_spec_kitty_project, run_spec_kitty_command):
         """Verify workspace paths follow format: .worktrees/###-feature-WP##/"""
@@ -3277,4 +3324,3 @@ No dependencies field at all.
             # Should have initial commit from main
             assert 'Initial commit' in result.stdout or 'Add WPs' in result.stdout, \
                 "Should contain commits from main branch"
-
