@@ -361,7 +361,7 @@
 - [x] T088: Test mission metadata correct (name, domain, version)
 - [x] T089: Test get_mission_by_name("documentation") returns valid Mission object
 - [x] T090: Test mission validation passes pydantic checks
-- [ ] T091: Test all 4 Divio templates present (tutorial, howto, reference, explanation)
+- [x] T091: Test all 4 Divio templates present (tutorial, howto, reference, explanation)
 
 ### Implementation Notes
 1. Create tests/distribution/test_documentation_mission_distribution.py with 4 test classes:
