@@ -22,7 +22,7 @@
 - [x] T001: Create scripts/setup-test-env.sh validation script
 - [x] T002: Create findings/test-infrastructure/v0.12.0-bugs-found.md template
 - [x] T003: Set up test environment (install spec-kitty, validate versions)
-- [ ] T004: Review existing test patterns (test_comprehensive_workspace_per_wp.py, test_user_experience_simulation.py)
+- [x] T004: Review existing test patterns (test_comprehensive_workspace_per_wp.py, test_user_experience_simulation.py)
 - [ ] T005: Create/verify init_spec_kitty_project and clean_environment fixtures
 
 ### Implementation Notes
