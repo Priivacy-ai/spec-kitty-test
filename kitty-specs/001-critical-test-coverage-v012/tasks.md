@@ -351,7 +351,7 @@
 - [x] T078: Test workspace conventions correct (workspace="docs/", deliverables="docs/output/", documentation="docs/")
 - [x] T079: Test specify command template accessible and non-empty
 - [x] T080: Test plan command template accessible and non-empty
-- [ ] T081: Test tasks command template accessible and non-empty
+- [x] T081: Test tasks command template accessible and non-empty
 - [ ] T082: Test implement command template accessible and non-empty
 - [ ] T083: Test review command template accessible and non-empty
 - [ ] T084: Test all templates have expected structure (frontmatter, sections, instructions)
