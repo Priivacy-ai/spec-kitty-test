@@ -410,7 +410,7 @@
 - [x] T101: Test divio templates accessible during workflow
 - [x] T102: Test generators configured correctly (JSDoc, Sphinx, rustdoc)
 - [x] T103: Test migration installs documentation mission to .kittify/missions/
-- [ ] T104: Test migration idempotent (safe to run multiple times, detect() returns False after apply())
+- [x] T104: Test migration idempotent (safe to run multiple times, detect() returns False after apply())
 - [ ] T105: Test backward compatibility (old features without documentation_state handled gracefully)
 - [ ] T106: Test state validation (invalid iteration_mode, divio_types, generators rejected with clear errors)
 
