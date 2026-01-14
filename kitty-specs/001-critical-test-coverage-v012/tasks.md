@@ -296,7 +296,7 @@
 - [x] T058: Test JSDoc configuration template accessible from pip package
 - [x] T059: Test JSDoc creates valid jsdoc.json configuration
 - [x] T060: Test Sphinx generator detects Python projects (setup.py, pyproject.toml, .py files)
-- [ ] T061: Test Sphinx configuration template accessible from pip package
+- [x] T061: Test Sphinx configuration template accessible from pip package
 - [ ] T062: Test Sphinx creates valid conf.py with correct extensions
 - [ ] T063: Test rustdoc generator detects Rust projects (Cargo.toml, .rs files)
 - [ ] T064: Test rustdoc configuration template accessible from pip package
