@@ -15,10 +15,10 @@ subtasks:
   - "T051"
 title: "Path Resolution & Merge Tests"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "for_review"
+lane: "doing"
 assignee: ""
-agent: "claude-opus"
-shell_pid: "36230"
+agent: "codex"
+shell_pid: "50612"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01", "WP05"]
@@ -1051,3 +1051,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestCleanMergeBe
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T13:58:25Z – claude-opus – shell_pid=36230 – lane=doing – Started implementation via workflow command
+- 2026-01-14T16:26:33Z – codex – shell_pid=50612 – lane=doing – Started review via workflow command
