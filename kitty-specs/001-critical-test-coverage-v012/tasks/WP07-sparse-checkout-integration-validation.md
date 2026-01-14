@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Sparse-Checkout Integration & Validation
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP02
 subtasks:
@@ -612,3 +612,4 @@ Total bugs found: 12
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T16:26:51Z – claude-opus – shell_pid=52131 – lane=doing – Started implementation via workflow command
+- 2026-01-14T16:33:38Z – claude-opus – shell_pid=52131 – lane=for_review – Moved to for_review
