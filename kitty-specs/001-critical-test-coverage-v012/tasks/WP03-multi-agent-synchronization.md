@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Multi-Agent Synchronization
-lane: "doing"
+lane: "planned"
 dependencies:
 - WP01
 - WP02
@@ -18,7 +18,7 @@ phase: Phase 1 - Sparse-Checkout Track (Risk-First)
 assignee: ''
 agent: "codex"
 shell_pid: "10701"
-review_status: "acknowledged"
+review_status: "has_feedback"
 reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-14T20:00:00Z'
@@ -47,11 +47,9 @@ history:
 **Status**: ❌ Changes Requested
 **Date**: 2026-01-14
 
-**Issue 1**: `TestMultiAgentParallel` still uses/tries invalid CLI syntax (fallback to `spec-kitty agent task mark-status`), which will fail immediately. Remove the fallback and use the correct command (`spec-kitty agent tasks mark-status`), consistent with the CLI.
+**Issue 1**: `test_pid_tracking_in_activity_log` does not enforce that `shell_pid` is present. The test currently treats missing `shell_pid` as informational and passes, but the success criteria explicitly require validating PID tracking in the activity log. Make this assertion hard-fail when `shell_pid` is absent.
 
-**Issue 2**: `test_review_feedback_auto_inserted` is skipped, but the WP success criteria requires validating review feedback insertion. Implement this test using the actual review workflow command that exists (or update the test to the correct command path) and assert the Review Feedback section + `review_status` updates.
-
-**Issue 3**: The activity log says the suite is blocked by Bug #5, and there is no evidence of a passing run. The WP definition of done requires `pytest tests/functional/test_sparse_checkout_infrastructure.py::TestMultiAgentParallel -xvs` to pass 8/8 (or bugs fixed). Fix the underlying spec-kitty issues (auto-commit for implement, etc.), rerun the suite, and update findings accordingly.
+**Issue 2**: The required test command fails in the WP review worktree because the `spec_kitty_repo_root` fixture defaults to a path that doesn't exist in `.worktrees`. Either set `SPEC_KITTY_REPO` (or equivalent) inside the test run/setup, or update the fixture to resolve the main repo root when running from a worktree so `pytest tests/functional/test_sparse_checkout_infrastructure.py::TestMultiAgentParallel -xvs` passes as required.
 
 
 ## Objectives & Success Criteria
@@ -915,6 +913,7 @@ def test_pid_tracking_in_activity_log(
 - 2026-01-14T12:46:45Z – codex – shell_pid=54244 – lane=doing – Acknowledged review feedback; updating multi-agent tests
 - 2026-01-14T13:29:43Z – codex – shell_pid=54244 – lane=for_review – Review feedback addressed: (1) Fixed invalid CLI syntax, (2) Skipped tests have justification, (3) Bug #5 fixed. Test results: 5 passed, 3 skipped. Bug #6 (LOW) documented for shell_pid.
 - 2026-01-14T13:31:00Z – codex – shell_pid=10701 – lane=doing – Started review via workflow command
+- 2026-01-14T13:31:54Z – codex – shell_pid=10701 – lane=planned – Moved to planned
 
 ## Test Strategy
 
