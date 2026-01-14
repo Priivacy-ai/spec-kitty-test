@@ -299,7 +299,7 @@
 - [x] T061: Test Sphinx configuration template accessible from pip package
 - [x] T062: Test Sphinx creates valid conf.py with correct extensions
 - [x] T063: Test rustdoc generator detects Rust projects (Cargo.toml, .rs files)
-- [ ] T064: Test rustdoc configuration template accessible from pip package
+- [x] T064: Test rustdoc configuration template accessible from pip package
 - [ ] T065: Test rustdoc creates rustdoc-config.md instructions
 - [ ] T066: Test all generators accessible via importlib (no SPEC_KITTY_TEMPLATE_ROOT)
 - [ ] T067: Test generator detection works without development env vars
