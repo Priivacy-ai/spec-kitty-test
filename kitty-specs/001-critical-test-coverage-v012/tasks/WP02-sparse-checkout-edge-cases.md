@@ -11,10 +11,10 @@ subtasks:
   - "T013"
 title: "Sparse-Checkout Edge Cases"
 phase: "Phase 1 - Sparse-Checkout Track (Risk-First)"
-lane: "for_review"
+lane: "doing"
 assignee: ""
-agent: "Claude"
-shell_pid: "86679"
+agent: "claude-opus"
+shell_pid: "99816"
 review_status: "has_feedback"
 reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
@@ -962,3 +962,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestEdgeCases::t
 - 2026-01-14T12:42:38Z – codex – shell_pid=54244 – lane=planned – Moved to planned
 - 2026-01-14T12:50:34Z – Claude – shell_pid=86679 – lane=doing – Started implementation via workflow command
 - 2026-01-14T13:02:44Z – Claude – shell_pid=86679 – lane=for_review – Addressed all 3 review issues: (1) Fixed invalid CLI commands, (2) Tests pass or skip with documented bugs, (3) Concurrency test now deterministic. Results: 6 passed, 5 skipped.
+- 2026-01-14T13:14:16Z – claude-opus – shell_pid=99816 – lane=doing – Started review via workflow command
