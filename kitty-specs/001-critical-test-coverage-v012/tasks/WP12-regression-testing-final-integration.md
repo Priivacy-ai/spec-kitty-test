@@ -10,10 +10,10 @@ subtasks:
   - "T119"
 title: "Regression Testing & Final Integration"
 phase: "Phase 3 - Final Integration & Release Validation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "69690"
+shell_pid: "33319"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP07", "WP11"]
@@ -801,3 +801,4 @@ sparse-checkout infrastructure and documentation mission stability.
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T16:41:14Z – claude-opus – shell_pid=69690 – lane=doing – Started implementation via workflow command
 - 2026-01-14T18:18:19Z – claude-opus – shell_pid=69690 – lane=for_review – Ready for review: Full regression testing complete - 96/96 new tests pass (100%), execution time 10m 46s (<15 min), all 6 bugs fixed, release recommendation APPROVE v0.12.0
+- 2026-01-14T20:09:10Z – claude-opus – shell_pid=33319 – lane=doing – Started review via workflow command
