@@ -11,7 +11,7 @@ subtasks:
   - "T039"
 title: "Worktree Creation & Config"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "40324"
