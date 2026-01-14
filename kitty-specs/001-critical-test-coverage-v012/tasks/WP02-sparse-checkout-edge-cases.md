@@ -11,10 +11,10 @@ subtasks:
   - "T013"
 title: "Sparse-Checkout Edge Cases"
 phase: "Phase 1 - Sparse-Checkout Track (Risk-First)"
-lane: "for_review"
+lane: "doing"
 assignee: ""
-agent: "claude-sonnet-4-5"
-shell_pid: "55564"
+agent: "codex"
+shell_pid: "54244"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -951,3 +951,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestEdgeCases::t
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T12:09:03Z – claude-sonnet-4-5 – shell_pid=55564 – lane=doing – Started implementation via workflow command
 - 2026-01-14T12:27:17Z – claude-sonnet-4-5 – shell_pid=55564 – lane=for_review – Edge case adversarial testing complete - FOUND 3 CRITICAL BUGS blocking v0.12.0: (1) CRITICAL: Sparse-checkout not enforced - manual kitty-specs/ can be tracked, (2) HIGH: Migration script broken - old worktrees not migrated, (3) MEDIUM: Symlink detection missing. Test results: 5 passed, 2 skipped, 4 failed (expected). All findings documented in findings/test-infrastructure/v0.12.0-bugs-found.md. DO NOT ship v0.12.0 until Bug #1 and #2 fixed.
+- 2026-01-14T12:40:55Z – codex – shell_pid=54244 – lane=doing – Started review via workflow command
