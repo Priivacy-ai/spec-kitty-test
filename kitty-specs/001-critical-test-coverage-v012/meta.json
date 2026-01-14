@@ -1,0 +1,8 @@
+{
+  "feature_number": "001",
+  "slug": "001-critical-test-coverage-v012",
+  "friendly_name": "Critical Test Coverage for v0.12.0",
+  "mission": "software-dev",
+  "source_description": "Comprehensive test implementation plan covering 96 critical tests to unblock v0.12.0 release. Focus on sparse-checkout infrastructure (46 tests) and documentation mission distribution testing (50 tests). Cross-referenced with actual spec-kitty implementation code and existing spec-kitty-test infrastructure patterns.",
+  "created_at": "2026-01-14T20:00:00Z"
+}
