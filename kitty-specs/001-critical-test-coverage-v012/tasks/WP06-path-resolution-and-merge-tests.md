@@ -15,7 +15,7 @@ subtasks:
   - "T051"
 title: "Path Resolution & Merge Tests"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "36230"
