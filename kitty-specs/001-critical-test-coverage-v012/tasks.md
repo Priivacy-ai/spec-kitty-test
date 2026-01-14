@@ -225,7 +225,7 @@
 - [x] T048: Test merge WP branch with only src/ changes → clean fast-forward merge
 - [x] T049: Test cherry-pick src/ changes from WP branch without kitty-specs/ interference
 - [x] T050: Test rebase WP branch onto updated main → no sparse-checkout issues
-- [ ] T051: Test fast-forward merge possible when worktree branch has no conflicts
+- [x] T051: Test fast-forward merge possible when worktree branch has no conflicts
 
 ### Implementation Notes
 1. Create TestPathResolution and TestCleanMergeBehavior classes
