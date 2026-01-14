@@ -1,7 +1,7 @@
 ---
 work_package_id: WP11
 title: Documentation Mission Integration & Validation
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP08
 subtasks:
@@ -615,3 +615,4 @@ Total bugs found: 16 (12 sparse-checkout + 4 documentation mission)
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T12:28:22Z – Codex – shell_pid=57727 – lane=doing – Started implementation via workflow command
+- 2026-01-14T12:29:59Z – Codex – shell_pid=57727 – lane=for_review – Ready for review: ran 50 doc mission tests (all passed), validated clean env usage, recorded performance + findings
