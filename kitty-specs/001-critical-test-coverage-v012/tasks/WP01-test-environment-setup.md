@@ -8,12 +8,12 @@ subtasks:
   - "T005"
 title: "Test Environment Setup"
 phase: "Phase 0 - Foundation"
-lane: "doing"
+lane: "planned"
 assignee: ""
 agent: "codex"
 shell_pid: "54244"
-review_status: ""
-reviewed_by: ""
+review_status: "has_feedback"
+reviewed_by: "Robert Douglass"
 dependencies: []
 history:
   - timestamp: "2026-01-14T20:00:00Z"
@@ -38,11 +38,16 @@ history:
 
 ## Review Feedback
 
-> **Populated by `/spec-kitty.review`** – Reviewers add detailed feedback here when work needs changes. Implementation must address every item listed below before returning for re-review.
+**Reviewed by**: Robert Douglass
+**Status**: ❌ Changes Requested
+**Date**: 2026-01-14
 
-*[This section is empty initially. Reviewers will populate it if the work is returned from review. If you see feedback here, treat each item as a must-do before completion.]*
+**Issue 1**: `scripts/setup-test-env.sh` exits with an error if `~/Code/spec-kitty` is missing, but the WP edge case explicitly says this should be a warning (the directory is for reference only). Change this check to emit a warning and continue so the script still passes when the repo is missing.
 
----
+**Issue 2**: The setup script only warns when spec-kitty is installed from somewhere other than `~/Code/spec-kitty`, yet the WP success criteria requires the environment to be configured with spec-kitty installed from source. Either fail the script when the install is not from `~/Code/spec-kitty` (preferred), or update the output to make it clear the environment is NOT ready and exit non-zero.
+
+**Issue 3**: The uninstall guidance in the non-source install warning uses `pip uninstall spec-kitty`, but the project dependency and the check use `spec-kitty-cli`. Align the uninstall instruction with the actual package name so the fix path is correct.
+
 
 ## Objectives & Success Criteria
 
@@ -519,3 +524,4 @@ Total bugs found: 0 (will be updated as testing progresses)
 - 2026-01-14T11:57:54Z – claude-sonnet-4-5 – shell_pid=52683 – lane=doing – Started implementation via workflow command
 - 2026-01-14T12:07:50Z – claude-sonnet-4-5 – shell_pid=52683 – lane=for_review – Ready for review: All 5 subtasks complete - validation script passes, findings template created, environment validated, test patterns reviewed, fixtures documented
 - 2026-01-14T12:08:54Z – codex – shell_pid=54244 – lane=doing – Started review via workflow command
+- 2026-01-14T12:10:30Z – codex – shell_pid=54244 – lane=planned – Moved to planned
