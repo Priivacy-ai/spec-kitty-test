@@ -13,10 +13,10 @@ subtasks:
   - "T031"
 title: "Auto-Commit Core Functionality"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-code"
+shell_pid: "81841"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -903,3 +903,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestAutoCommitSy
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-14T12:42:08Z – claude-code – shell_pid=81841 – lane=doing – Started implementation via workflow command
