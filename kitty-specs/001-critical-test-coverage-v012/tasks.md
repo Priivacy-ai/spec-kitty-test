@@ -23,7 +23,7 @@
 - [x] T002: Create findings/test-infrastructure/v0.12.0-bugs-found.md template
 - [x] T003: Set up test environment (install spec-kitty, validate versions)
 - [x] T004: Review existing test patterns (test_comprehensive_workspace_per_wp.py, test_user_experience_simulation.py)
-- [ ] T005: Create/verify init_spec_kitty_project and clean_environment fixtures
+- [x] T005: Create/verify init_spec_kitty_project and clean_environment fixtures
 
 ### Implementation Notes
 1. Setup script validates: spec-kitty ≥v0.11.0, Git ≥2.25, Python 3.11+, git user config
