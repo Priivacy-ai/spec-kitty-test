@@ -11,11 +11,11 @@ subtasks:
   - "T039"
 title: "Worktree Creation & Config"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "codex"
 shell_pid: "10701"
-review_status: "has_feedback"
+review_status: "acknowledged"
 reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
@@ -753,3 +753,5 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestWorktreeCrea
 - 2026-01-14T13:58:08Z – codex – shell_pid=10701 – lane=doing – Started review via workflow command
 - 2026-01-14T14:00:21Z – codex – shell_pid=10701 – lane=planned – Moved to planned
 - 2026-01-14T14:01:21Z – codex – shell_pid=10701 – lane=doing – Started implementation via workflow command
+- 2026-01-14T20:25:00Z – codex – shell_pid=10701 – lane=doing – Addressed review feedback: nested worktree repo root resolution, removed internal sparse-checkout file read in favor of behavior check, and hard-failed multi-worktree creation test; reran suite
+- 2026-01-14T14:03:14Z – codex – shell_pid=10701 – lane=for_review – Ready for review: fixed nested worktree repo root resolution, replaced sparse-checkout file read with behavior-based check, removed skip on worktree creation failure, and TestWorktreeCreation 8/8 passing
