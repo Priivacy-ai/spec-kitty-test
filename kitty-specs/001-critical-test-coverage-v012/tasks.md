@@ -493,7 +493,7 @@
 - [x] T114: Analyze pass rate: (passed / total) ≥ 0.95 (≥519/546 tests)
 - [x] T115: Categorize failures: expected (v0.12.0 behavior changes) vs unexpected (bugs)
 - [x] T116: Document known failures in findings/test-infrastructure/v0.12.0-known-failures.md
-- [ ] T117: Verify test execution time <15 minutes on CI/CD
+- [x] T117: Verify test execution time <15 minutes on CI/CD
 - [ ] T118: Verify all 96 new tests pass (46 sparse-checkout + 50 documentation mission)
 - [ ] T119: Finalize findings/test-infrastructure/v0.12.0-bugs-found.md with complete bug list and fixes
 
