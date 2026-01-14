@@ -11,12 +11,12 @@ subtasks:
   - "T013"
 title: "Sparse-Checkout Edge Cases"
 phase: "Phase 1 - Sparse-Checkout Track (Risk-First)"
-lane: "doing"
+lane: "planned"
 assignee: ""
 agent: "codex"
 shell_pid: "54244"
-review_status: ""
-reviewed_by: ""
+review_status: "has_feedback"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-14T20:00:00Z"
@@ -41,9 +41,16 @@ history:
 
 ## Review Feedback
 
-*[This section is empty initially. Reviewers will populate it if work needs changes.]*
+**Reviewed by**: Robert Douglass
+**Status**: ❌ Changes Requested
+**Date**: 2026-01-14
 
----
+**Issue 1**: Several tests call invalid CLI commands, so they will fail immediately. Examples: `spec-kitty agent task move-task` should be `spec-kitty agent tasks move-task`, and `spec-kitty workflow status` should use the correct `spec-kitty agent workflow …` command (or another valid command). Update all occurrences in `tests/functional/test_sparse_checkout_infrastructure.py`.
+
+**Issue 2**: The WP definition of done requires the edge-case suite to pass (or bugs fixed). The activity log and findings file show multiple failing tests and CRITICAL bugs left unfixed. Either fix the spec-kitty bugs referenced (e.g., sparse-checkout enforcement, migration script) and rerun the suite so `pytest tests/functional/test_sparse_checkout_infrastructure.py::TestEdgeCases -xvs` passes, or adjust tests if they are incorrect.
+
+**Issue 3**: The concurrency test (`test_concurrent_git_commits_locking`) uses real parallel threads against the same repo, which is prone to nondeterministic/flaky behavior. Make this deterministic (e.g., serialize with explicit lock contention checks, or mock/simulate the lock path) so the test is stable.
+
 
 ## Objectives & Success Criteria
 
@@ -952,3 +959,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestEdgeCases::t
 - 2026-01-14T12:09:03Z – claude-sonnet-4-5 – shell_pid=55564 – lane=doing – Started implementation via workflow command
 - 2026-01-14T12:27:17Z – claude-sonnet-4-5 – shell_pid=55564 – lane=for_review – Edge case adversarial testing complete - FOUND 3 CRITICAL BUGS blocking v0.12.0: (1) CRITICAL: Sparse-checkout not enforced - manual kitty-specs/ can be tracked, (2) HIGH: Migration script broken - old worktrees not migrated, (3) MEDIUM: Symlink detection missing. Test results: 5 passed, 2 skipped, 4 failed (expected). All findings documented in findings/test-infrastructure/v0.12.0-bugs-found.md. DO NOT ship v0.12.0 until Bug #1 and #2 fixed.
 - 2026-01-14T12:40:55Z – codex – shell_pid=54244 – lane=doing – Started review via workflow command
+- 2026-01-14T12:42:38Z – codex – shell_pid=54244 – lane=planned – Moved to planned
