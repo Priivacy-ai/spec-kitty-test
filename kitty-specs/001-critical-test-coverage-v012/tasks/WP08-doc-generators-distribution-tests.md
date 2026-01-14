@@ -18,10 +18,10 @@ subtasks:
   - "T071"
 title: "Doc Generators Distribution Tests"
 phase: "Phase 2 - Documentation Mission Track (Risk-First)"
-lane: "for_review"
+lane: "doing"
 assignee: ""
-agent: "Codex"
-shell_pid: "57727"
+agent: "claude-sonnet-4-5"
+shell_pid: "62574"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -598,3 +598,4 @@ pytest tests/distribution/test_doc_generators_distribution.py -xvs
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T12:12:06Z – Codex – shell_pid=57727 – lane=doing – Started implementation via workflow command
 - 2026-01-14T12:16:23Z – Codex – shell_pid=57727 – lane=for_review – Ready for review: added 15 doc generator distribution tests with clean env checks, DO NOT SHIP assertions, and passing pytest
+- 2026-01-14T12:18:04Z – claude-sonnet-4-5 – shell_pid=62574 – lane=doing – Started review via workflow command
