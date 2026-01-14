@@ -25,6 +25,7 @@ Version: Requires v0.10.12+ (Feature 011)
 """
 
 import subprocess
+import sys
 import tempfile
 import zipfile
 import venv
@@ -82,7 +83,7 @@ class TestDeveloperWorkflow:
         dist_dir.mkdir(exist_ok=True)
 
         result = subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=spec_kitty_repo_root,
             capture_output=True,
             text=True
@@ -247,7 +248,7 @@ class TestDeveloperWorkflow:
         dist_dir.mkdir(exist_ok=True)
 
         subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=spec_kitty_repo_root,
             capture_output=True,
             check=True

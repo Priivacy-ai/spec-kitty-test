@@ -60,6 +60,9 @@ from pathlib import Path
 
 import pytest
 
+# Skip entire module if pytest-playwright is not installed
+pytest.importorskip("pytest_playwright", reason="pytest-playwright not installed")
+
 
 @pytest.fixture
 def spec_kitty_repo_root():

@@ -19,6 +19,7 @@ All tests require v0.11.0+ and will be skipped on earlier versions.
 import pytest
 import os
 import subprocess
+import sys
 import tempfile
 import zipfile
 import stat
@@ -49,7 +50,7 @@ def distribution_wheel(spec_kitty_repo_root):
 
     # Build wheel
     result = subprocess.run(
-        ['python', '-m', 'build', '--wheel'],
+        [sys.executable, '-m', 'build', '--wheel'],
         cwd=str(worktree_path),
         capture_output=True,
         text=True
@@ -76,7 +77,7 @@ def temp_venv():
 
         # Create venv
         subprocess.run(
-            ['python', '-m', 'venv', str(venv_path)],
+            [sys.executable, '-m', 'venv', str(venv_path)],
             check=True,
             capture_output=True
         )

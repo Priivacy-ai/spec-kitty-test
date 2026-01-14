@@ -59,7 +59,7 @@ class TestPackageContentValidation:
         dist_dir.mkdir(exist_ok=True)
 
         result = subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=spec_kitty_repo_root,
             capture_output=True,
             text=True

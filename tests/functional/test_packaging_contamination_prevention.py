@@ -29,6 +29,7 @@ Version: Requires v0.10.12+ (Feature 011)
 """
 
 import subprocess
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -307,7 +308,7 @@ class TestWheelContentInspection:
 
         # Build wheel
         result = subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=repo_root,
             capture_output=True,
             text=True
@@ -493,7 +494,7 @@ class TestDogfoodingSafety:
         dist_dir = spec_kitty_repo_root / 'dist'
 
         result = subprocess.run(
-            ['python', '-m', 'build', '--sdist', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--sdist', '--outdir', str(dist_dir)],
             cwd=spec_kitty_repo_root,
             capture_output=True,
             text=True
@@ -550,7 +551,7 @@ class TestDogfoodingSafety:
         dist_dir.mkdir(exist_ok=True)
 
         result = subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=repo_root,
             capture_output=True,
             text=True

@@ -29,6 +29,7 @@ Version: Requires v0.11.0+ (Features 011 + 010)
 
 import pytest
 import subprocess
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -339,7 +340,7 @@ class TestCentralTemplateCompleteness:
                 return wheels[0]
 
         result = subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=repo_root,
             capture_output=True,
             text=True
@@ -506,7 +507,7 @@ class TestMissionTemplateDependencyWarnings:
                 return wheels[0]
 
         subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=repo_root,
             capture_output=True,
             check=True
@@ -772,7 +773,7 @@ class TestTaskPromptTemplateRebaseGuidance:
                 return wheels[0]
 
         subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=repo_root,
             capture_output=True,
             check=True

@@ -31,6 +31,7 @@ Version: Requires v0.11.0+ (Features 011 + 010)
 
 import pytest
 import subprocess
+import sys
 import zipfile
 from pathlib import Path
 import re
@@ -282,7 +283,7 @@ class TestDependencyWarningCompleteness:
                 return wheels[0]
 
         subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=repo_root,
             capture_output=True,
             check=True
@@ -425,7 +426,7 @@ class TestDependencyWarningConsistency:
                 return wheels[0]
 
         subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=repo_root,
             capture_output=True,
             check=True
@@ -616,7 +617,7 @@ class TestFR016To018Compliance:
                 return wheels[0]
 
         subprocess.run(
-            ['python', '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
+            [sys.executable, '-m', 'build', '--wheel', '--outdir', str(dist_dir)],
             cwd=repo_root,
             capture_output=True,
             check=True

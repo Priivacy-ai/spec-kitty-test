@@ -124,26 +124,32 @@ def create_feature_with_encoding_issue(project_path: Path, feature_name: str, co
     Returns:
         Path to the feature directory
     """
-    # Create feature
-    create_script = project_path / '.kittify/scripts/bash/create-new-feature.sh'
+    # Create feature using Python CLI (v0.11.0+)
+    feature_slug = feature_name.lower().replace(' ', '-').replace('_', '-')
     result = subprocess.run(
-        [str(create_script), '--json', '--feature-name', feature_name, f'Test {feature_name}'],
+        ['spec-kitty', 'agent', 'feature', 'create-feature', feature_slug, '--json'],
         cwd=project_path,
         capture_output=True,
         text=True,
         check=True
     )
 
-    # Extract worktree and feature paths from JSON output
+    # Extract feature path from JSON output
+    feature_dir = None
     for line in reversed(result.stdout.strip().split('\n')):
         if line.strip().startswith('{'):
             data = json.loads(line.strip())
-            worktree_path = Path(data['WORKTREE_PATH'])
-            feature_num = data['FEATURE_NUM']
-            feature_name_normalized = data['BRANCH_NAME'].replace(f"{feature_num}-", "", 1)
-            # Compute feature directory from worktree
-            feature_dir = worktree_path / 'kitty-specs' / f"{feature_num}-{feature_name_normalized}"
+            feature_dir = Path(data.get('feature_dir', data.get('feature_path', '')))
             break
+
+    if not feature_dir or not feature_dir.exists():
+        # Fallback: find the feature dir in kitty-specs
+        kitty_specs = project_path / 'kitty-specs'
+        feature_dirs = list(kitty_specs.glob(f'*-{feature_slug}'))
+        if feature_dirs:
+            feature_dir = feature_dirs[0]
+        else:
+            raise ValueError(f"Could not find feature directory for {feature_name}")
 
     # Write problematic content
     target_file = feature_dir / filename

@@ -15,6 +15,7 @@ All tests require v0.11.0+ and will be skipped on earlier versions.
 import pytest
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 import json
@@ -1529,7 +1530,7 @@ class TestCLIIntegration:
         project_path = init_project_with_feature()
 
         result = subprocess.run(
-            ['python', '-m', 'specify_cli', 'implement', 'WP01'],
+            [sys.executable, '-m', 'specify_cli', 'implement', 'WP01'],
             cwd=str(project_path),
             capture_output=True,
             text=True
