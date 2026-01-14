@@ -354,7 +354,7 @@
 - [x] T081: Test tasks command template accessible and non-empty
 - [x] T082: Test implement command template accessible and non-empty
 - [x] T083: Test review command template accessible and non-empty
-- [ ] T084: Test all templates have expected structure (frontmatter, sections, instructions)
+- [x] T084: Test all templates have expected structure (frontmatter, sections, instructions)
 - [ ] T085: Test templates load via importlib.resources (from package, not local repo)
 - [ ] T086: Test no template path leakage (no references to local ~/Code/spec-kitty paths)
 - [ ] T087: Test mission registered in mission registry after installation
