@@ -216,7 +216,7 @@
 - [x] T041: Test move-task finds WP file in main repo
 - [x] T042: Test workflow finds WP file in main repo
 - [x] T043: Test feature slug detection strips -WPxx suffix (e.g., 012-docs-WP04 → 012-docs)
-- [ ] T044: Test _get_main_repo_root() detects worktree vs main correctly
+- [x] T044: Test _get_main_repo_root() detects worktree vs main correctly
 - [ ] T045: Test absolute paths work from nested directories in worktree
 
 **Suite 5: Clean Merge Behavior (6 subtasks)**
