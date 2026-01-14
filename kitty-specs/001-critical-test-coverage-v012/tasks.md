@@ -58,7 +58,7 @@
 - [x] T008: Test permission errors on auto-commit (clear error messages)
 - [x] T009: Test concurrent git commits (locking/retry mechanism)
 - [x] T010: Test pre-sparse-checkout worktree migration (fix-worktrees script)
-- [ ] T011: Test manual kitty-specs/ creation in worktree (ignored by git)
+- [x] T011: Test manual kitty-specs/ creation in worktree (ignored by git)
 - [ ] T012: Test symlink to kitty-specs/ in worktree (detected/removed)
 - [ ] T013: Test network issues during git operations (retry logic/timeout)
 
