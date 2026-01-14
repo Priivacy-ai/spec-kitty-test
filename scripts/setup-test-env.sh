@@ -58,14 +58,12 @@ echo "✅ Git version $GIT_VERSION"
 
 # 4. Check ~/Code/spec-kitty exists (for test writer reference)
 if [ ! -d "$HOME/Code/spec-kitty" ]; then
-    echo "❌ ~/Code/spec-kitty not found"
+    echo "⚠️  ~/Code/spec-kitty not found"
     echo "   Test writer needs this directory for implementation code reference"
     echo "   Clone with: git clone <repo-url> ~/Code/spec-kitty"
-    echo "   This is critical for adversarial testing - tests reference actual implementation"
-    exit 1
+else
+    echo "✅ ~/Code/spec-kitty found"
 fi
-
-echo "✅ ~/Code/spec-kitty found"
 
 # 5. Check spec-kitty is installed from ~/Code/spec-kitty (not PyPI)
 SPEC_KITTY_LOCATION=$(pip show spec-kitty-cli 2>/dev/null | grep "Location:" | cut -d: -f2- | xargs)
@@ -78,9 +76,10 @@ fi
 
 # Check if location points to ~/Code/spec-kitty
 if [[ "$SPEC_KITTY_LOCATION" != *"Code/spec-kitty"* ]]; then
-    echo "⚠️  spec-kitty installed from: $SPEC_KITTY_LOCATION"
-    echo "   WARNING: Should be installed from ~/Code/spec-kitty for development testing"
-    echo "   Reinstall with: pip uninstall spec-kitty && pip install -e ~/Code/spec-kitty"
+    echo "❌ spec-kitty installed from: $SPEC_KITTY_LOCATION"
+    echo "   Must be installed from ~/Code/spec-kitty for development testing"
+    echo "   Reinstall with: pip uninstall spec-kitty-cli && pip install -e ~/Code/spec-kitty"
+    exit 1
 fi
 
 echo "✅ spec-kitty installed from source"
