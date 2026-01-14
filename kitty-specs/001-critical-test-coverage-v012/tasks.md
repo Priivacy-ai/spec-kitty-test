@@ -408,7 +408,7 @@
 - [x] T099: Test gap prioritization (HIGH for missing tutorials/reference, MEDIUM for how-tos, LOW for explanations)
 - [x] T100: Test state persistence across git commit/checkout (meta.json survives)
 - [x] T101: Test divio templates accessible during workflow
-- [ ] T102: Test generators configured correctly (JSDoc, Sphinx, rustdoc)
+- [x] T102: Test generators configured correctly (JSDoc, Sphinx, rustdoc)
 - [ ] T103: Test migration installs documentation mission to .kittify/missions/
 - [ ] T104: Test migration idempotent (safe to run multiple times, detect() returns False after apply())
 - [ ] T105: Test backward compatibility (old features without documentation_state handled gracefully)
