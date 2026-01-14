@@ -11,12 +11,12 @@ subtasks:
   - "T039"
 title: "Worktree Creation & Config"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "planned"
+lane: "done"
 assignee: ""
 agent: ""
 shell_pid: ""
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-14T20:00:00Z"
@@ -741,3 +741,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestWorktreeCrea
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-14T14:07:49Z – unknown – lane=done – Review passed: 8/8 tests pass. Worktrees un-nested to fix review Issue 1. TestWorktreeCreation validates sparse-checkout config, kitty-specs exclusion, and multi-worktree isolation.
