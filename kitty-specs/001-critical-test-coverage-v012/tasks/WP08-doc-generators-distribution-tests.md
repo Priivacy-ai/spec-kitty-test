@@ -18,12 +18,12 @@ subtasks:
   - "T071"
 title: "Doc Generators Distribution Tests"
 phase: "Phase 2 - Documentation Mission Track (Risk-First)"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-sonnet-4-5"
 shell_pid: "62574"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-14T20:00:00Z"
@@ -599,3 +599,4 @@ pytest tests/distribution/test_doc_generators_distribution.py -xvs
 - 2026-01-14T12:12:06Z – Codex – shell_pid=57727 – lane=doing – Started implementation via workflow command
 - 2026-01-14T12:16:23Z – Codex – shell_pid=57727 – lane=for_review – Ready for review: added 15 doc generator distribution tests with clean env checks, DO NOT SHIP assertions, and passing pytest
 - 2026-01-14T12:18:04Z – claude-sonnet-4-5 – shell_pid=62574 – lane=doing – Started review via workflow command
+- 2026-01-14T12:19:28Z – claude-sonnet-4-5 – shell_pid=62574 – lane=done – Review passed: All 15 distribution tests implemented and passing. All tests use clean_environment fixture removing SPEC_KITTY_TEMPLATE_ROOT. Tests validate JSDoc, Sphinx, and Rustdoc generators work from pip package. All failure messages include 'DO NOT SHIP v0.12.0' warnings. Tests would catch Issues #62-64 pattern (templates missing from package). pytest execution: 15/15 PASSED in 0.27s. Code quality excellent with clear docstrings explaining distribution testing rationale.
