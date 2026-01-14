@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Sparse-Checkout Integration & Validation
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP02
 subtasks:
@@ -12,8 +12,8 @@ subtasks:
 - T056
 phase: Phase 1 - Sparse-Checkout Track (Final Integration)
 assignee: ''
-agent: "codex"
-shell_pid: "50612"
+agent: "claude-opus"
+shell_pid: "8323"
 review_status: "acknowledged"
 reviewed_by: "Robert Douglass"
 history:
@@ -627,3 +627,4 @@ Total bugs found: 12
 - 2026-01-14T16:36:29Z – codex – shell_pid=50612 – lane=doing – Started implementation via workflow command
 - 2026-01-14T16:55:00Z – codex – shell_pid=50612 – lane=doing – Addressed review feedback: removed skips, updated suite, ran 46/46, updated findings and performance report.
 - 2026-01-14T16:58:20Z – codex – shell_pid=50612 – lane=for_review – Ready for review: 46/46 tests pass, skips removed, findings + performance reports updated
+- 2026-01-14T16:59:05Z – claude-opus – shell_pid=8323 – lane=doing – Started review via workflow command
