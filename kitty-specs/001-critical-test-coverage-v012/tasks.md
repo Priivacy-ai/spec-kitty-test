@@ -407,7 +407,7 @@
 - [x] T098: Test coverage matrix shows gaps (project_areas × divio_types grid)
 - [x] T099: Test gap prioritization (HIGH for missing tutorials/reference, MEDIUM for how-tos, LOW for explanations)
 - [x] T100: Test state persistence across git commit/checkout (meta.json survives)
-- [ ] T101: Test divio templates accessible during workflow
+- [x] T101: Test divio templates accessible during workflow
 - [ ] T102: Test generators configured correctly (JSDoc, Sphinx, rustdoc)
 - [ ] T103: Test migration installs documentation mission to .kittify/missions/
 - [ ] T104: Test migration idempotent (safe to run multiple times, detect() returns False after apply())
