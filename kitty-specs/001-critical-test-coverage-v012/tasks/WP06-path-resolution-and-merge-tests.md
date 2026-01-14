@@ -15,10 +15,10 @@ subtasks:
   - "T051"
 title: "Path Resolution & Merge Tests"
 phase: "Phase 1 - Sparse-Checkout Track"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "codex"
+shell_pid: "50612"
 review_status: "has_feedback"
 reviewed_by: "Robert Douglass"
 dependencies: ["WP01", "WP05"]
@@ -1057,3 +1057,4 @@ pytest tests/functional/test_sparse_checkout_infrastructure.py::TestCleanMergeBe
 - 2026-01-14T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-14T16:23:57Z – unknown – lane=for_review – Implemented 12 tests: 6 path resolution + 6 merge behavior. All pass.
 - 2026-01-14T16:29:20Z – unknown – lane=planned – Moved to planned
+- 2026-01-14T16:30:13Z – codex – shell_pid=50612 – lane=doing – Started implementation via workflow command
