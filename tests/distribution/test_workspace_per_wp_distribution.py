@@ -18,6 +18,7 @@ All tests require v0.11.0+ and will be skipped on earlier versions.
 import pytest
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 import shutil
