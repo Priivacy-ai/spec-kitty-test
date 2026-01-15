@@ -65,10 +65,19 @@ def _get_spec_kitty_version():
 
 
 # Module-level skip marker
-pytestmark = pytest.mark.skipif(
-    _get_spec_kitty_version() < (0, 10, 0),
-    reason="Requires spec-kitty >= 0.10.0 (functional equivalence testing)"
-)
+# Tests equivalence with bash scripts that existed in v0.10.x
+# Skipped on v0.11.0+ where bash scripts were removed
+_version = _get_spec_kitty_version()
+pytestmark = [
+    pytest.mark.skipif(
+        _version < (0, 10, 0),
+        reason="Requires spec-kitty >= 0.10.0 (functional equivalence testing)"
+    ),
+    pytest.mark.skipif(
+        _version >= (0, 11, 0),
+        reason="Tests v0.10.x bash script equivalence - skipped on v0.11.0+ (bash scripts removed)"
+    )
+]
 
 
 class TestFeatureLifecycleEquivalence:
