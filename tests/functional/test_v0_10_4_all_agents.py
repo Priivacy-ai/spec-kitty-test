@@ -69,9 +69,12 @@ def _get_spec_kitty_version():
         return (0, 0, 0)
 
 
+# Module-level version
+_version = _get_spec_kitty_version()
+
 # Module-level skip marker
 pytestmark = pytest.mark.skipif(
-    _get_spec_kitty_version() < (0, 10, 4),
+    _version < (0, 10, 4),
     reason="Requires spec-kitty >= 0.10.4 (all 12 agents supported)"
 )
 
@@ -216,7 +219,8 @@ class TestAgentDirectoryCreation:
             assert len(claude_commands) >= 11, f"Claude should have >=11 commands, got {len(claude_commands)}"
 
         if gemini_commands_dir.exists():
-            gemini_commands = list(gemini_commands_dir.glob('spec-kitty.*.md'))
+            # Gemini uses .toml format, not .md
+            gemini_commands = list(gemini_commands_dir.glob('spec-kitty.*.toml'))
             assert len(gemini_commands) >= 11, f"Gemini should have >=11 commands, got {len(gemini_commands)}"
 
     def test_no_python_validation_code_in_templates(self, temp_project_dir, spec_kitty_repo_root):
@@ -309,6 +313,10 @@ class TestMigrationUpdatesAllAgents:
         assert (project_path / '.cursor').exists()
         assert (project_path / '.windsurf').exists()
 
+    @pytest.mark.skipif(
+        _version >= (0, 11, 0),
+        reason="Tests v0.10.x worktree behavior - skipped on v0.11.0+ (worktree creation removed from create-feature)"
+    )
     def test_context_update_supports_all_agents(self, temp_project_dir, spec_kitty_repo_root):
         """
         Test: spec-kitty agent context update-context works for all 12 agent types

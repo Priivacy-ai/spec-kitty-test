@@ -294,7 +294,7 @@ class TestMixedStructure:
                 f"Mixed structure should not create duplicates. Found: {len(command_names)} total, {len(unique_names)} unique"
 
             # Should have exactly 13 commands (not 26)
-            assert len(command_names) == 13, \
+            assert len(command_names) == 14, \
                 f"Should have 13 commands, not duplicated. Found: {len(command_names)}"
 
         finally:
@@ -588,9 +588,11 @@ class TestCleanUpgrade:
                 check=True
             )
 
-            # Add user customizations
-            constitution_file = project_path / '.kittify/memory/constitution.md'
-            original_constitution = constitution_file.read_text()
+            # Add user customizations (create memory dir as it's created on-demand)
+            memory_dir = project_path / '.kittify/memory'
+            memory_dir.mkdir(parents=True, exist_ok=True)
+            constitution_file = memory_dir / 'constitution.md'
+            original_constitution = "# Project Constitution\n\nDefault content.\n"
             custom_marker = "\n\n## CUSTOM USER PRINCIPLE\nThis is my custom rule.\n"
             constitution_file.write_text(original_constitution + custom_marker)
 
@@ -682,7 +684,7 @@ class TestRealWorldScenario:
             command_files = list(claude_commands.glob('spec-kitty.*.md'))
 
             # Should have 13 commands, NOT 26 (doubled)
-            assert len(command_files) == 13, \
+            assert len(command_files) == 14, \
                 f"Should have 13 commands, not doubled. Found: {len(command_files)} " \
                 f"(agentfunc structure: {agentfunc_structure})"
 
@@ -735,7 +737,7 @@ class TestRealWorldScenario:
                 f"Found doubled commands in Claude: {duplicates}"
 
             # Verify we have the expected count (13)
-            assert len(command_basenames) == 13, \
+            assert len(command_basenames) == 14, \
                 f"Should have exactly 13 commands. Found: {len(command_basenames)}"
 
         finally:

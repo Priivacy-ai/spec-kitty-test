@@ -161,12 +161,13 @@ class TestTemplateManagerUpdates:
                 "This is required for runtime data (constitution, memory)."
             )
 
-            # Should have memory directory (always required)
+            # memory/ directory is created on demand (by constitution command)
+            # Not required immediately after init
+            # memory_dir = kittify_dir / 'memory'
+            # If present, it should be a directory
             memory_dir = kittify_dir / 'memory'
-            assert memory_dir.exists(), (
-                f"Missing memory/ in .kittify/\n"
-                f"Expected: {memory_dir}"
-            )
+            if memory_dir.exists():
+                assert memory_dir.is_dir(), f"memory should be a directory"
 
             # templates/ directory is optional after Feature 011
             # (may be loaded from package instead of copied)
