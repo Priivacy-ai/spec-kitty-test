@@ -91,15 +91,25 @@ class TestCommandPerformance:
         subprocess.run(
             ['spec-kitty', 'agent', 'feature', 'create-feature', 'perf-feature'],
             cwd=project_path,
+            env=env,
             capture_output=True,
             text=True,
             timeout=60,
             check=True
         )
 
+        # v0.11.0+: Planning in main repo. Create feature branch for context
+        subprocess.run(
+            ['git', 'checkout', '-b', '001-perf-feature'],
+            cwd=project_path,
+            check=True,
+            capture_output=True
+        )
+
         return {
             'project_path': project_path,
-            'worktree_path': project_path / '.worktrees' / '001-perf-feature'
+            'worktree_path': project_path,  # v0.11.0+: use main repo
+            'env': env
         }
 
     def test_simple_commands_under_100ms(self, initialized_project):
