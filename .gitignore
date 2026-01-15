@@ -1,4 +1,6 @@
-.claude
+# Claude Code local files (except shared skills)
+.claude/*
+!.claude/skills/
 
 
 # Python
@@ -42,7 +44,7 @@ temp_*/
 /tmp/
 
 # Added by Spec Kitty CLI (auto-managed)
-.claude/
+# Note: .claude/* rule at top allows .claude/skills/ to be tracked
 .codex/
 .opencode/
 .windsurf/
