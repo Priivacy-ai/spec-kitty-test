@@ -112,15 +112,25 @@ class TestJSONOutputFormat:
         subprocess.run(
             ['spec-kitty', 'agent', 'feature', 'create-feature', 'test-feature'],
             cwd=project_path,
+            env=env,
             capture_output=True,
             text=True,
             timeout=60,
             check=True
         )
 
+        # v0.11.0+: Planning in main repo. Create feature branch for context
+        subprocess.run(
+            ['git', 'checkout', '-b', '001-test-feature'],
+            cwd=project_path,
+            check=True,
+            capture_output=True
+        )
+
         return {
             'project_path': project_path,
-            'worktree_path': project_path / '.worktrees' / '001-test-feature'
+            'worktree_path': project_path,  # v0.11.0+: use main repo
+            'env': env
         }
 
     def test_all_agent_commands_support_json_flag(self, initialized_project):
@@ -367,7 +377,7 @@ class TestJSONErrorHandling:
 
         return {
             'project_path': project_path,
-            'worktree_path': project_path / '.worktrees' / '001-test-feature'
+            'worktree_path': project_path  # v0.11.0+: use main repo
         }
 
     def test_json_error_for_missing_args(self, initialized_project):
@@ -607,7 +617,7 @@ class TestJSONAgentParsing:
             check=True
         )
 
-        worktree_path = project_path / '.worktrees' / '001-test-feature'
+        worktree_path = project_path  # v0.11.0+: use main repo
 
         # List tasks
         result = subprocess.run(
@@ -663,7 +673,7 @@ class TestJSONAgentParsing:
             check=True
         )
 
-        worktree_path = project_path / '.worktrees' / '001-test-feature'
+        worktree_path = project_path  # v0.11.0+: use main repo
 
         # Try invalid operation
         result = subprocess.run(
@@ -720,7 +730,7 @@ class TestJSONAgentParsing:
             check=True
         )
 
-        worktree_path = project_path / '.worktrees' / '001-test-feature'
+        worktree_path = project_path  # v0.11.0+: use main repo
 
         # Run same command twice
         result1 = subprocess.run(
