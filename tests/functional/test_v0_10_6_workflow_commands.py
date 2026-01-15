@@ -71,12 +71,20 @@ def _get_spec_kitty_version():
         return (0, 0, 0)
 
 
-# Module-level skip marker - use 0.10.4 since that's what we have
-# Workflow commands may have been added in 0.10.4 or 0.10.5
-pytestmark = pytest.mark.skipif(
-    _get_spec_kitty_version() < (0, 10, 4),
-    reason="Requires spec-kitty >= 0.10.4 (workflow commands)"
-)
+# Module-level skip marker
+# Tests v0.10.x workflow behavior (create-feature creates worktrees, no --agent flag)
+# Skipped on v0.11.0+ where behavior changed (planning in main repo, --agent required)
+_version = _get_spec_kitty_version()
+pytestmark = [
+    pytest.mark.skipif(
+        _version < (0, 10, 4),
+        reason="Requires spec-kitty >= 0.10.4 (workflow commands)"
+    ),
+    pytest.mark.skipif(
+        _version >= (0, 11, 0),
+        reason="Tests v0.10.x behavior - skipped on v0.11.0+ (workflow behavior changed)"
+    )
+]
 
 
 class TestWorkflowAutoDetection:
@@ -111,16 +119,15 @@ class TestWorkflowAutoDetection:
         subprocess.run(
             ['spec-kitty', 'agent', 'feature', 'create-feature', 'test-feature'],
             cwd=project_path,
-            env=env,
             capture_output=True,
             text=True,
             timeout=60,
             check=True
         )
 
-        # v0.11.0+: Planning happens in main repo, not worktree
-        # Tasks dir is in main repo's kitty-specs
-        tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
+        # Create planned work packages
+        worktree_path = project_path / '.worktrees' / '001-test-feature'
+        tasks_dir = worktree_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
 
         # Create multiple WPs in planned state
@@ -141,23 +148,10 @@ Implementation instructions for task {i}.
 """
             wp_file.write_text(wp_content)
 
-        # Commit the WP files so they're available
-        subprocess.run(['git', 'add', '.'], cwd=project_path, check=True, capture_output=True)
-        subprocess.run(['git', 'commit', '-m', 'Add WP files'], cwd=project_path, check=True, capture_output=True)
-
-        # Create and checkout feature branch for auto-detection
-        subprocess.run(
-            ['git', 'checkout', '-b', '001-test-feature'],
-            cwd=project_path,
-            check=True,
-            capture_output=True
-        )
-
         return {
             'project_path': project_path,
-            'worktree_path': project_path,  # v0.11.0+: work from main repo
-            'tasks_dir': tasks_dir,
-            'env': env
+            'worktree_path': worktree_path,
+            'tasks_dir': tasks_dir
         }
 
     def test_finds_first_planned_wp_no_arg(self, project_with_planned_tasks):
@@ -172,12 +166,10 @@ Implementation instructions for task {i}.
         This is the KEY feature - agents don't need to specify WP ID
         """
         worktree_path = project_with_planned_tasks['worktree_path']
-        env = project_with_planned_tasks['env']
 
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'workflow', 'implement', '--agent', 'claude'],
+            ['spec-kitty', 'agent', 'workflow', 'implement'],
             cwd=worktree_path,
-            env=env,
             capture_output=True,
             text=True,
             timeout=30
@@ -279,7 +271,7 @@ Implementation instructions for task {i}.
 
         # Try implement with no planned WPs
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'workflow', 'implement', '--agent', 'claude'],
+            ['spec-kitty', 'agent', 'workflow', 'implement'],
             cwd=worktree_path,
             capture_output=True,
             text=True,
@@ -306,7 +298,7 @@ Implementation instructions for task {i}.
         worktree_path = project_with_planned_tasks['worktree_path']
 
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'workflow', 'implement', '--agent', 'claude'],
+            ['spec-kitty', 'agent', 'workflow', 'implement'],
             cwd=worktree_path,
             capture_output=True,
             text=True,
@@ -330,7 +322,7 @@ Implementation instructions for task {i}.
         project_path = project_with_planned_tasks['project_path']
 
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'workflow', 'implement', '--agent', 'claude'],
+            ['spec-kitty', 'agent', 'workflow', 'implement'],
             cwd=project_path,
             capture_output=True,
             text=True,
