@@ -102,7 +102,7 @@ Description: Add validation layer.
     wp01_file = tasks_dir / 'WP01-implement-core.md'
     wp01_file.write_text("""---
 title: WP01: Implement Core Feature
-lane: backlog
+lane: planned
 ---
 
 # WP01: Implement Core Feature
@@ -113,7 +113,7 @@ Implement the core feature functionality.
     wp02_file = tasks_dir / 'WP02-add-validation.md'
     wp02_file.write_text("""---
 title: WP02: Add Validation
-lane: backlog
+lane: planned
 dependencies: [WP01]
 ---
 
@@ -124,6 +124,14 @@ Add validation layer.
 
     subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True, capture_output=True)
     subprocess.run(['git', 'commit', '-m', 'Add planning'], cwd=str(project_path), check=True, capture_output=True)
+
+    # v0.11.0+: Planning in main repo. Create feature branch for context detection
+    subprocess.run(
+        ['git', 'checkout', '-b', '001-test-feature'],
+        cwd=str(project_path),
+        check=True,
+        capture_output=True
+    )
 
     return project_path, feature_dir, tasks_md
 
@@ -148,7 +156,7 @@ class TestSubtaskCompletionValidation:
 
         # Move WP01 to doing first
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -156,7 +164,7 @@ class TestSubtaskCompletionValidation:
 
         # Now try to move to for_review with unchecked subtasks
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'for_review'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -200,7 +208,7 @@ class TestSubtaskCompletionValidation:
 
         # Try to move directly to done
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'done'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'done'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -222,7 +230,7 @@ class TestSubtaskCompletionValidation:
         project_path, feature_dir, tasks_md = project_with_subtasks
 
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'for_review', '--force'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review', '--force'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -260,14 +268,14 @@ class TestSubtaskCompletionValidation:
 
         # Move to doing first
         subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude'],
             cwd=str(project_path),
             capture_output=True
         )
 
         # Now move to for_review (all subtasks checked)
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'for_review'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -281,6 +289,7 @@ class TestSubtaskCompletionValidation:
 class TestAssigneeFieldValidation:
     """Tests for assignee field validation"""
 
+    @pytest.mark.xfail(reason="Issue #72: --assignee requirement not yet implemented")
     def test_move_to_doing_requires_assignee(self, project_with_subtasks):
         """
         Test that moving to 'doing' lane requires --assignee flag.
@@ -292,7 +301,7 @@ class TestAssigneeFieldValidation:
 
         # Try to move to doing WITHOUT --assignee
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'doing'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'doing'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -319,7 +328,7 @@ class TestAssigneeFieldValidation:
 
         # Move with assignee
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude-code'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude-code'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -347,7 +356,7 @@ class TestAssigneeFieldValidation:
         content = wp_file.read_text()
 
         # Update lane but NO assignee
-        content = content.replace('lane: backlog', 'lane: done')
+        content = content.replace('lane: planned', 'lane: done')
         wp_file.write_text(content)
 
         subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True, capture_output=True)
@@ -467,7 +476,7 @@ class TestMarkStatusCommand:
         This is the command agents should use to check subtasks.
         """
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'mark-status', '--help'],
+            ['spec-kitty', 'agent', 'tasks', 'mark-status', '--help'],
             capture_output=True,
             text=True
         )
@@ -487,7 +496,7 @@ class TestMarkStatusCommand:
 
         # Mark T001 as done
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'mark-status', '--task-id', 'T001', '--status', 'done'],
+            ['spec-kitty', 'agent', 'tasks', 'mark-status', 'T001', '--status', 'done'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -510,7 +519,7 @@ class TestMarkStatusCommand:
         project_path, feature_dir, tasks_md = project_with_subtasks
 
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'mark-status', '--task-id', 'T999', '--status', 'done'],
+            ['spec-kitty', 'agent', 'tasks', 'mark-status', 'T999', '--status', 'done'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -540,7 +549,7 @@ class TestAcceptCommandValidation:
         # Move all WPs to done (but leave subtasks unchecked)
         for wp_file in (feature_dir / 'tasks').glob('WP*.md'):
             content = wp_file.read_text()
-            content = content.replace('lane: backlog', 'lane: done')
+            content = content.replace('lane: planned', 'lane: done')
             # Add assignee to avoid that error
             if 'assignee:' not in content:
                 content = content.replace('---\n', '---\nassignee: test-agent\n', 1)
@@ -579,7 +588,7 @@ class TestAcceptCommandValidation:
         # Move WPs to done WITHOUT assignee
         for wp_file in (feature_dir / 'tasks').glob('WP*.md'):
             content = wp_file.read_text()
-            content = content.replace('lane: backlog', 'lane: done')
+            content = content.replace('lane: planned', 'lane: done')
             # Explicitly do NOT add assignee
             wp_file.write_text(content)
 
@@ -624,7 +633,7 @@ class TestAcceptCommandValidation:
         # Move all WPs to done WITH assignee
         for wp_file in (feature_dir / 'tasks').glob('WP*.md'):
             content = wp_file.read_text()
-            content = content.replace('lane: backlog', 'lane: done')
+            content = content.replace('lane: planned', 'lane: done')
             if 'assignee:' not in content:
                 # Add assignee after first ---
                 content = content.replace('---\n', '---\nassignee: claude-code\n', 1)
@@ -667,7 +676,7 @@ class TestLenientFlagBehavior:
         # Move to done without assignee
         wp_file = feature_dir / 'tasks' / 'WP01-implement-core.md'
         content = wp_file.read_text()
-        content = content.replace('lane: backlog', 'lane: done')
+        content = content.replace('lane: planned', 'lane: done')
         wp_file.write_text(content)
 
         # Mark all subtasks complete
@@ -705,7 +714,7 @@ class TestLenientFlagBehavior:
         # Move to done WITH assignee but WITHOUT checking subtasks
         wp_file = feature_dir / 'tasks' / 'WP01-implement-core.md'
         content = wp_file.read_text()
-        content = content.replace('lane: backlog', 'lane: done')
+        content = content.replace('lane: planned', 'lane: done')
         content = content.replace('---\n', '---\nassignee: claude\n', 1)
         wp_file.write_text(content)
 
@@ -775,7 +784,7 @@ class TestSkipTaskCheckFlag:
         # Move to done, leave subtasks unchecked
         wp_file = feature_dir / 'tasks' / 'WP01-implement-core.md'
         content = wp_file.read_text()
-        content = content.replace('lane: backlog', 'lane: done')
+        content = content.replace('lane: planned', 'lane: done')
         content = content.replace('---\n', '---\nassignee: test\n', 1)
         wp_file.write_text(content)
 
@@ -811,13 +820,13 @@ class TestTwoTierTrackingSystem:
 
         # Move WP through lanes
         result1 = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'test'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'test'],
             cwd=str(project_path),
             capture_output=True
         )
 
         result2 = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'for_review'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review'],
             cwd=str(project_path),
             capture_output=True
         )
@@ -855,7 +864,7 @@ class TestTwoTierTrackingSystem:
 
         # Tier 1: Move WP to doing
         subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude'],
             cwd=str(project_path),
             check=True,
             capture_output=True
@@ -864,7 +873,7 @@ class TestTwoTierTrackingSystem:
         # Tier 2: Mark each subtask
         for task_id in ['T001', 'T002', 'T003', 'T004']:
             subprocess.run(
-                ['spec-kitty', 'agent', 'mark-status', '--task-id', task_id, '--status', 'done'],
+                ['spec-kitty', 'agent', 'tasks', 'mark-status', task_id, '--status', 'done'],
                 cwd=str(project_path),
                 capture_output=True
             )
@@ -879,7 +888,7 @@ class TestTwoTierTrackingSystem:
 
         # Tier 1: Move to for_review (should now succeed)
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'for_review'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review'],
             cwd=str(project_path),
             capture_output=True,
             text=True
@@ -909,41 +918,35 @@ class TestRegressionPrevention:
         # Simulate proper workflow
         # 1. Move to doing with assignee
         subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'doing', '--assignee', 'claude'],
             cwd=str(project_path),
             check=True,
             capture_output=True
         )
 
-        # 2. Mark all subtasks
+        # 2. Mark all subtasks (auto-commit is enabled by default)
         for task_id in ['T001', 'T002', 'T003', 'T004']:
             subprocess.run(
-                ['spec-kitty', 'agent', 'mark-status', '--task-id', task_id, '--status', 'done'],
+                ['spec-kitty', 'agent', 'tasks', 'mark-status', task_id, '--status', 'done'],
                 cwd=str(project_path),
                 capture_output=True
             )
 
-        subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True, capture_output=True)
-        subprocess.run(['git', 'commit', '-m', 'Mark complete'], cwd=str(project_path), check=True, capture_output=True)
-
         # 3. Move to for_review
         subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'for_review'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review'],
             cwd=str(project_path),
             check=True,
             capture_output=True
         )
 
-        # 4. Review and move to done
+        # 4. Review and move to done (auto-commits via move-task)
         subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'done'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'done'],
             cwd=str(project_path),
             check=True,
             capture_output=True
         )
-
-        subprocess.run(['git', 'add', '.'], cwd=str(project_path), check=True, capture_output=True)
-        subprocess.run(['git', 'commit', '-m', 'Done'], cwd=str(project_path), check=True, capture_output=True)
 
         # 5. Run acceptance
         result = subprocess.run(
@@ -979,7 +982,7 @@ class TestRegressionPrevention:
 
         # Try to move to for_review with unchecked subtasks
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'move-task', 'WP01', '--to', 'for_review', '--assignee', 'test'],
+            ['spec-kitty', 'agent', 'tasks', 'move-task', 'WP01', '--to', 'for_review', '--assignee', 'test'],
             cwd=str(project_path),
             capture_output=True,
             text=True

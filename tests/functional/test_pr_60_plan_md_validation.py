@@ -29,9 +29,38 @@ Test Coverage:
 Related Commits: 9e1c7c1686a6adac331974de9d582aa9c7ea4088
 """
 
+import subprocess
 from pathlib import Path
 
 import pytest
+
+
+def _get_spec_kitty_version():
+    """Get spec-kitty version at module load time for skipif."""
+    try:
+        result = subprocess.run(
+            ['spec-kitty', '--version'],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=5
+        )
+        version_str = result.stdout.strip().split()[-1]
+        base_version = version_str.split('-')[0]
+        return tuple(map(int, base_version.split('.')))
+    except Exception:
+        return (0, 0, 0)
+
+
+_version = _get_spec_kitty_version()
+
+# Skip all tests in this module on v0.11.0+ since the workflow changed
+# PR #60 was about worktree location validation, but v0.11.0 changed planning
+# to happen in main repo (not worktrees)
+pytestmark = pytest.mark.skipif(
+    _version >= (0, 11, 0),
+    reason="Tests v0.10.x worktree location validation - skipped on v0.11.0+ (planning moved to main repo)"
+)
 
 
 class TestPlanMdLocationValidation:
