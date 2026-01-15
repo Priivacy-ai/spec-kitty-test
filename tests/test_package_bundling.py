@@ -19,6 +19,7 @@ Related:
 
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import tarfile
 import zipfile
@@ -47,7 +48,7 @@ class TestSourceDistributionBundling:
         # Build sdist
         with tempfile.TemporaryDirectory() as tmpdir:
             result = subprocess.run(
-                ["python", "-m", "build", "--sdist", "--outdir", tmpdir],
+                [sys.executable, "-m", "build", "--sdist", "--outdir", tmpdir],
                 cwd=spec_kitty_repo_root,
                 capture_output=True,
                 text=True,
@@ -59,7 +60,7 @@ class TestSourceDistributionBundling:
 
             # Find the tarball
             dist_dir = Path(tmpdir)
-            tarballs = list(dist_dir.glob("spec-kitty-cli-*.tar.gz"))
+            tarballs = list(dist_dir.glob("spec_kitty_cli-*.tar.gz"))
 
             if not tarballs:
                 pytest.fail(
@@ -74,31 +75,23 @@ class TestSourceDistributionBundling:
             with tarfile.open(latest, "r:gz") as tar:
                 members = tar.getnames()
 
-                # Should have .kittify/templates/
-                kittify_templates = [m for m in members if ".kittify/templates/" in m]
+                # Feature 011: Templates moved to src/specify_cli/templates/
+                # Check for templates in the new location
+                specify_templates = [m for m in members if "specify_cli/templates/" in m]
 
-                assert len(kittify_templates) > 0, (
-                    "CRITICAL BUG: .kittify/templates/ not found in sdist!\n\n"
+                assert len(specify_templates) > 0, (
+                    "CRITICAL BUG: specify_cli/templates/ not found in sdist!\n\n"
                     f"Checked {len(members)} files in {latest.name}\n"
-                    "This means pyproject.toml line 80 is still wrong.\n\n"
-                    "Should include: .kittify/templates/**/*"
+                    "Templates should be bundled in src/specify_cli/templates/\n\n"
+                    "Check pyproject.toml includes spec_kitty/templates/**/*"
                 )
 
-                # Should NOT have old /templates/ directory
-                old_templates = [
-                    m for m in members
-                    if "/templates/" in m and ".kittify" not in m
-                ]
-
-                if old_templates:
-                    pytest.fail(
-                        f"CRITICAL BUG: Old /templates/ found in sdist!\n\n"
-                        f"Found {len(old_templates)} files from outdated directory:\n" +
-                        "\n".join([f"  - {t}" for t in old_templates[:10]]) +
-                        ("\n  ..." if len(old_templates) > 10 else "") +
-                        "\n\nThis means pyproject.toml line 80 still references /templates/\n"
-                        "Remove old templates line from [tool.setuptools.sdist] includes"
-                    )
+                # Should have command-templates specifically
+                command_templates = [m for m in specify_templates if "command-templates" in m]
+                assert len(command_templates) > 0, (
+                    "CRITICAL BUG: command-templates not found in sdist!\n\n"
+                    f"Found templates: {specify_templates[:5]}..."
+                )
 
                 # Should have command templates
                 cmd_templates = [
@@ -106,9 +99,9 @@ class TestSourceDistributionBundling:
                     if "command-templates" in m and m.endswith(".md")
                 ]
 
-                assert len(cmd_templates) >= 13, (
+                assert len(cmd_templates) >= 14, (
                     f"Missing command templates in sdist!\n"
-                    f"Expected: >=13 templates\n"
+                    f"Expected: >=14 templates (v0.11.0+)\n"
                     f"Found: {len(cmd_templates)}\n\n"
                     "Template files found:\n" +
                     "\n".join([f"  - {t}" for t in cmd_templates])
@@ -174,14 +167,14 @@ class TestBundledTemplateContent:
         """
         CRITICAL: Ensure bundled templates don't reference deleted bash scripts.
 
-        This test scans .kittify/templates/ (what SHOULD be bundled) for script refs.
+        Feature 011: Templates moved to src/specify_cli/templates/command-templates/
         """
-        templates_dir = spec_kitty_repo_root / ".kittify" / "templates" / "command-templates"
+        templates_dir = spec_kitty_repo_root / "src" / "specify_cli" / "templates" / "command-templates"
 
         if not templates_dir.exists():
             pytest.fail(
                 f"Template directory not found: {templates_dir}\n"
-                "This is the directory that should be bundled per pyproject.toml line 72"
+                "Feature 011: Templates should be at src/specify_cli/templates/command-templates/"
             )
 
         bash_references = []
@@ -268,7 +261,7 @@ class TestWheelBundling:
 
             # Build wheel
             result = subprocess.run(
-                ["python", "-m", "build", "--wheel", "--outdir", str(tmpdir)],
+                [sys.executable, "-m", "build", "--wheel", "--outdir", str(tmpdir)],
                 cwd=spec_kitty_repo_root,
                 capture_output=True,
                 text=True,
@@ -327,7 +320,7 @@ class TestWheelBundling:
 
             # Build wheel
             build_result = subprocess.run(
-                ["python", "-m", "build", "--wheel", "--outdir", str(tmpdir)],
+                [sys.executable, "-m", "build", "--wheel", "--outdir", str(tmpdir)],
                 cwd=spec_kitty_repo_root,
                 capture_output=True,
                 text=True,
@@ -342,7 +335,7 @@ class TestWheelBundling:
             # Create venv
             venv_dir = tmpdir / "venv"
             subprocess.run(
-                ["python", "-m", "venv", str(venv_dir)],
+                [sys.executable, "-m", "venv", str(venv_dir)],
                 check=True,
                 timeout=60
             )
