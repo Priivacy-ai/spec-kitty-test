@@ -43,9 +43,11 @@ def temp_spec_kitty_project():
             capture_output=True
         )
 
-        # Create basic structure
+        # Create basic structure with .gitkeep files so git can track them
         (project_dir / '.kittify').mkdir()
+        (project_dir / '.kittify' / '.gitkeep').write_text('')
         (project_dir / 'kitty-specs').mkdir()
+        (project_dir / 'kitty-specs' / '.gitkeep').write_text('')
 
         # Initial commit
         subprocess.run(['git', 'add', '.'], cwd=str(project_dir), check=True, capture_output=True)

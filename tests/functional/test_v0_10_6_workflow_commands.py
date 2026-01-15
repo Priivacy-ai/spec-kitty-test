@@ -111,15 +111,16 @@ class TestWorkflowAutoDetection:
         subprocess.run(
             ['spec-kitty', 'agent', 'feature', 'create-feature', 'test-feature'],
             cwd=project_path,
+            env=env,
             capture_output=True,
             text=True,
             timeout=60,
             check=True
         )
 
-        # Create planned work packages
-        worktree_path = project_path / '.worktrees' / '001-test-feature'
-        tasks_dir = worktree_path / 'kitty-specs' / '001-test-feature' / 'tasks'
+        # v0.11.0+: Planning happens in main repo, not worktree
+        # Tasks dir is in main repo's kitty-specs
+        tasks_dir = project_path / 'kitty-specs' / '001-test-feature' / 'tasks'
         tasks_dir.mkdir(parents=True, exist_ok=True)
 
         # Create multiple WPs in planned state
@@ -140,10 +141,23 @@ Implementation instructions for task {i}.
 """
             wp_file.write_text(wp_content)
 
+        # Commit the WP files so they're available
+        subprocess.run(['git', 'add', '.'], cwd=project_path, check=True, capture_output=True)
+        subprocess.run(['git', 'commit', '-m', 'Add WP files'], cwd=project_path, check=True, capture_output=True)
+
+        # Create and checkout feature branch for auto-detection
+        subprocess.run(
+            ['git', 'checkout', '-b', '001-test-feature'],
+            cwd=project_path,
+            check=True,
+            capture_output=True
+        )
+
         return {
             'project_path': project_path,
-            'worktree_path': worktree_path,
-            'tasks_dir': tasks_dir
+            'worktree_path': project_path,  # v0.11.0+: work from main repo
+            'tasks_dir': tasks_dir,
+            'env': env
         }
 
     def test_finds_first_planned_wp_no_arg(self, project_with_planned_tasks):
@@ -158,10 +172,12 @@ Implementation instructions for task {i}.
         This is the KEY feature - agents don't need to specify WP ID
         """
         worktree_path = project_with_planned_tasks['worktree_path']
+        env = project_with_planned_tasks['env']
 
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'workflow', 'implement'],
+            ['spec-kitty', 'agent', 'workflow', 'implement', '--agent', 'claude'],
             cwd=worktree_path,
+            env=env,
             capture_output=True,
             text=True,
             timeout=30
@@ -263,7 +279,7 @@ Implementation instructions for task {i}.
 
         # Try implement with no planned WPs
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'workflow', 'implement'],
+            ['spec-kitty', 'agent', 'workflow', 'implement', '--agent', 'claude'],
             cwd=worktree_path,
             capture_output=True,
             text=True,
@@ -290,7 +306,7 @@ Implementation instructions for task {i}.
         worktree_path = project_with_planned_tasks['worktree_path']
 
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'workflow', 'implement'],
+            ['spec-kitty', 'agent', 'workflow', 'implement', '--agent', 'claude'],
             cwd=worktree_path,
             capture_output=True,
             text=True,
@@ -314,7 +330,7 @@ Implementation instructions for task {i}.
         project_path = project_with_planned_tasks['project_path']
 
         result = subprocess.run(
-            ['spec-kitty', 'agent', 'workflow', 'implement'],
+            ['spec-kitty', 'agent', 'workflow', 'implement', '--agent', 'claude'],
             cwd=project_path,
             capture_output=True,
             text=True,
