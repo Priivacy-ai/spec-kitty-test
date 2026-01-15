@@ -17,74 +17,74 @@ AGENT_TEST_MATRIX = {
         "dir": ".claude/commands",
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "copilot": {
         "dir": ".github/prompts",
         "ext": "prompt.md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
         "has_vscode_settings": True,
     },
     "gemini": {
         "dir": ".gemini/commands",
         "ext": "toml",
         "var_format": "{{args}}",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "cursor": {
         "dir": ".cursor/commands",
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "qwen": {
         "dir": ".qwen/commands",
         "ext": "toml",
         "var_format": "{{args}}",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "opencode": {
         "dir": ".opencode/command",  # NOTE: Singular!
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "codex": {
         "dir": ".codex/prompts",
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "windsurf": {
         "dir": ".windsurf/workflows",
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "kilocode": {
         "dir": ".kilocode/workflows",
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "auggie": {
         "dir": ".augment/commands",
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "roo": {
         "dir": ".roo/commands",
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
     "q": {
         "dir": ".amazonq/prompts",
         "ext": "md",
         "var_format": "$ARGUMENTS",
-        "file_count": 13,
+        "file_count": 14,  # v0.11.0+ has 14 commands (13 in v0.10.x)
     },
 }
 
