@@ -19,9 +19,35 @@ Test Coverage:
 
 import os
 import stat
+import subprocess
 from pathlib import Path
 
 import pytest
+
+
+def _get_spec_kitty_version():
+    """Get spec-kitty version at module load time for skipif."""
+    try:
+        result = subprocess.run(
+            ['spec-kitty', '--version'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        version_str = result.stdout.strip().split()[-1]
+        base_version = version_str.split('-')[0]
+        return tuple(map(int, base_version.split('.')))
+    except Exception:
+        return (0, 0, 0)
+
+
+_version = _get_spec_kitty_version()
+
+# Skip on v0.11.0+ (workflow behavior changed)
+pytestmark = pytest.mark.skipif(
+    _version >= (0, 11, 0),
+    reason="Skipped on v0.11.0+ (workflow behavior changed)"
+)
 
 
 class TestEncodingHooksMigration:

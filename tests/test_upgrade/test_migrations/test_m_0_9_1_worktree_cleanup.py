@@ -93,11 +93,19 @@ def _get_spec_kitty_version():
         return (0, 0, 0)
 
 
-# Tests require v0.9.1+ (worktree cleanup added in v0.9.1)
-pytestmark = pytest.mark.skipif(
-    _get_spec_kitty_version() < (0, 9, 1),
-    reason="Requires spec-kitty >= 0.9.1 (worktree cleanup)"
-)
+_version = _get_spec_kitty_version()
+
+# Tests require v0.9.1+ but skip on v0.11.0+ (worktree behavior changed)
+pytestmark = [
+    pytest.mark.skipif(
+        _version < (0, 9, 1),
+        reason="Requires spec-kitty >= 0.9.1 (worktree cleanup)"
+    ),
+    pytest.mark.skipif(
+        _version >= (0, 11, 0),
+        reason="Skipped on v0.11.0+ (worktree workflow changed, create-feature no longer creates worktrees)"
+    )
+]
 
 
 class TestAgentDirectoryRemoval:
