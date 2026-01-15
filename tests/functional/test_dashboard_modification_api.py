@@ -20,6 +20,31 @@ from pathlib import Path
 import pytest
 
 
+def _get_spec_kitty_version():
+    """Get spec-kitty version at module load time for skipif."""
+    try:
+        result = subprocess.run(
+            ['spec-kitty', '--version'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        version_str = result.stdout.strip().split()[-1]
+        base_version = version_str.split('-')[0]
+        return tuple(map(int, base_version.split('.')))
+    except Exception:
+        return (0, 0, 0)
+
+
+_version = _get_spec_kitty_version()
+
+# Skip on v0.11.0+ (uses bash scripts that no longer exist)
+pytestmark = pytest.mark.skipif(
+    _version >= (0, 11, 0),
+    reason="Tests v0.10.x bash script workflow - skipped on v0.11.0+ (scripts replaced with Python CLI)"
+)
+
+
 @pytest.fixture
 def spec_kitty_repo_root():
     """Get spec-kitty repository root."""
