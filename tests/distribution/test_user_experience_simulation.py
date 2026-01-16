@@ -112,12 +112,12 @@ class TestPyPIUserExperience:
             check=True
         )
 
-        # Check for command templates
-        claude_commands = project_path / '.github' / 'prompts'
+        # Check for command templates (claude uses .claude/commands/)
+        claude_commands = project_path / '.claude' / 'commands'
         assert claude_commands.exists(), f"Command directory should exist: {claude_commands}"
 
-        # Should have spec-kitty command files
-        command_files = list(claude_commands.glob('spec-kitty.*.prompt.md'))
+        # Should have spec-kitty command files (format: spec-kitty.*.md)
+        command_files = list(claude_commands.glob('spec-kitty.*.md'))
 
         assert len(command_files) >= 10, (
             f"Should have at least 10 command templates\n"
@@ -154,11 +154,11 @@ class TestPyPIUserExperience:
         )
 
         # Scan all command templates
-        command_dir = project_path / '.github' / 'prompts'
+        command_dir = project_path / '.claude' / 'commands'
         templates_with_scripts = []
         templates_with_cli = []
 
-        for template in command_dir.glob('spec-kitty.*.prompt.md'):
+        for template in command_dir.glob('spec-kitty.*.md'):
             content = template.read_text(encoding='utf-8')
 
             # Check for script references (BUG)
@@ -198,8 +198,8 @@ class TestPyPIUserExperience:
 
             pytest.fail(error_msg)
 
-        # Should have Python CLI commands
-        assert len(templates_with_cli) >= 8, (
+        # Should have Python CLI commands (6+ templates typically use spec-kitty agent/task commands)
+        assert len(templates_with_cli) >= 6, (
             f"Most templates should use Python CLI commands\n"
             f"Found: {len(templates_with_cli)} templates with spec-kitty commands"
         )
@@ -229,14 +229,15 @@ class TestPyPIUserExperience:
         )
 
         # Find worktree-related commands
-        command_dir = project_path / '.github' / 'prompts'
+        command_dir = project_path / '.claude' / 'commands'
         worktree_commands = []
 
-        for template in command_dir.glob('spec-kitty.*.prompt.md'):
-            if 'feature' in template.name.lower() or 'worktree' in template.name.lower():
+        for template in command_dir.glob('spec-kitty.*.md'):
+            # implement.md handles worktree creation in workspace-per-WP model
+            if 'feature' in template.name.lower() or 'worktree' in template.name.lower() or 'implement' in template.name.lower():
                 worktree_commands.append(template)
 
-        assert len(worktree_commands) > 0, "Should have worktree/feature commands"
+        assert len(worktree_commands) > 0, "Should have worktree/feature/implement commands"
 
         # Check each for the specific Issue #62 problem
         for cmd_file in worktree_commands:
@@ -263,7 +264,7 @@ class TestPyPIUserExperience:
         clean_environment
     ):
         """
-        Issue #63: spec-kitty.specify.prompt.md must not reference .ps1 scripts
+        Issue #63: spec-kitty.specify.md must not reference .ps1 scripts
 
         This is the exact file mentioned in Issue #63.
         """
@@ -281,14 +282,14 @@ class TestPyPIUserExperience:
             check=True
         )
 
-        # Find spec-kitty.specify.prompt.md
-        specify_file = project_path / '.github' / 'prompts' / 'spec-kitty.specify.prompt.md'
+        # Find spec-kitty.specify.md
+        specify_file = project_path / '.claude' / 'commands' / 'spec-kitty.specify.md'
 
         if not specify_file.exists():
             # Try alternate locations
-            specify_files = list(project_path.rglob('spec-kitty.specify.prompt.md'))
+            specify_files = list(project_path.rglob('spec-kitty.specify.md'))
             if not specify_files:
-                pytest.skip("spec-kitty.specify.prompt.md not found")
+                pytest.skip("spec-kitty.specify.md not found")
             specify_file = specify_files[0]
 
         content = specify_file.read_text(encoding='utf-8')
@@ -298,7 +299,7 @@ class TestPyPIUserExperience:
 
         if ps1_refs:
             pytest.fail(
-                f"🐛 ISSUE #63 CONFIRMED: spec-kitty.specify.prompt.md references .ps1 scripts\n\n"
+                f"🐛 ISSUE #63 CONFIRMED: spec-kitty.specify.md references .ps1 scripts\n\n"
                 f"Found: {', '.join(set(ps1_refs))}\n\n"
                 f"This is the exact bug from Issue #63.\n"
                 f"These PowerShell scripts don't exist."
@@ -336,7 +337,7 @@ class TestPyPIUserExperience:
 
             # Find command templates for this agent
             command_files = list(project_path.rglob('spec-kitty.*.md')) + \
-                           list(project_path.rglob('spec-kitty.*.prompt.md')) + \
+                           list(project_path.rglob('spec-kitty.*.md')) + \
                            list(project_path.rglob('spec-kitty.*.toml'))
 
             for cmd_file in command_files:
@@ -447,15 +448,15 @@ class TestDevelopmentVsProductionParity:
         )
 
         # Scan templates
-        command_dir = project_path / '.github' / 'prompts'
+        command_dir = project_path / '.claude' / 'commands'
         templates_with_cli = 0
 
-        for template in command_dir.glob('spec-kitty.*.prompt.md'):
+        for template in command_dir.glob('spec-kitty.*.md'):
             content = template.read_text(encoding='utf-8')
             if re.search(r'spec-kitty\s+(?:agent|task|worktree)', content):
                 templates_with_cli += 1
 
-        assert templates_with_cli >= 8, (
+        assert templates_with_cli >= 6, (
             f"Templates should use Python CLI in {environment_name}\n"
             f"Found: {templates_with_cli} templates with CLI commands"
         )

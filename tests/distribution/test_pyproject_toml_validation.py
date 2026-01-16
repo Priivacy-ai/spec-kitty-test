@@ -50,14 +50,39 @@ class TestPyprojectTomlPackageData:
         with open(pyproject_file, 'rb') as f:
             pyproject = tomli.load(f)
 
-        # Get package-data section
+        # Get package-data section (supports both setuptools and hatchling)
+        package_data = None
         try:
             package_data = pyproject['tool']['setuptools']['package-data']
         except KeyError:
+            pass
+
+        # Check for hatchling artifacts configuration
+        hatch_artifacts = None
+        try:
+            hatch_artifacts = pyproject['tool']['hatch']['build']['targets']['wheel']['artifacts']
+        except KeyError:
+            pass
+
+        if package_data is None and hatch_artifacts is None:
             pytest.fail(
-                "pyproject.toml must have [tool.setuptools.package-data] section\n"
-                "This section specifies what files get bundled in the package"
+                "pyproject.toml must have either:\n"
+                "  - [tool.setuptools.package-data] section, or\n"
+                "  - [tool.hatch.build.targets.wheel] artifacts configuration\n"
+                "This specifies what non-Python files get bundled in the package"
             )
+
+        # If using hatchling, check artifacts include templates
+        if hatch_artifacts:
+            has_template_patterns = any(
+                '*.md' in pat or '*.yaml' in pat or '*.yml' in pat
+                for pat in hatch_artifacts
+            )
+            assert has_template_patterns, (
+                "Hatchling artifacts should include template file patterns (*.md, *.yaml)\n"
+                f"Found: {hatch_artifacts}"
+            )
+            return  # Hatchling config is valid
 
         # Check if it points to correct directory
         # Should have entry for .kittify/templates or specify_cli with .kittify/templates
@@ -185,7 +210,11 @@ class TestBundledTemplateContent:
                 templates_with_cli.append(template.name)
 
             # Check for script references (anti-pattern)
-            if re.search(r'[\w\-\.]+\.(sh|ps1)', content):
+            # Use word boundary to avoid false positives like hashlib.sha1 matching as *.sh
+            script_matches = re.findall(r'\b[\w\-]+\.(sh|ps1)\b', content)
+            # Filter known false positives
+            script_matches = [m for m in script_matches if m[0] not in ('hashlib', 'lib')]
+            if script_matches:
                 templates_with_scripts.append({
                     'file': template.name,
                     'content_preview': content[:200]
@@ -216,11 +245,16 @@ class TestBundledTemplateContent:
         """
         kittify_templates = spec_kitty_repo_root / '.kittify' / 'templates' / 'command-templates'
 
+        # Known false positives (e.g., hashlib.sha1 matches *.sh pattern)
+        false_positives = {'hashlib.sh', 'lib.sh'}
+
         bash_refs = []
 
         for template in kittify_templates.glob('*.md'):
             content = template.read_text(encoding='utf-8')
             sh_matches = re.findall(r'[\w\-\.]+\.sh', content)
+            # Filter out false positives
+            sh_matches = [m for m in sh_matches if m not in false_positives]
 
             if sh_matches:
                 bash_refs.append({
