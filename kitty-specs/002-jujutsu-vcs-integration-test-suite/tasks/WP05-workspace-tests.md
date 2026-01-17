@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Workspace Creation Tests
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -12,8 +12,8 @@ subtasks:
 - T027
 phase: Phase 2 - Core Features
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "83426"
 review_status: ''
 reviewed_by: ''
 history:
@@ -114,3 +114,4 @@ Create workspace, run removal command, verify directory cleaned.
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T16:54:21Z – claude-opus – shell_pid=83426 – lane=doing – Started implementation via workflow command
