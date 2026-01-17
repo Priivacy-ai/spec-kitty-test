@@ -10,7 +10,7 @@ subtasks:
   - "T055"
 title: "VCS Detection Tests"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "__AGENT__"
 shell_pid: "71748"
@@ -214,3 +214,4 @@ def test_det_007_jj_version_below_minimum(spec_kitty_project, tmp_path, monkeypa
 - 2026-01-17T17:17:11Z – codex – shell_pid=71748 – lane=doing – Started review via workflow command
 - 2026-01-17T17:17:54Z – codex – shell_pid=71748 – lane=planned – Moved to planned
 - 2026-01-17T17:35:02Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
+- 2026-01-17T18:02:23Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: tighten VCS detection tests, isolate PATH, meta.json locking via implement; DET-007 xfail pending version enforcement
