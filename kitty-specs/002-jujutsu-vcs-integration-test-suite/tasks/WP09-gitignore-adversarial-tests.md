@@ -8,10 +8,10 @@ subtasks:
   - "T047"
 title: "Gitignore and Adversarial Tests"
 phase: "Phase 2 - Core Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "14750"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -129,3 +129,4 @@ Create workspace directory with missing/corrupted files, verify graceful handlin
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T18:11:09Z – claude-opus – shell_pid=14750 – lane=doing – Started implementation via workflow command
