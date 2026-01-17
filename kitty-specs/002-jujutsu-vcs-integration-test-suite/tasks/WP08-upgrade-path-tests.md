@@ -7,7 +7,7 @@ subtasks:
   - "T042"
 title: "Upgrade Path Tests"
 phase: "Phase 2 - Core Features"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "9135"
@@ -105,3 +105,4 @@ Project with both git and jj features works correctly.
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T17:50:17Z – claude-opus – shell_pid=9135 – lane=doing – Started implementation via workflow command
+- 2026-01-17T17:57:11Z – claude-opus – shell_pid=9135 – lane=for_review – Ready for review: All 4 UPG tests implemented (git-to-jj upgrade, existing git WPs work, jj uninstalled error, mixed coexistence). Tests use PATH manipulation to simulate jj install/uninstall. All tests pass.
