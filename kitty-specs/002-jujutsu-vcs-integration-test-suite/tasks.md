@@ -134,7 +134,7 @@
 - [x] T019 Test DIST-002: VCS detection works from PyPI installation
 - [x] T020 Test DIST-003: jj workspace creation fully functional
 - [x] T021 Test DIST-004: templates use Python CLI commands (no bash/PowerShell)
-- [ ] T022 Test DIST-005: no import errors in VCS abstraction code paths
+- [x] T022 Test DIST-005: no import errors in VCS abstraction code paths
 
 ### Implementation Notes
 1. Create `tests/distribution/test_jj_distribution.py`
