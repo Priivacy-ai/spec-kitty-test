@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Advanced jj Features Tests
-lane: "doing"
+lane: "done"
 dependencies:
 - WP01
 subtasks:
@@ -15,8 +15,8 @@ phase: Phase 3 - Advanced
 assignee: ''
 agent: "claude-opus"
 shell_pid: "40991"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-17T16:05:17Z'
   lane: planned
@@ -138,3 +138,4 @@ Test workspace without git colocated mode (pure jj).
 - 2026-01-17T18:43:16Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
 - 2026-01-17T18:48:00Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: add advanced jj ops/undo, change ID stability, colocated sync, pure jj mode (xfail if jj init unsupported)
 - 2026-01-17T18:48:39Z – claude-opus – shell_pid=40991 – lane=doing – Started review via workflow command
+- 2026-01-17T18:49:37Z – claude-opus – shell_pid=40991 – lane=done – Review passed: All 6 advanced jj tests implemented (ops log/undo, Change ID stability across 5 rebases, colocated bidirectional sync, pure jj mode). 5 passed, 1 xfailed (PURE-001 expected). Tests use fresh jj_workspace fixture.
