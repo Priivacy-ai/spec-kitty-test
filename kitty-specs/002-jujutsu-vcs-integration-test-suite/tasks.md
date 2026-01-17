@@ -24,12 +24,13 @@
 **Requirements**: TR-001, TR-002, TR-011
 
 ### Included Subtasks
-- [ ] T001 Add `@pytest.mark.jj` marker registration in `tests/conftest.py`
+- [x] T001 Add `@pytest.mark.jj` marker registration in `tests/conftest.py`
 - [ ] T002 Implement `jj_available` session-scoped fixture
 - [ ] T003 Implement `pytest_collection_modifyitems` for auto-skip of jj tests
 - [ ] T004 Add `@pytest.mark.distribution` marker registration
 - [ ] T005 Create `spec_kitty_project` fixture for isolated test projects
 - [ ] T006 Create `no_template_bypass` fixture for distribution tests
+- [ ] T054 Create `requires_spec_kitty_version` fixture for version-gated tests (TR-013)
 
 ### Implementation Notes
 1. Extend existing `tests/conftest.py` (do not replace)
@@ -66,6 +67,7 @@
 - [ ] T010 [P] Test DET-004: `--vcs=git` override works when jj available
 - [ ] T011 Test DET-005: broken jj binary → git fallback with warning
 - [ ] T012 Test DET-006: jj wrong tool validation (not jujutsu)
+- [ ] T055 Test DET-007: jj version below minimum (< 0.20) → warning/fallback
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_vcs_detection.py`
@@ -189,8 +191,8 @@
 
 ## Work Package WP06: Sync Command Tests (Priority: P1)
 
-**Goal**: Validate `spec-kitty sync` works for both VCS backends.
-**Independent Test**: Sync updates stale workspaces; reports conflicts.
+**Goal**: Validate `spec-kitty sync` works for both VCS backends AND US4 auto-rebase chain scenarios.
+**Independent Test**: Sync updates stale workspaces; reports conflicts; chains propagate.
 **Prompt**: `tasks/WP06-sync-tests.md`
 **User Stories**: US4 (auto-rebase), US6 (sync command)
 **Requirements**: TR-018
@@ -201,6 +203,9 @@
 - [ ] T030 Test SYNC-003: up-to-date workspace reports "already up to date"
 - [ ] T031 Test SYNC-004: sync with conflicts lists conflicted files
 - [ ] T032 Test SYNC-005: dependency chain sync propagates to downstream WPs
+- [ ] T056 Test CHAIN-001: WP01→WP02→WP03 triple chain syncs (US4.3)
+- [ ] T057 Test CHAIN-002: diamond dependency syncs both parents (US4.5)
+- [ ] T058 Test CHAIN-003: circular dependency rejected with error (US4.6)
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_sync.py`
@@ -439,3 +444,8 @@ WP01 (Infrastructure)
 | T051 | COL-001: jj→git visibility | WP10 | P3 | Yes |
 | T052 | COL-002: git→jj visibility | WP10 | P3 | Yes |
 | T053 | PURE-001: pure jj mode | WP10 | P3 | Yes |
+| T054 | requires_spec_kitty_version fixture (TR-013) | WP01 | P0 | No |
+| T055 | DET-007: jj version below minimum | WP02 | P0 | No |
+| T056 | CHAIN-001: triple dependency chain (US4.3) | WP06 | P1 | No |
+| T057 | CHAIN-002: diamond dependency (US4.5) | WP06 | P1 | No |
+| T058 | CHAIN-003: circular dependency rejection (US4.6) | WP06 | P1 | No |
