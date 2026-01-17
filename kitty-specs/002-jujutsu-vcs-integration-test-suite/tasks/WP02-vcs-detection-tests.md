@@ -10,7 +10,7 @@ subtasks:
   - "T055"
 title: "VCS Detection Tests"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "89278"
@@ -210,3 +210,4 @@ def test_det_007_jj_version_below_minimum(spec_kitty_project, tmp_path, monkeypa
 - 2026-01-17T16:54:10Z – __AGENT__ – shell_pid=71748 – lane=doing – Started review via workflow command
 - 2026-01-17T16:55:37Z – __AGENT__ – shell_pid=71748 – lane=planned – Moved to planned
 - 2026-01-17T17:02:30Z – claude-opus – shell_pid=89278 – lane=doing – Started implementation via workflow command
+- 2026-01-17T17:08:24Z – claude-opus – shell_pid=89278 – lane=for_review – Ready for review: Addressed all 4 review feedback issues. Tests now validate VCS selection via output/directory presence, PATH isolation is complete, DET-003 handles spec-kitty's graceful no-VCS mode, and edge cases use WP01 fixtures. All 10 tests pass.
