@@ -273,7 +273,7 @@
 - [x] T039 Test UPG-001: git-only project + jj install → new features use jj
 - [x] T040 Test UPG-002: existing git WPs continue working after jj install
 - [x] T041 Test UPG-003: jj uninstalled → clear error on jj features
-- [ ] T042 Test UPG-004: mixed git/jj project coexistence
+- [x] T042 Test UPG-004: mixed git/jj project coexistence
 
 ### Implementation Notes
 1. Create `tests/distribution/test_jj_upgrade_paths.py`
