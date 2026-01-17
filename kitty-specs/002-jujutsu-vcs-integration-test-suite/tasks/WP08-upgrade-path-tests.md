@@ -7,10 +7,10 @@ subtasks:
   - "T042"
 title: "Upgrade Path Tests"
 phase: "Phase 2 - Core Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "9135"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -104,3 +104,4 @@ Project with both git and jj features works correctly.
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T17:50:17Z – claude-opus – shell_pid=9135 – lane=doing – Started implementation via workflow command
