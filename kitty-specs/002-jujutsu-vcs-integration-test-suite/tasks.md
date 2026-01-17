@@ -67,7 +67,7 @@
 - [x] T010 [P] Test DET-004: `--vcs=git` override works when jj available
 - [x] T011 Test DET-005: broken jj binary → git fallback with warning
 - [x] T012 Test DET-006: jj wrong tool validation (not jujutsu)
-- [ ] T055 Test DET-007: jj version below minimum (< 0.20) → warning/fallback
+- [x] T055 Test DET-007: jj version below minimum (< 0.20) → warning/fallback
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_vcs_detection.py`
