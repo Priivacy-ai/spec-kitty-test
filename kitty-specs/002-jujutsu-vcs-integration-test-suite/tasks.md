@@ -101,7 +101,7 @@
 - [x] T014 Test LOCK-002: `--vcs=git` on jj feature fails with clear error
 - [x] T015 Test LOCK-003: meta.json VCS field tampering detected
 - [x] T016 Test LOCK-004: deleted meta.json handled gracefully
-- [ ] T017 Test LOCK-005: two features with different VCS don't interfere
+- [x] T017 Test LOCK-005: two features with different VCS don't interfere
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_vcs_lock.py`
