@@ -57,5 +57,6 @@ temp_*/
 .amazonq/
 .github/copilot/
 .kittify/.dashboard
-# Prevent worktree-local kitty-specs/ (status managed in main repo)
-kitty-specs/
+# Worktrees managed by spec-kitty
+.worktrees/
+.claude/

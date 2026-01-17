@@ -1,0 +1,13 @@
+date,source,finding,relevance,confidence
+2026-01-17,spec-kitty/src/specify_cli/core/vcs/,VCS package fully implemented with all 7 files,Implementation complete - focus on distribution testing,high
+2026-01-17,spec-kitty/tests/specify_cli/core/vcs/,111 existing tests covering detection/git/jj,Good unit coverage but uses TEMPLATE_ROOT bypass,high
+2026-01-17,spec-kitty/src/specify_cli/core/vcs/jujutsu.py,JujutsuVCS 1092 lines - all Protocol methods,Full jj backend implementation,high
+2026-01-17,spec-kitty/src/specify_cli/core/vcs/git.py,GitVCS 1305 lines - all Protocol methods,Full git backend implementation,high
+2026-01-17,spec-kitty/src/specify_cli/core/vcs/detection.py,get_vcs() factory with feature VCS locking,Detection logic complete - test lock enforcement,high
+2026-01-17,spec-kitty/.gitignore template,kitty-specs/ added to .gitignore,BUG: Should not ignore in main repo,high
+2026-01-17,spec-kitty/src/specify_cli/cli/commands/sync.py,Sync command exists,Test sync behavior for both backends,high
+2026-01-17,spec-kitty/src/specify_cli/cli/commands/ops.py,Ops command exists with log/undo subcommands,Test operation log and undo,high
+2026-01-17,spec-kitty capability constants,jj supports 7 capabilities vs git 3,Key semantic differences to test,high
+2026-01-17,spec-kitty tests,No distribution tests exist,CRITICAL GAP: Need PyPI user experience tests,high
+2026-01-17,spec-kitty tests,No upgrade path tests,GAP: Git-only to jj migration untested,medium
+2026-01-17,spec-kitty tests,No adversarial/corruption tests,GAP: Edge cases like broken jj untested,medium

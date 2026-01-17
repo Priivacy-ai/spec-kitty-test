@@ -1,0 +1,16 @@
+id,path,type,description,accessed
+SRC-001,/Users/robert/Code/spec-kitty/src/specify_cli/core/vcs/__init__.py,source,VCS package public API,2026-01-17
+SRC-002,/Users/robert/Code/spec-kitty/src/specify_cli/core/vcs/protocol.py,source,VCSProtocol interface definition,2026-01-17
+SRC-003,/Users/robert/Code/spec-kitty/src/specify_cli/core/vcs/types.py,source,Dataclasses and enums,2026-01-17
+SRC-004,/Users/robert/Code/spec-kitty/src/specify_cli/core/vcs/git.py,source,GitVCS implementation,2026-01-17
+SRC-005,/Users/robert/Code/spec-kitty/src/specify_cli/core/vcs/jujutsu.py,source,JujutsuVCS implementation,2026-01-17
+SRC-006,/Users/robert/Code/spec-kitty/src/specify_cli/core/vcs/detection.py,source,Factory and detection,2026-01-17
+SRC-007,/Users/robert/Code/spec-kitty/src/specify_cli/core/vcs/exceptions.py,source,Exception hierarchy,2026-01-17
+SRC-008,/Users/robert/Code/spec-kitty/src/specify_cli/cli/commands/sync.py,source,Sync CLI command,2026-01-17
+SRC-009,/Users/robert/Code/spec-kitty/src/specify_cli/cli/commands/ops.py,source,Ops CLI command,2026-01-17
+SRC-010,/Users/robert/Code/spec-kitty/tests/specify_cli/core/vcs/test_detection.py,test,Detection tests,2026-01-17
+SRC-011,/Users/robert/Code/spec-kitty/tests/specify_cli/core/vcs/test_git.py,test,Git tests,2026-01-17
+SRC-012,/Users/robert/Code/spec-kitty/tests/specify_cli/core/vcs/test_jujutsu.py,test,jj tests,2026-01-17
+SRC-013,/Users/robert/Code/spec-kitty/kitty-specs/015-first-class-jujutsu-vcs-integration/spec.md,spec,Feature specification,2026-01-17
+SRC-014,/Users/robert/Code/spec-kitty/kitty-specs/015-first-class-jujutsu-vcs-integration/plan.md,spec,Implementation plan,2026-01-17
+SRC-015,/Users/robert/Code/spec-kitty/kitty-specs/015-first-class-jujutsu-vcs-integration/tasks.md,spec,Work packages,2026-01-17

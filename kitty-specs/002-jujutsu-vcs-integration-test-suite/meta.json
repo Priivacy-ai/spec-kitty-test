@@ -1,0 +1,9 @@
+{
+  "feature_number": "002",
+  "slug": "jujutsu-vcs-integration-test-suite",
+  "friendly_name": "Jujutsu VCS Integration Test Suite",
+  "mission": "software-dev",
+  "source_description": "Read /Users/robert/Code/spec-kitty/kitty-specs/015-first-class-jujutsu-vcs-integration and prepare an entire test suite to test every feature, edge case, upgrade and be adversarial",
+  "created_at": "2026-01-17T16:42:00Z",
+  "source_spec": "/Users/robert/Code/spec-kitty/kitty-specs/015-first-class-jujutsu-vcs-integration/spec.md"
+}
