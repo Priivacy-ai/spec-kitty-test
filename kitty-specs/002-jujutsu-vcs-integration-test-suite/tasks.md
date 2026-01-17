@@ -169,7 +169,7 @@
 - [x] T024 Test WS-002: colocated mode creates both `.jj/` and `.git/`
 - [x] T025 Test WS-003: `--base` flag creates dependent workspace
 - [x] T026 Test WS-004: sparse-checkout excludes kitty-specs/
-- [ ] T027 Test WS-005: workspace removal cleans up directory
+- [x] T027 Test WS-005: workspace removal cleans up directory
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_workspace.py`
