@@ -8,12 +8,12 @@ subtasks:
   - "T017"
 title: "VCS Lock Enforcement Tests"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "planned"
 assignee: ""
 agent: "__AGENT__"
 shell_pid: "71748"
-review_status: ""
-reviewed_by: ""
+review_status: "has_feedback"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-17T16:05:17Z"
@@ -116,3 +116,4 @@ Create jj feature and git feature in same project, verify each uses correct VCS.
 - 2026-01-17T16:30:58Z – claude-opus – shell_pid=71460 – lane=doing – Started implementation via workflow command
 - 2026-01-17T16:35:15Z – claude-opus – shell_pid=71460 – lane=for_review – Ready for review: 8 VCS lock tests implemented (5 LOCK-*, 3 edge cases). 6 pass, 2 skip (documenting expected behavior for per-feature VCS locking not yet implemented). Tests cover: VCS in meta.json, VCS change rejection, tampering detection, deleted meta.json handling, mixed VCS isolation, and corrupted/empty meta.json edge cases.
 - 2026-01-17T17:02:16Z – __AGENT__ – shell_pid=71748 – lane=doing – Started review via workflow command
+- 2026-01-17T17:02:51Z – __AGENT__ – shell_pid=71748 – lane=planned – Moved to planned
