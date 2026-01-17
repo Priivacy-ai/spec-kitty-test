@@ -7,12 +7,13 @@ subtasks:
   - "T004"
   - "T005"
   - "T006"
+  - "T054"
 title: "Test Infrastructure Setup"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "67125"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -45,6 +46,7 @@ spec-kitty implement WP01
 4. Tests marked `@pytest.mark.jj` auto-skip when jj unavailable
 5. `spec_kitty_project` fixture creates isolated test project
 6. `no_template_bypass` fixture unsets SPEC_KITTY_TEMPLATE_ROOT
+7. `requires_spec_kitty_version` fixture enables version-gated tests (TR-013)
 
 ---
 
@@ -173,6 +175,68 @@ def no_template_bypass(monkeypatch):
 
 ---
 
+### Subtask T054 – Create `requires_spec_kitty_version` fixture (TR-013)
+
+**Purpose**: Enable version-gated tests that only run on specific spec-kitty versions.
+
+**Rationale**: Per TR-013, tests must support version gating using `requires_v*` fixtures. This allows tests to be written for features that only exist in certain versions.
+
+**Steps**:
+```python
+import subprocess
+from packaging import version
+
+def get_spec_kitty_version():
+    """Get installed spec-kitty version."""
+    result = subprocess.run(
+        ["spec-kitty", "--version"],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        return None
+    # Parse version from output (e.g., "spec-kitty 0.12.0")
+    output = result.stdout.strip()
+    parts = output.split()
+    return parts[-1] if parts else None
+
+@pytest.fixture
+def spec_kitty_version():
+    """Return the installed spec-kitty version as a string."""
+    return get_spec_kitty_version()
+
+def requires_spec_kitty_version(min_version):
+    """Decorator to skip test if spec-kitty version is below minimum.
+
+    Usage:
+        @requires_spec_kitty_version("0.12.0")
+        def test_new_feature():
+            ...
+    """
+    current = get_spec_kitty_version()
+    if current is None:
+        return pytest.mark.skip(reason="spec-kitty not installed")
+    if version.parse(current) < version.parse(min_version):
+        return pytest.mark.skip(reason=f"Requires spec-kitty >= {min_version}, got {current}")
+    return pytest.mark.parametrize([], [])  # No-op marker
+
+# Convenience markers for common versions
+requires_v0_11 = requires_spec_kitty_version("0.11.0")
+requires_v0_12 = requires_spec_kitty_version("0.12.0")
+```
+
+**Files**: `tests/conftest.py`
+
+**Usage Example**:
+```python
+@requires_v0_12
+@pytest.mark.jj
+def test_jj_feature_only_in_v012(spec_kitty_project):
+    """This test only runs on spec-kitty 0.12.0+."""
+    ...
+```
+
+---
+
 ## Definition of Done Checklist
 
 - [ ] T001: `@pytest.mark.jj` registered
@@ -181,9 +245,11 @@ def no_template_bypass(monkeypatch):
 - [ ] T004: `@pytest.mark.distribution` registered
 - [ ] T005: `spec_kitty_project` creates isolated project
 - [ ] T006: `no_template_bypass` removes env vars
+- [ ] T054: `requires_spec_kitty_version` fixture and convenience markers work
 
 ---
 
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T16:19:39Z – claude-opus – shell_pid=67125 – lane=doing – Started implementation via workflow command
