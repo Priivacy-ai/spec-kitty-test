@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Advanced jj Features Tests
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -13,8 +13,8 @@ subtasks:
 - T053
 phase: Phase 3 - Advanced
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "__AGENT__"
+shell_pid: "71748"
 review_status: ''
 reviewed_by: ''
 history:
@@ -135,3 +135,4 @@ Test workspace without git colocated mode (pure jj).
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T18:43:16Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
