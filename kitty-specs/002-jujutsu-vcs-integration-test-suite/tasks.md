@@ -165,7 +165,7 @@
 **Requirements**: TR-016
 
 ### Included Subtasks
-- [ ] T023 Test WS-001: jj workspace creates `.worktrees/###-feature-WP01/`
+- [x] T023 Test WS-001: jj workspace creates `.worktrees/###-feature-WP01/`
 - [ ] T024 Test WS-002: colocated mode creates both `.jj/` and `.git/`
 - [ ] T025 Test WS-003: `--base` flag creates dependent workspace
 - [ ] T026 Test WS-004: sparse-checkout excludes kitty-specs/
