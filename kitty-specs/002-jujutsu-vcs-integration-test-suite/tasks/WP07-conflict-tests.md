@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Conflict Handling Tests
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -13,8 +13,8 @@ subtasks:
 - T038
 phase: Phase 2 - Core Features
 assignee: ''
-agent: "claude-opus"
-shell_pid: "5008"
+agent: "codex"
+shell_pid: "15916"
 review_status: ''
 reviewed_by: ''
 history:
@@ -128,3 +128,4 @@ Create 3-sided conflict scenario, verify all sides visible in markers.
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T17:46:00Z – claude-opus – shell_pid=5008 – lane=doing – Started implementation via workflow command
 - 2026-01-17T17:49:47Z – claude-opus – shell_pid=5008 – lane=for_review – Ready for review: 9 conflict handling tests implemented (CONF-001 to CONF-006 + 3 edge cases). 8 pass, 1 xfail (git-only test needs workspace support). Tests cover jj non-blocking conflicts, review/merge blocking, resolution auto-recording, and 3-way merge markers.
+- 2026-01-17T18:11:31Z – codex – shell_pid=15916 – lane=doing – Started review via workflow command
