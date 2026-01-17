@@ -205,7 +205,7 @@
 - [x] T032 Test SYNC-005: dependency chain sync propagates to downstream WPs
 - [x] T056 Test CHAIN-001: WP01→WP02→WP03 triple chain syncs (US4.3)
 - [x] T057 Test CHAIN-002: diamond dependency syncs both parents (US4.5)
-- [ ] T058 Test CHAIN-003: circular dependency rejected with error (US4.6)
+- [x] T058 Test CHAIN-003: circular dependency rejected with error (US4.6)
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_sync.py`
