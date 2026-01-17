@@ -10,10 +10,10 @@ subtasks:
   - "T055"
 title: "VCS Detection Tests"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
-agent: "claude-opus"
-shell_pid: "69424"
+agent: "__AGENT__"
+shell_pid: "71748"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -207,3 +207,4 @@ def test_det_007_jj_version_below_minimum(spec_kitty_project, tmp_path, monkeypa
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T16:25:55Z – claude-opus – shell_pid=69424 – lane=doing – Started implementation via workflow command
 - 2026-01-17T16:30:25Z – claude-opus – shell_pid=69424 – lane=for_review – Ready for review: All 7 VCS detection tests pass (DET-001 through DET-007 + edge cases). Tests validate jj/git selection, override flags, broken jj fallback, version checks, and wrong-tool detection.
+- 2026-01-17T16:54:10Z – __AGENT__ – shell_pid=71748 – lane=doing – Started review via workflow command
