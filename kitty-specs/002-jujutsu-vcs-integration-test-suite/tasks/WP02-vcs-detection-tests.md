@@ -7,12 +7,13 @@ subtasks:
   - "T010"
   - "T011"
   - "T012"
+  - "T055"
 title: "VCS Detection Tests"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "69424"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -45,6 +46,7 @@ spec-kitty implement WP02 --base WP01
 4. DET-004: `--vcs=git` override works
 5. DET-005: Broken jj → git fallback with warning
 6. DET-006: Wrong jj tool detected
+7. DET-007: jj version below minimum (< 0.20) → warning/error with upgrade message
 
 ---
 
@@ -127,9 +129,74 @@ Create fake jj that outputs non-jujutsu version, verify detection/fallback.
 
 ---
 
+### Subtask T055 – Test DET-007: jj version below minimum
+
+**Purpose**: Verify spec-kitty handles outdated jj installations gracefully.
+
+**Rationale**: Per spec.md edge case "jj version is below minimum (< 0.20)", the system should detect this and provide a clear upgrade message rather than failing cryptically.
+
+**Steps**:
+```python
+def test_det_007_jj_version_below_minimum(spec_kitty_project, tmp_path, monkeypatch):
+    """DET-007: jj version below minimum triggers warning/fallback.
+
+    Simulates an old jj installation (< 0.20) that may lack required features.
+    """
+    import os
+    import stat
+
+    # Create fake jj that reports old version
+    fake_bin = tmp_path / "fake_bin"
+    fake_bin.mkdir()
+
+    old_jj = fake_bin / "jj"
+    old_jj.write_text('#!/bin/bash\necho "jj 0.15.0"')
+    old_jj.chmod(stat.S_IRWXU)
+
+    # Keep real git accessible
+    import shutil
+    git_path = shutil.which("git")
+    (fake_bin / "git").symlink_to(git_path)
+
+    # Preserve spec-kitty
+    spec_kitty_path = shutil.which("spec-kitty")
+    if spec_kitty_path:
+        (fake_bin / "spec-kitty").symlink_to(spec_kitty_path)
+
+    result = subprocess.run(
+        ["spec-kitty", "specify", "test-feature"],
+        cwd=spec_kitty_project,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PATH": str(fake_bin) + ":" + os.environ.get("PATH", "")}
+    )
+
+    combined = result.stdout + result.stderr
+
+    # Should either:
+    # 1. Warn about old jj version and continue with git
+    # 2. Fail with clear message about minimum version
+    # Should NOT: silently use old jj and fail later
+    assert any([
+        "version" in combined.lower(),
+        "0.20" in combined,
+        "upgrade" in combined.lower(),
+        "minimum" in combined.lower(),
+        # Or fell back to git successfully
+        result.returncode == 0
+    ]), f"Should handle old jj version gracefully: {combined}"
+```
+
+**Files**: `tests/functional/test_jj_vcs_detection.py`
+
+**Edge Case Coverage**: This addresses spec.md line 266: "What happens when jj version is below minimum (< 0.20)?"
+
+---
+
 ## Definition of Done Checklist
 
-- [ ] T007-T012: All 6 DET-* tests implemented
+- [ ] T007-T012: All 6 original DET-* tests implemented
+- [ ] T055: DET-007 jj version check test implemented
 - [ ] Tests use WP01 fixtures
 - [ ] PATH manipulation isolated per test
 
@@ -138,3 +205,4 @@ Create fake jj that outputs non-jujutsu version, verify detection/fallback.
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T16:25:55Z – claude-opus – shell_pid=69424 – lane=doing – Started implementation via workflow command
