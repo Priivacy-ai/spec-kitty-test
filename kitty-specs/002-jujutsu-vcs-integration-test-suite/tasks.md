@@ -29,7 +29,7 @@
 - [x] T003 Implement `pytest_collection_modifyitems` for auto-skip of jj tests
 - [x] T004 Add `@pytest.mark.distribution` marker registration
 - [x] T005 Create `spec_kitty_project` fixture for isolated test projects
-- [ ] T006 Create `no_template_bypass` fixture for distribution tests
+- [x] T006 Create `no_template_bypass` fixture for distribution tests
 - [ ] T054 Create `requires_spec_kitty_version` fixture for version-gated tests (TR-013)
 
 ### Implementation Notes
