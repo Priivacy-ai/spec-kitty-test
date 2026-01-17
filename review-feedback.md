@@ -1,3 +1,0 @@
-**Issue 1**: `test_pid_tracking_in_activity_log` does not enforce that `shell_pid` is present. The test currently treats missing `shell_pid` as informational and passes, but the success criteria explicitly require validating PID tracking in the activity log. Make this assertion hard-fail when `shell_pid` is absent.
-
-**Issue 2**: The required test command fails in the WP review worktree because the `spec_kitty_repo_root` fixture defaults to a path that doesn't exist in `.worktrees`. Either set `SPEC_KITTY_REPO` (or equivalent) inside the test run/setup, or update the fixture to resolve the main repo root when running from a worktree so `pytest tests/functional/test_sparse_checkout_infrastructure.py::TestMultiAgentParallel -xvs` passes as required.
