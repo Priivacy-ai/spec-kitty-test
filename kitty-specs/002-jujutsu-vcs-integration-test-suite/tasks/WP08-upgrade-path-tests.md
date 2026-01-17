@@ -7,7 +7,7 @@ subtasks:
   - "T042"
 title: "Upgrade Path Tests"
 phase: "Phase 2 - Core Features"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "29108"
@@ -110,3 +110,4 @@ Project with both git and jj features works correctly.
 - 2026-01-17T18:12:03Z – __AGENT__ – shell_pid=71748 – lane=planned – Moved to planned
 - 2026-01-17T18:16:01Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: All 4 UPG tests implemented. Tests use PATH manipulation to simulate jj install/uninstall. All tests pass.
 - 2026-01-17T18:33:36Z – claude-opus – shell_pid=29108 – lane=doing – Started review via workflow command
+- 2026-01-17T18:34:23Z – claude-opus – shell_pid=29108 – lane=done – Review passed: All 4 UPG tests implemented (git-to-jj upgrade, existing git WPs work, jj uninstalled error, mixed coexistence). Tests use PATH manipulation, no template bypass. All 4 tests pass.
