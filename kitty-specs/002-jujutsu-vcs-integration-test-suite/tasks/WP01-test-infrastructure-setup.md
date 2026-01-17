@@ -10,7 +10,7 @@ subtasks:
   - "T054"
 title: "Test Infrastructure Setup"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "__AGENT__"
 shell_pid: "68935"
@@ -259,3 +259,4 @@ def test_jj_feature_only_in_v012(spec_kitty_project):
 - 2026-01-17T16:26:46Z – __AGENT__ – shell_pid=68935 – lane=doing – Started implementation via workflow command
 - 2026-01-17T16:27:22Z – __AGENT__ – shell_pid=68935 – lane=for_review – Ready for review: align jj auto-skip with jj --version check
 - 2026-01-17T16:30:47Z – __AGENT__ – shell_pid=68935 – lane=doing – Started review via workflow command
+- 2026-01-17T16:30:59Z – __AGENT__ – shell_pid=68935 – lane=done – Review passed: jj auto-skip validates via jj --version
