@@ -302,11 +302,11 @@
 **Requirements**: TR-008, TR-010
 
 ### Included Subtasks
-- [ ] T043 Test GI-001: main repo .gitignore does NOT ignore kitty-specs/
-- [ ] T044 Test GI-002: `git add kitty-specs/` succeeds (files added)
-- [ ] T045 Test GI-003: upgrade run fixes incorrect gitignore
-- [ ] T046 [P] Test ADV-001: corrupted meta.json VCS value handled
-- [ ] T047 [P] Test ADV-002: corrupted workspace directory handled
+- [x] T043 Test GI-001: main repo .gitignore does NOT ignore kitty-specs/
+- [x] T044 Test GI-002: `git add kitty-specs/` succeeds (files added)
+- [x] T045 Test GI-003: upgrade run fixes incorrect gitignore
+- [x] T046 [P] Test ADV-001: corrupted meta.json VCS value handled
+- [x] T047 [P] Test ADV-002: corrupted workspace directory handled
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_gitignore.py` for GI-* tests
