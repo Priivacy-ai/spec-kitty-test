@@ -199,7 +199,7 @@
 
 ### Included Subtasks
 - [x] T028 Test SYNC-001: jj stale workspace syncs via `jj workspace update-stale`
-- [ ] T029 Test SYNC-002: git stale workspace syncs via git rebase
+- [x] T029 Test SYNC-002: git stale workspace syncs via git rebase
 - [ ] T030 Test SYNC-003: up-to-date workspace reports "already up to date"
 - [ ] T031 Test SYNC-004: sync with conflicts lists conflicted files
 - [ ] T032 Test SYNC-005: dependency chain sync propagates to downstream WPs
