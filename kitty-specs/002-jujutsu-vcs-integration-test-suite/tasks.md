@@ -61,7 +61,7 @@
 **Requirements**: TR-006 (covers US1)
 
 ### Included Subtasks
-- [ ] T007 [P] Test DET-001: jj+git installed → jj selected as default
+- [x] T007 [P] Test DET-001: jj+git installed → jj selected as default
 - [ ] T008 [P] Test DET-002: git only → git selected with jj recommendation message
 - [ ] T009 [P] Test DET-003: neither installed → clear error with instructions
 - [ ] T010 [P] Test DET-004: `--vcs=git` override works when jj available
