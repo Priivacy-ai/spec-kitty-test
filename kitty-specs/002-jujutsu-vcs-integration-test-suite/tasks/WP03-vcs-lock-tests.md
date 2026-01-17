@@ -8,7 +8,7 @@ subtasks:
   - "T017"
 title: "VCS Lock Enforcement Tests"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "96057"
@@ -120,3 +120,4 @@ Create jj feature and git feature in same project, verify each uses correct VCS.
 - 2026-01-17T17:17:03Z – claude-opus – shell_pid=91425 – lane=doing – Started implementation via workflow command
 - 2026-01-17T17:21:46Z – claude-opus – shell_pid=91425 – lane=for_review – Ready for review: Addressed all 4 review feedback issues. Tests now use xfail for unimplemented per-feature VCS locking, use WP01 fixtures, test correct VCS mismatch interface, and verify VCS field in meta.json. Results: 6 passed, 2 xfailed (LOCK-001/005 for unimplemented features).
 - 2026-01-17T17:34:56Z – claude-opus – shell_pid=96057 – lane=doing – Started review via workflow command
+- 2026-01-17T17:36:26Z – claude-opus – shell_pid=96057 – lane=done – Review passed: All 5 LOCK-* tests implemented. 6 passed, 2 xfailed (LOCK-001/005 appropriately xfail for unimplemented per-feature VCS in v0.11.0). Uses WP01 fixtures, proper pytest markers, tests VCS mismatch detection, tampering, deleted meta.json handling, and edge cases. Previous review feedback fully addressed.
