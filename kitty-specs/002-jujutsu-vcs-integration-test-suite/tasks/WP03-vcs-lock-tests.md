@@ -9,12 +9,16 @@ subtasks:
 title: "VCS Lock Enforcement Tests"
 phase: "Phase 1 - Foundation"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "96057"
 review_status: "has_feedback"
 reviewed_by: "Robert Douglass"
+<<<<<<< HEAD
 =======
 lane: "for_review"
 assignee: ""
@@ -23,6 +27,8 @@ shell_pid: "71460"
 review_status: ""
 reviewed_by: ""
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-17T16:05:17Z"
@@ -125,11 +131,17 @@ Create jj feature and git feature in same project, verify each uses correct VCS.
 - 2026-01-17T16:30:58Z – claude-opus – shell_pid=71460 – lane=doing – Started implementation via workflow command
 - 2026-01-17T16:35:15Z – claude-opus – shell_pid=71460 – lane=for_review – Ready for review: 8 VCS lock tests implemented (5 LOCK-*, 3 edge cases). 6 pass, 2 skip (documenting expected behavior for per-feature VCS locking not yet implemented). Tests cover: VCS in meta.json, VCS change rejection, tampering detection, deleted meta.json handling, mixed VCS isolation, and corrupted/empty meta.json edge cases.
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 - 2026-01-17T17:02:16Z – codex – shell_pid=71748 – lane=doing – Started review via workflow command
 - 2026-01-17T17:02:51Z – codex – shell_pid=71748 – lane=planned – Moved to planned
 - 2026-01-17T17:17:03Z – claude-opus – shell_pid=91425 – lane=doing – Started implementation via workflow command
 - 2026-01-17T17:21:46Z – claude-opus – shell_pid=91425 – lane=for_review – Ready for review: Addressed all 4 review feedback issues. Tests now use xfail for unimplemented per-feature VCS locking, use WP01 fixtures, test correct VCS mismatch interface, and verify VCS field in meta.json. Results: 6 passed, 2 xfailed (LOCK-001/005 for unimplemented features).
 - 2026-01-17T17:34:56Z – claude-opus – shell_pid=96057 – lane=doing – Started review via workflow command
 - 2026-01-17T17:36:26Z – claude-opus – shell_pid=96057 – lane=done – Review passed: All 5 LOCK-* tests implemented. 6 passed, 2 xfailed (LOCK-001/005 appropriately xfail for unimplemented per-feature VCS in v0.11.0). Uses WP01 fixtures, proper pytest markers, tests VCS mismatch detection, tampering, deleted meta.json handling, and edge cases. Previous review feedback fully addressed.
+<<<<<<< HEAD
 =======
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06

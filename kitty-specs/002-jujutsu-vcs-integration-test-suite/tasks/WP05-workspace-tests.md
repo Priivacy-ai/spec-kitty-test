@@ -2,10 +2,14 @@
 work_package_id: WP05
 title: Workspace Creation Tests
 <<<<<<< HEAD
+<<<<<<< HEAD
 lane: "done"
 =======
 lane: "doing"
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
+=======
+lane: "for_review"
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 dependencies:
 - WP01
 subtasks:
@@ -18,10 +22,13 @@ phase: Phase 2 - Core Features
 assignee: ''
 agent: "claude-opus"
 <<<<<<< HEAD
+<<<<<<< HEAD
 shell_pid: "1666"
 review_status: "approved"
 reviewed_by: "Robert Douglass"
 =======
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 shell_pid: "83426"
 review_status: ''
 reviewed_by: ''
@@ -126,8 +133,12 @@ Create workspace, run removal command, verify directory cleaned.
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T16:54:21Z – claude-opus – shell_pid=83426 – lane=doing – Started implementation via workflow command
 <<<<<<< HEAD
+<<<<<<< HEAD
 - 2026-01-17T16:58:43Z – claude-opus – shell_pid=83426 – lane=for_review – Ready for review: 8 workspace tests implemented (5 WS-*, 3 edge cases). 6 pass, 2 skip (due to jj user config warnings). Tests cover: workspace structure, colocated mode, --base flag, sparse-checkout exclusion, workspace removal, and error handling for missing features/invalid WP IDs.
 - 2026-01-17T17:43:52Z – claude-opus – shell_pid=1666 – lane=doing – Started review via workflow command
 - 2026-01-17T17:45:41Z – claude-opus – shell_pid=1666 – lane=done – Review passed: All 5 WS-* tests implemented (T023-T027). 6 pass, 2 skip due to spec-kitty state requirements. Tests cover workspace structure, colocated mode, --base flag dependency, sparse-checkout exclusion, and workspace removal. Edge case tests included for error handling.
 =======
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
+=======
+- 2026-01-17T16:58:43Z – claude-opus – shell_pid=83426 – lane=for_review – Ready for review: 8 workspace tests implemented (5 WS-*, 3 edge cases). 6 pass, 2 skip (due to jj user config warnings). Tests cover: workspace structure, colocated mode, --base flag, sparse-checkout exclusion, workspace removal, and error handling for missing features/invalid WP IDs.
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06

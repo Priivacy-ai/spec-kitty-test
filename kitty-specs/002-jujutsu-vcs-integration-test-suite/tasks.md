@@ -216,7 +216,10 @@
 - [ ] T056 Test CHAIN-001: WP01→WP02→WP03 triple chain syncs (US4.3)
 - [ ] T057 Test CHAIN-002: diamond dependency syncs both parents (US4.5)
 - [ ] T058 Test CHAIN-003: circular dependency rejected with error (US4.6)
+<<<<<<< HEAD
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_sync.py`

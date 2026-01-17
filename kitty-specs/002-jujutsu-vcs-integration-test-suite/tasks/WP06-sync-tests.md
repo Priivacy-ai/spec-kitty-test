@@ -1,7 +1,11 @@
 ---
 work_package_id: WP06
 title: Sync Command Tests
+<<<<<<< HEAD
 lane: "done"
+=======
+lane: "doing"
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 dependencies:
 - WP01
 subtasks:
@@ -16,9 +20,15 @@ subtasks:
 phase: Phase 2 - Core Features
 assignee: ''
 agent: "claude-opus"
+<<<<<<< HEAD
 shell_pid: "4410"
 review_status: "approved"
 reviewed_by: "Robert Douglass"
+=======
+shell_pid: "98187"
+review_status: ''
+reviewed_by: ''
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 history:
 - timestamp: '2026-01-17T16:05:17Z'
   lane: planned
@@ -226,6 +236,9 @@ def test_chain_003_circular_dependency_rejected(spec_kitty_project):
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T17:38:50Z – claude-opus – shell_pid=98187 – lane=doing – Started implementation via workflow command
+<<<<<<< HEAD
 - 2026-01-17T17:43:10Z – claude-opus – shell_pid=98187 – lane=for_review – Ready for review: All 8 subtasks implemented (SYNC-001 to SYNC-005, CHAIN-001 to CHAIN-003). Tests cover jj/git sync, up-to-date message, conflicts, chain propagation, triple chain, diamond dependency, and circular dependency rejection. Results: 2 passed, 8 xfailed (expected for unimplemented sync command and --base flag).
 - 2026-01-17T17:45:34Z – claude-opus – shell_pid=4410 – lane=doing – Started review via workflow command
 - 2026-01-17T17:47:06Z – claude-opus – shell_pid=4410 – lane=done – Review passed: All 8 subtasks (SYNC-001 to SYNC-005, CHAIN-001 to CHAIN-003) implemented. Tests use appropriate xfail for unimplemented sync command. CHAIN-003 circular detection works. Good test structure.
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06

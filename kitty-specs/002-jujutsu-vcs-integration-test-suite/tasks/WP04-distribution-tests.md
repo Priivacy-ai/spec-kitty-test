@@ -9,6 +9,7 @@ subtasks:
 title: "Distribution Tests"
 phase: "Phase 1 - Foundation"
 <<<<<<< HEAD
+<<<<<<< HEAD
 lane: "done"
 assignee: ""
 agent: "claude-opus"
@@ -18,6 +19,10 @@ reviewed_by: "Robert Douglass"
 =======
 lane: "for_review"
 assignee: ""
+=======
+lane: "for_review"
+assignee: ""
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 agent: "__AGENT__"
 shell_pid: "71748"
 review_status: ""
@@ -132,13 +137,19 @@ Import all VCS modules, verify no ImportError:
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
 - 2026-01-17T16:31:50Z – codex – shell_pid=71748 – lane=doing – Started implementation via workflow command
 - 2026-01-17T16:53:32Z – codex – shell_pid=71748 – lane=for_review – Ready for review: add jj distribution tests (init/no bypass, VCS lock, workspace creation, template CLI checks, VCS imports)
 - 2026-01-17T17:19:36Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
 - 2026-01-17T17:20:32Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: add jj distribution tests (init/no bypass, VCS lock, workspace creation, template CLI checks, VCS imports)
+<<<<<<< HEAD
 - 2026-01-17T17:43:06Z – claude-opus – shell_pid=1269 – lane=doing – Started review via workflow command
 - 2026-01-17T17:44:35Z – claude-opus – shell_pid=1269 – lane=done – Review passed: All 5 DIST tests implemented correctly with no_template_bypass fixture, tests pass, prevents 0.10.8-style bypass bugs
 =======
 - 2026-01-17T16:31:50Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
 - 2026-01-17T16:53:32Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: add jj distribution tests (init/no bypass, VCS lock, workspace creation, template CLI checks, VCS imports)
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
