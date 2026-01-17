@@ -30,7 +30,7 @@
 - [x] T004 Add `@pytest.mark.distribution` marker registration
 - [x] T005 Create `spec_kitty_project` fixture for isolated test projects
 - [x] T006 Create `no_template_bypass` fixture for distribution tests
-- [ ] T054 Create `requires_spec_kitty_version` fixture for version-gated tests (TR-013)
+- [x] T054 Create `requires_spec_kitty_version` fixture for version-gated tests (TR-013)
 
 ### Implementation Notes
 1. Extend existing `tests/conftest.py` (do not replace)
