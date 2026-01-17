@@ -336,7 +336,7 @@
 **Requirements**: TR-019, TR-020
 
 ### Included Subtasks
-- [ ] T048 Test OPS-001: `spec-kitty ops log` shows jj operation history
+- [x] T048 Test OPS-001: `spec-kitty ops log` shows jj operation history
 - [ ] T049 Test OPS-002: `spec-kitty ops undo` reverses last operation
 - [ ] T050 Test CHG-001: Change ID stable across 5 rebases
 - [ ] T051 Test COL-001: colocated mode - jj changes visible in git log
