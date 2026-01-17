@@ -8,12 +8,12 @@ subtasks:
   - "T047"
 title: "Gitignore and Adversarial Tests"
 phase: "Phase 2 - Core Features"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "36683"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-17T16:05:17Z"
@@ -132,3 +132,4 @@ Create workspace directory with missing/corrupted files, verify graceful handlin
 - 2026-01-17T18:11:09Z – claude-opus – shell_pid=14750 – lane=doing – Started implementation via workflow command
 - 2026-01-17T18:13:32Z – claude-opus – shell_pid=14750 – lane=for_review – Ready for review: 14 gitignore and adversarial tests implemented (GI-001 to GI-003 + ADV-001/ADV-002 + edge cases). 13 pass, 1 xfail (GI-003: init doesn't fix bad gitignore). Tests cover gitignore correctness, git add success, corrupted meta.json handling, and corrupted workspace handling.
 - 2026-01-17T18:43:11Z – claude-opus – shell_pid=36683 – lane=doing – Started review via workflow command
+- 2026-01-17T18:43:48Z – claude-opus – shell_pid=36683 – lane=done – Review passed: 14 tests (GI-001 to GI-003 + ADV-001/ADV-002 + edge cases). 13 pass, 1 xfail. All 5 subtasks (T043-T047) implemented. Tests properly validate gitignore correctness, git add success, corrupted meta.json handling (3 variants), corrupted workspace handling (3 variants), and edge cases.
