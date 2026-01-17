@@ -27,6 +27,7 @@ def pytest_collection_modifyitems(config, items):
     """Auto-skip @pytest.mark.jj tests when jj is not installed (T003)."""
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if not _jj_is_available():
 =======
     if shutil.which("jj") is None:
@@ -34,6 +35,9 @@ def pytest_collection_modifyitems(config, items):
 =======
     if shutil.which("jj") is None:
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
+=======
+    if shutil.which("jj") is None:
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP07
         skip_jj = pytest.mark.skip(reason="jj (jujutsu) not installed")
         for item in items:
             if "jj" in item.keywords:
@@ -105,6 +109,7 @@ def spec_kitty_repo_root():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 def _jj_is_available():
     """Return True if jj is installed and `jj --version` succeeds."""
     if shutil.which("jj") is None:
@@ -124,6 +129,8 @@ def _jj_is_available():
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
 =======
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP07
 @pytest.fixture(scope="session")
 def jj_available():
     """Check if jj (jujutsu) is installed and functional.
@@ -141,10 +148,13 @@ def jj_available():
     """
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return _jj_is_available()
 =======
 =======
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP07
     if shutil.which("jj") is None:
         return False
     try:
@@ -157,9 +167,12 @@ def jj_available():
     except (subprocess.TimeoutExpired, OSError):
         return False
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
 =======
 >>>>>>> 002-jujutsu-vcs-integration-test-suite-WP06
+=======
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP07
 
 
 @pytest.fixture(scope="session")
