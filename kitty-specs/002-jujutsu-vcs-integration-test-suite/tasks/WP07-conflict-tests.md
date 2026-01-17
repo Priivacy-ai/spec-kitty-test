@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Conflict Handling Tests
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -13,8 +13,8 @@ subtasks:
 - T038
 phase: Phase 2 - Core Features
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "5008"
 review_status: ''
 reviewed_by: ''
 history:
@@ -126,3 +126,4 @@ Create 3-sided conflict scenario, verify all sides visible in markers.
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T17:46:00Z – claude-opus – shell_pid=5008 – lane=doing – Started implementation via workflow command
