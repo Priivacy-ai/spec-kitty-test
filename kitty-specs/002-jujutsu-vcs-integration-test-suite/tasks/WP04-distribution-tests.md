@@ -8,7 +8,7 @@ subtasks:
   - "T022"
 title: "Distribution Tests"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "__AGENT__"
 shell_pid: "71748"
@@ -122,5 +122,6 @@ Import all VCS modules, verify no ImportError:
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
-- 2026-01-17T16:31:50Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
-- 2026-01-17T16:53:32Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: add jj distribution tests (init/no bypass, VCS lock, workspace creation, template CLI checks, VCS imports)
+- 2026-01-17T16:31:50Z – codex – shell_pid=71748 – lane=doing – Started implementation via workflow command
+- 2026-01-17T16:53:32Z – codex – shell_pid=71748 – lane=for_review – Ready for review: add jj distribution tests (init/no bypass, VCS lock, workspace creation, template CLI checks, VCS imports)
+- 2026-01-17T17:19:36Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
