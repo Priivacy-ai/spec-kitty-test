@@ -341,7 +341,7 @@
 - [x] T050 Test CHG-001: Change ID stable across 5 rebases
 - [x] T051 Test COL-001: colocated mode - jj changes visible in git log
 - [x] T052 Test COL-002: colocated mode - git changes visible in jj log
-- [ ] T053 Test PURE-001: pure jj mode (no git) workspace functional
+- [x] T053 Test PURE-001: pure jj mode (no git) workspace functional
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_advanced.py`
