@@ -8,12 +8,12 @@ subtasks:
   - "T022"
 title: "Distribution Tests"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "1269"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-17T16:05:17Z"
@@ -127,3 +127,4 @@ Import all VCS modules, verify no ImportError:
 - 2026-01-17T17:19:36Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
 - 2026-01-17T17:20:32Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: add jj distribution tests (init/no bypass, VCS lock, workspace creation, template CLI checks, VCS imports)
 - 2026-01-17T17:43:06Z – claude-opus – shell_pid=1269 – lane=doing – Started review via workflow command
+- 2026-01-17T17:44:35Z – claude-opus – shell_pid=1269 – lane=done – Review passed: All 5 DIST tests implemented correctly with no_template_bypass fixture, tests pass, prevents 0.10.8-style bypass bugs
