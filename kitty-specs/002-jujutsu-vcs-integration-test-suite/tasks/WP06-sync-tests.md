@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Sync Command Tests
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -16,7 +16,7 @@ subtasks:
 phase: Phase 2 - Core Features
 assignee: ''
 agent: "claude-opus"
-shell_pid: "98187"
+shell_pid: "4410"
 review_status: ''
 reviewed_by: ''
 history:
@@ -227,3 +227,4 @@ def test_chain_003_circular_dependency_rejected(spec_kitty_project):
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T17:38:50Z – claude-opus – shell_pid=98187 – lane=doing – Started implementation via workflow command
 - 2026-01-17T17:43:10Z – claude-opus – shell_pid=98187 – lane=for_review – Ready for review: All 8 subtasks implemented (SYNC-001 to SYNC-005, CHAIN-001 to CHAIN-003). Tests cover jj/git sync, up-to-date message, conflicts, chain propagation, triple chain, diamond dependency, and circular dependency rejection. Results: 2 passed, 8 xfailed (expected for unimplemented sync command and --base flag).
+- 2026-01-17T17:45:34Z – claude-opus – shell_pid=4410 – lane=doing – Started review via workflow command
