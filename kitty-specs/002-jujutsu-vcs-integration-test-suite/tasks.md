@@ -63,7 +63,7 @@
 ### Included Subtasks
 - [x] T007 [P] Test DET-001: jj+git installed → jj selected as default
 - [x] T008 [P] Test DET-002: git only → git selected with jj recommendation message
-- [ ] T009 [P] Test DET-003: neither installed → clear error with instructions
+- [x] T009 [P] Test DET-003: neither installed → clear error with instructions
 - [ ] T010 [P] Test DET-004: `--vcs=git` override works when jj available
 - [ ] T011 Test DET-005: broken jj binary → git fallback with warning
 - [ ] T012 Test DET-006: jj wrong tool validation (not jujutsu)
