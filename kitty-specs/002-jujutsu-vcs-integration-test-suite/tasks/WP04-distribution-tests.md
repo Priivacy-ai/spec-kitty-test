@@ -1,0 +1,124 @@
+---
+work_package_id: "WP04"
+subtasks:
+  - "T018"
+  - "T019"
+  - "T020"
+  - "T021"
+  - "T022"
+title: "Distribution Tests"
+phase: "Phase 1 - Foundation"
+lane: "planned"
+assignee: ""
+agent: ""
+shell_pid: ""
+review_status: ""
+reviewed_by: ""
+dependencies: ["WP01"]
+history:
+  - timestamp: "2026-01-17T16:05:17Z"
+    lane: "planned"
+    agent: "system"
+    shell_pid: ""
+    action: "Prompt generated via /spec-kitty.tasks"
+---
+
+# Work Package Prompt: WP04 – Distribution Tests
+
+## Implementation Command
+
+```bash
+spec-kitty implement WP04 --base WP01
+```
+
+---
+
+## Objectives & Success Criteria
+
+**Goal**: Validate jj features work for PyPI users WITHOUT template bypass.
+
+**CRITICAL**: The 0.10.8 catastrophe happened because tests used SPEC_KITTY_TEMPLATE_ROOT bypass while 100% of PyPI users failed. These tests prevent that.
+
+**Success Criteria**:
+1. DIST-001: `spec-kitty init` works without TEMPLATE_ROOT
+2. DIST-002: VCS detection works from PyPI
+3. DIST-003: jj workspace creation functional
+4. DIST-004: Templates use Python CLI (no bash/PowerShell)
+5. DIST-005: No import errors in VCS code
+
+---
+
+## Context & Constraints
+
+- **NO SPEC_KITTY_TEMPLATE_ROOT** - use `no_template_bypass` fixture
+- Mark all tests `@pytest.mark.distribution`
+- Test against INSTALLED package
+
+---
+
+## Subtasks & Detailed Guidance
+
+### Subtask T018 – Test DIST-001: init without TEMPLATE_ROOT
+
+```python
+@pytest.mark.distribution
+@pytest.mark.jj
+def test_dist_001_init_without_bypass(tmp_path, no_template_bypass):
+    assert "SPEC_KITTY_TEMPLATE_ROOT" not in os.environ
+    project = tmp_path / "project"
+    project.mkdir()
+    subprocess.run(["git", "init"], cwd=project, check=True)
+    result = subprocess.run(["spec-kitty", "init"], cwd=project, capture_output=True, text=True)
+    assert result.returncode == 0, f"Failed: {result.stderr}"
+```
+
+**Files**: `tests/distribution/test_jj_distribution.py`
+
+---
+
+### Subtask T019 – Test DIST-002: VCS detection from PyPI
+
+Create feature without bypass, verify VCS detected and stored.
+
+**Files**: `tests/distribution/test_jj_distribution.py`
+
+---
+
+### Subtask T020 – Test DIST-003: workspace functional
+
+End-to-end: init → specify → implement without TEMPLATE_ROOT.
+
+**Files**: `tests/distribution/test_jj_distribution.py`
+
+---
+
+### Subtask T021 – Test DIST-004: Python CLI templates
+
+Check bundled templates for bash/PowerShell references - should use Python CLI only.
+
+**Files**: `tests/distribution/test_jj_distribution.py`
+
+---
+
+### Subtask T022 – Test DIST-005: no import errors
+
+Import all VCS modules, verify no ImportError:
+- `specify_cli.core.vcs`
+- `specify_cli.core.vcs.jujutsu`
+- etc.
+
+**Files**: `tests/distribution/test_jj_distribution.py`
+
+---
+
+## Definition of Done Checklist
+
+- [ ] T018-T022: All 5 DIST-* tests implemented
+- [ ] All tests use `no_template_bypass` fixture
+- [ ] Tests would catch 0.10.8-style bugs
+
+---
+
+## Activity Log
+
+- 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
