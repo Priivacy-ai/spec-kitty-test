@@ -132,7 +132,7 @@
 ### Included Subtasks
 - [x] T018 Test DIST-001: `spec-kitty init` works without TEMPLATE_ROOT
 - [x] T019 Test DIST-002: VCS detection works from PyPI installation
-- [ ] T020 Test DIST-003: jj workspace creation fully functional
+- [x] T020 Test DIST-003: jj workspace creation fully functional
 - [ ] T021 Test DIST-004: templates use Python CLI commands (no bash/PowerShell)
 - [ ] T022 Test DIST-005: no import errors in VCS abstraction code paths
 
