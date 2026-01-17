@@ -8,10 +8,10 @@ subtasks:
   - "T047"
 title: "Gitignore and Adversarial Tests"
 phase: "Phase 2 - Core Features"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "14750"
+shell_pid: "36683"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -131,3 +131,4 @@ Create workspace directory with missing/corrupted files, verify graceful handlin
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T18:11:09Z – claude-opus – shell_pid=14750 – lane=doing – Started implementation via workflow command
 - 2026-01-17T18:13:32Z – claude-opus – shell_pid=14750 – lane=for_review – Ready for review: 14 gitignore and adversarial tests implemented (GI-001 to GI-003 + ADV-001/ADV-002 + edge cases). 13 pass, 1 xfail (GI-003: init doesn't fix bad gitignore). Tests cover gitignore correctness, git add success, corrupted meta.json handling, and corrupted workspace handling.
+- 2026-01-17T18:43:11Z – claude-opus – shell_pid=36683 – lane=doing – Started review via workflow command
