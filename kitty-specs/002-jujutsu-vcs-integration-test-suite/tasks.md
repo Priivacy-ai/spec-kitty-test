@@ -235,12 +235,12 @@
 **Requirements**: TR-017
 
 ### Included Subtasks
-- [ ] T033 Test CONF-001: jj sync succeeds with conflict stored in file
-- [ ] T034 Test CONF-002: git sync conflict behavior (may block)
-- [ ] T035 Test CONF-003: `/spec-kitty.review` blocked with conflicts
-- [ ] T036 Test CONF-004: merge command blocked with conflicts
-- [ ] T037 Test CONF-005: conflict resolution auto-recorded by jj
-- [ ] T038 Test CONF-006: 3-way merge conflict shows all sides
+- [x] T033 Test CONF-001: jj sync succeeds with conflict stored in file
+- [x] T034 Test CONF-002: git sync conflict behavior (may block)
+- [x] T035 Test CONF-003: `/spec-kitty.review` blocked with conflicts
+- [x] T036 Test CONF-004: merge command blocked with conflicts
+- [x] T037 Test CONF-005: conflict resolution auto-recorded by jj
+- [x] T038 Test CONF-006: 3-way merge conflict shows all sides
 
 ### Implementation Notes
 1. Create `tests/functional/test_jj_conflicts.py`
