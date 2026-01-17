@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Conflict Handling Tests
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 subtasks:
@@ -131,3 +131,4 @@ Create 3-sided conflict scenario, verify all sides visible in markers.
 - 2026-01-17T18:11:31Z – codex – shell_pid=15916 – lane=doing – Started review via workflow command
 - 2026-01-17T18:12:56Z – codex – shell_pid=15916 – lane=planned – Moved to planned
 - 2026-01-17T18:16:04Z – codex – shell_pid=15916 – lane=doing – Started implementation via workflow command
+- 2026-01-17T18:33:40Z – codex – shell_pid=15916 – lane=for_review – Ready for review: use jj rebase + conflicts() to create real conflicts; tighten assertions; adjust jj status/markers handling
