@@ -2,8 +2,34 @@
 Shared pytest fixtures for spec-kitty functional tests
 """
 import os
+import shutil
+import subprocess
 from pathlib import Path
 import pytest
+
+
+# =============================================================================
+# Pytest Hooks for Markers and Auto-Skip (T001, T003, T004)
+# =============================================================================
+
+def pytest_configure(config):
+    """Register custom markers for jj and distribution tests."""
+    # T001: Register jj marker
+    config.addinivalue_line("markers", "jj: tests requiring jujutsu VCS")
+    # T004: Register distribution marker
+    config.addinivalue_line("markers", "distribution: tests validating PyPI user experience (no TEMPLATE_ROOT bypass)")
+    # Additional markers for test organization
+    config.addinivalue_line("markers", "upgrade: tests validating upgrade paths")
+    config.addinivalue_line("markers", "adversarial: tests for edge cases and corruption scenarios")
+
+
+def pytest_collection_modifyitems(config, items):
+    """Auto-skip @pytest.mark.jj tests when jj is not installed (T003)."""
+    if not _jj_is_available():
+        skip_jj = pytest.mark.skip(reason="jj (jujutsu) not installed")
+        for item in items:
+            if "jj" in item.keywords:
+                item.add_marker(skip_jj)
 
 
 @pytest.fixture(scope="session")
@@ -63,6 +89,74 @@ def spec_kitty_repo_root():
         )
 
     return repo_path
+
+
+# =============================================================================
+# jj (Jujutsu) VCS Fixtures (T002)
+# =============================================================================
+
+def _jj_is_available():
+    """Return True if jj is installed and `jj --version` succeeds."""
+    if shutil.which("jj") is None:
+        return False
+    try:
+        result = subprocess.run(
+            ["jj", "--version"],
+            capture_output=True,
+            timeout=10
+        )
+        return result.returncode == 0
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+
+
+@pytest.fixture(scope="session")
+def jj_available():
+    """Check if jj (jujutsu) is installed and functional.
+
+    Returns:
+        bool: True if jj is installed and `jj --version` succeeds, False otherwise.
+
+    This is session-scoped for performance - jj availability is checked once per test run.
+
+    Example:
+        def test_something(jj_available):
+            if not jj_available:
+                pytest.skip("Test requires jj")
+            # or use @pytest.mark.jj for automatic skipping
+    """
+    return _jj_is_available()
+
+
+@pytest.fixture(scope="session")
+def jj_version():
+    """Get the installed jj version as a string, or None if not installed.
+
+    Returns:
+        str | None: Version string like "0.20.0", or None if jj not available.
+
+    Example:
+        def test_something(jj_version):
+            if jj_version and jj_version >= "0.20.0":
+                # Test jj 0.20+ feature
+    """
+    if shutil.which("jj") is None:
+        return None
+    try:
+        result = subprocess.run(
+            ["jj", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode != 0:
+            return None
+        # Parse "jj 0.20.0" -> "0.20.0"
+        output = result.stdout.strip()
+        parts = output.split()
+        return parts[-1] if parts else None
+    except (subprocess.TimeoutExpired, OSError):
+        return None
 
 
 @pytest.fixture(scope="session")
@@ -207,6 +301,75 @@ def requires_v010_12(spec_kitty_version):
         pytest.skip("Requires spec-kitty >= 0.10.12 (Feature 011: constitution packaging safety)")
 
 
+# =============================================================================
+# Version-Gating Utilities (T054 - TR-013)
+# =============================================================================
+
+def get_spec_kitty_version_string():
+    """Get installed spec-kitty version as a string.
+
+    Returns:
+        str | None: Version string like "0.12.0", or None if not installed.
+    """
+    try:
+        result = subprocess.run(
+            ["spec-kitty", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode != 0:
+            return None
+        # Parse "spec-kitty-cli version 0.12.0" or "spec-kitty 0.12.0" -> "0.12.0"
+        output = result.stdout.strip()
+        parts = output.split()
+        return parts[-1] if parts else None
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        return None
+
+
+def requires_spec_kitty_version(min_version):
+    """Create a pytest marker that skips if spec-kitty version is below minimum.
+
+    This is a function that returns a pytest marker, to be used as a decorator.
+
+    Args:
+        min_version: Minimum version string, e.g., "0.12.0"
+
+    Returns:
+        pytest marker that will skip the test if version requirement not met.
+
+    Example:
+        @requires_spec_kitty_version("0.12.0")
+        @pytest.mark.jj
+        def test_jj_feature_only_in_v012(spec_kitty_project):
+            # This test only runs on spec-kitty 0.12.0+
+            ...
+    """
+    from packaging import version
+
+    current = get_spec_kitty_version_string()
+    if current is None:
+        return pytest.mark.skip(reason="spec-kitty not installed")
+    try:
+        if version.parse(current) < version.parse(min_version):
+            return pytest.mark.skip(
+                reason=f"Requires spec-kitty >= {min_version}, got {current}"
+            )
+    except version.InvalidVersion:
+        return pytest.mark.skip(reason=f"Cannot parse spec-kitty version: {current}")
+
+    # Version requirement met - return a no-op decorator
+    # Using identity decorator pattern
+    return lambda fn: fn
+
+
+# Convenience markers for common versions (evaluated at import time)
+requires_v0_11 = requires_spec_kitty_version("0.11.0")
+requires_v0_12 = requires_spec_kitty_version("0.12.0")
+requires_v0_13 = requires_spec_kitty_version("0.13.0")
+
+
 @pytest.fixture(autouse=True)
 def clean_env():
     """Ensure clean environment for each test"""
@@ -218,6 +381,91 @@ def clean_env():
     # Restore original env
     os.environ.clear()
     os.environ.update(original_env)
+
+
+# =============================================================================
+# Test Project Fixtures (T005, T006)
+# =============================================================================
+
+@pytest.fixture
+def spec_kitty_project(tmp_path):
+    """Create an isolated, initialized spec-kitty project for testing.
+
+    This fixture creates a fresh git repository and initializes spec-kitty in it.
+    Use this for tests that need a complete spec-kitty project environment.
+
+    Returns:
+        Path: Path to the initialized project directory.
+
+    The project is automatically cleaned up after the test (via tmp_path).
+
+    Example:
+        def test_feature_creation(spec_kitty_project):
+            result = subprocess.run(
+                ["spec-kitty", "specify", "test-feature"],
+                cwd=spec_kitty_project,
+                capture_output=True
+            )
+            assert result.returncode == 0
+    """
+    project_dir = tmp_path / "test-project"
+    project_dir.mkdir()
+
+    # Initialize git repository
+    subprocess.run(
+        ["git", "init"],
+        cwd=project_dir,
+        check=True,
+        capture_output=True
+    )
+
+    # Configure git user (required for commits)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.com"],
+        cwd=project_dir,
+        check=True,
+        capture_output=True
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Test User"],
+        cwd=project_dir,
+        check=True,
+        capture_output=True
+    )
+
+    # Initialize spec-kitty (--here --force --ai for non-interactive mode)
+    subprocess.run(
+        ["spec-kitty", "init", "--here", "--force", "--ai", "claude"],
+        cwd=project_dir,
+        check=True,
+        capture_output=True
+    )
+
+    return project_dir
+
+
+@pytest.fixture
+def no_template_bypass(monkeypatch):
+    """Ensure distribution tests run without SPEC_KITTY_TEMPLATE_ROOT bypass.
+
+    CRITICAL: This fixture is essential for distribution tests. The 0.10.8
+    catastrophe happened because tests used TEMPLATE_ROOT bypass while
+    100% of PyPI users failed.
+
+    Use this fixture for all tests in tests/distribution/ to validate
+    the real user experience.
+
+    Example:
+        @pytest.mark.distribution
+        def test_pypi_user_experience(no_template_bypass, tmp_path):
+            # SPEC_KITTY_TEMPLATE_ROOT is NOT set
+            # Test behaves like a real PyPI user
+            ...
+    """
+    monkeypatch.delenv("SPEC_KITTY_TEMPLATE_ROOT", raising=False)
+    monkeypatch.delenv("SPEC_KITTY_REPO", raising=False)
+    yield
+    # Environment automatically restored by monkeypatch
 
 
 @pytest.fixture(autouse=True)
