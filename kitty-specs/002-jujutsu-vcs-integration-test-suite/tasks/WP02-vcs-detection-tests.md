@@ -10,7 +10,7 @@ subtasks:
   - "T055"
 title: "VCS Detection Tests"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "14121"
@@ -216,3 +216,4 @@ def test_det_007_jj_version_below_minimum(spec_kitty_project, tmp_path, monkeypa
 - 2026-01-17T17:35:02Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
 - 2026-01-17T18:02:23Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: tighten VCS detection tests, isolate PATH, meta.json locking via implement; DET-007 xfail pending version enforcement
 - 2026-01-17T18:10:30Z – claude-opus – shell_pid=14121 – lane=doing – Started review via workflow command
+- 2026-01-17T18:11:41Z – claude-opus – shell_pid=14121 – lane=done – Review passed: All 7 DET tests implemented (DET-001 to DET-007). Tests validate jj/git selection, PATH isolation, override flags, broken jj fallback, version checks. 6 passed, 1 xfailed (expected for unimplemented version enforcement).
