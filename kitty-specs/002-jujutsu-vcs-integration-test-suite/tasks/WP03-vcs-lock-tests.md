@@ -8,10 +8,10 @@ subtasks:
   - "T017"
 title: "VCS Lock Enforcement Tests"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "71460"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -113,3 +113,4 @@ Create jj feature and git feature in same project, verify each uses correct VCS.
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T16:30:58Z – claude-opus – shell_pid=71460 – lane=doing – Started implementation via workflow command
