@@ -338,7 +338,7 @@
 ### Included Subtasks
 - [x] T048 Test OPS-001: `spec-kitty ops log` shows jj operation history
 - [x] T049 Test OPS-002: `spec-kitty ops undo` reverses last operation
-- [ ] T050 Test CHG-001: Change ID stable across 5 rebases
+- [x] T050 Test CHG-001: Change ID stable across 5 rebases
 - [ ] T051 Test COL-001: colocated mode - jj changes visible in git log
 - [ ] T052 Test COL-002: colocated mode - git changes visible in jj log
 - [ ] T053 Test PURE-001: pure jj mode (no git) workspace functional
