@@ -66,7 +66,7 @@
 - [x] T009 [P] Test DET-003: neither installed → clear error with instructions
 - [x] T010 [P] Test DET-004: `--vcs=git` override works when jj available
 - [x] T011 Test DET-005: broken jj binary → git fallback with warning
-- [ ] T012 Test DET-006: jj wrong tool validation (not jujutsu)
+- [x] T012 Test DET-006: jj wrong tool validation (not jujutsu)
 - [ ] T055 Test DET-007: jj version below minimum (< 0.20) → warning/fallback
 
 ### Implementation Notes
