@@ -8,10 +8,10 @@ subtasks:
   - "T022"
 title: "Distribution Tests"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "__AGENT__"
+shell_pid: "71748"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -122,3 +122,4 @@ Import all VCS modules, verify no ImportError:
 ## Activity Log
 
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-17T16:31:50Z – __AGENT__ – shell_pid=71748 – lane=doing – Started implementation via workflow command
