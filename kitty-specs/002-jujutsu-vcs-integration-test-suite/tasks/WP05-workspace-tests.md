@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Workspace Creation Tests
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -13,7 +13,7 @@ subtasks:
 phase: Phase 2 - Core Features
 assignee: ''
 agent: "claude-opus"
-shell_pid: "83426"
+shell_pid: "1666"
 review_status: ''
 reviewed_by: ''
 history:
@@ -116,3 +116,4 @@ Create workspace, run removal command, verify directory cleaned.
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T16:54:21Z – claude-opus – shell_pid=83426 – lane=doing – Started implementation via workflow command
 - 2026-01-17T16:58:43Z – claude-opus – shell_pid=83426 – lane=for_review – Ready for review: 8 workspace tests implemented (5 WS-*, 3 edge cases). 6 pass, 2 skip (due to jj user config warnings). Tests cover: workspace structure, colocated mode, --base flag, sparse-checkout exclusion, workspace removal, and error handling for missing features/invalid WP IDs.
+- 2026-01-17T17:43:52Z – claude-opus – shell_pid=1666 – lane=doing – Started review via workflow command
