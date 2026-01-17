@@ -10,12 +10,21 @@ subtasks:
   - "T055"
 title: "VCS Detection Tests"
 phase: "Phase 1 - Foundation"
+<<<<<<< HEAD
 lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "14121"
 review_status: "has_feedback"
 reviewed_by: "Robert Douglass"
+=======
+lane: "doing"
+assignee: ""
+agent: "__AGENT__"
+shell_pid: "71748"
+review_status: ""
+reviewed_by: ""
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-17T16:05:17Z"
@@ -207,6 +216,7 @@ def test_det_007_jj_version_below_minimum(spec_kitty_project, tmp_path, monkeypa
 - 2026-01-17T16:05:17Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-17T16:25:55Z – claude-opus – shell_pid=69424 – lane=doing – Started implementation via workflow command
 - 2026-01-17T16:30:25Z – claude-opus – shell_pid=69424 – lane=for_review – Ready for review: All 7 VCS detection tests pass (DET-001 through DET-007 + edge cases). Tests validate jj/git selection, override flags, broken jj fallback, version checks, and wrong-tool detection.
+<<<<<<< HEAD
 - 2026-01-17T16:54:10Z – codex – shell_pid=71748 – lane=doing – Started review via workflow command
 - 2026-01-17T16:55:37Z – codex – shell_pid=71748 – lane=planned – Moved to planned
 - 2026-01-17T17:02:30Z – claude-opus – shell_pid=89278 – lane=doing – Started implementation via workflow command
@@ -217,3 +227,6 @@ def test_det_007_jj_version_below_minimum(spec_kitty_project, tmp_path, monkeypa
 - 2026-01-17T18:02:23Z – __AGENT__ – shell_pid=71748 – lane=for_review – Ready for review: tighten VCS detection tests, isolate PATH, meta.json locking via implement; DET-007 xfail pending version enforcement
 - 2026-01-17T18:10:30Z – claude-opus – shell_pid=14121 – lane=doing – Started review via workflow command
 - 2026-01-17T18:11:41Z – claude-opus – shell_pid=14121 – lane=done – Review passed: All 7 DET tests implemented (DET-001 to DET-007). Tests validate jj/git selection, PATH isolation, override flags, broken jj fallback, version checks. 6 passed, 1 xfailed (expected for unimplemented version enforcement).
+=======
+- 2026-01-17T16:54:10Z – __AGENT__ – shell_pid=71748 – lane=doing – Started review via workflow command
+>>>>>>> 002-jujutsu-vcs-integration-test-suite-WP05
