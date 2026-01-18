@@ -10,7 +10,7 @@ subtasks:
   - "T048"
 title: "Merge Resume Tests"
 phase: "Phase 3 - Extended Features"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "82855"
@@ -520,3 +520,4 @@ Expected: 6 tests, all passing.
 
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
 - 2026-01-18T13:44:29Z – claude-opus – shell_pid=82855 – lane=doing – Started implementation via workflow command
+- 2026-01-18T13:46:50Z – claude-opus – shell_pid=82855 – lane=for_review – Ready for review: 7 tests for merge resume/abort (FR-026 to FR-029)
