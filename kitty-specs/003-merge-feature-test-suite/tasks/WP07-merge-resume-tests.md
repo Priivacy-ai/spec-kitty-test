@@ -10,10 +10,10 @@ subtasks:
   - "T048"
 title: "Merge Resume Tests"
 phase: "Phase 3 - Extended Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "82855"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -519,3 +519,4 @@ Expected: 6 tests, all passing.
 ## Activity Log
 
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
+- 2026-01-18T13:44:29Z – claude-opus – shell_pid=82855 – lane=doing – Started implementation via workflow command
