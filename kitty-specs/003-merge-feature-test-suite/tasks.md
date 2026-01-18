@@ -21,7 +21,7 @@
 ### Included Subtasks
 - [x] T001 [P] Create `tests/functional/test_merge_fixtures.py` module structure with docstrings
 - [x] T002 Create `MergeTestFeature` fixture class for multi-WP feature scaffolding
-- [ ] T003 Create `WPFixture` dataclass for configurable work package state
+- [x] T003 Create `WPFixture` dataclass for configurable work package state
 - [ ] T004 [P] Create `MergeStateFixture` helper for `.kittify/merge-state.json` manipulation
 - [ ] T005 [P] Create `ConflictFixture` helper for status file and code file conflicts
 - [ ] T006 Implement `create_test_feature()` fixture factory with configurable WP count and states
