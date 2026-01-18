@@ -10,10 +10,10 @@ subtasks:
   - "T014"
 title: "Pre-flight Validation Tests"
 phase: "Phase 1 - MVP"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "43935"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -490,3 +490,4 @@ Expected: 6 tests, all passing.
 ## Activity Log
 
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
+- 2026-01-18T13:17:17Z – claude-opus – shell_pid=43935 – lane=doing – Started implementation via workflow command
