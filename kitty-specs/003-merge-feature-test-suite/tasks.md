@@ -87,7 +87,7 @@
 **Estimated Size**: ~380 lines
 
 ### Included Subtasks
-- [ ] T015 Create `tests/functional/test_merge_forecast.py` module
+- [x] T015 Create `tests/functional/test_merge_forecast.py` module
 - [ ] T016 Test: overlapping file modifications predicted as conflicts (FR-009)
 - [ ] T017 Test: non-overlapping modifications show no conflicts
 - [ ] T018 Test: conflicts grouped by file in dry-run output (FR-010)
