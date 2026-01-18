@@ -92,7 +92,7 @@
 - [x] T017 Test: non-overlapping modifications show no conflicts
 - [x] T018 Test: conflicts grouped by file in dry-run output (FR-010)
 - [x] T019 Test: merge order displayed in dry-run output (FR-011)
-- [ ] T020 Test: status files marked as auto-resolvable in predictions (FR-012)
+- [x] T020 Test: status files marked as auto-resolvable in predictions (FR-012)
 
 ### Implementation Notes
 1. Create WPs that modify the same file (e.g., `conftest.py`)
