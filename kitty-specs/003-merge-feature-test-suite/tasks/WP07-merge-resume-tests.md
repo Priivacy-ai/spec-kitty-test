@@ -10,12 +10,12 @@ subtasks:
   - "T048"
 title: "Merge Resume Tests"
 phase: "Phase 3 - Extended Features"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "85653"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-18T12:27:56Z"
@@ -522,3 +522,4 @@ Expected: 6 tests, all passing.
 - 2026-01-18T13:44:29Z – claude-opus – shell_pid=82855 – lane=doing – Started implementation via workflow command
 - 2026-01-18T13:46:50Z – claude-opus – shell_pid=82855 – lane=for_review – Ready for review: 7 tests for merge resume/abort (FR-026 to FR-029)
 - 2026-01-18T13:47:16Z – claude-opus – shell_pid=85653 – lane=doing – Started review via workflow command
+- 2026-01-18T13:48:23Z – claude-opus – shell_pid=85653 – lane=done – Review passed: All 7 tests pass. Complete coverage for FR-026 through FR-029. Tests state persistence, --resume continuation, --abort clearing, corrupted state detection, plus edge cases for no merge in progress. Good use of MergeStateFixture.
