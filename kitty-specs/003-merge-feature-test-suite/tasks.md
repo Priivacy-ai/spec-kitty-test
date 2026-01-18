@@ -91,7 +91,7 @@
 - [x] T016 Test: overlapping file modifications predicted as conflicts (FR-009)
 - [x] T017 Test: non-overlapping modifications show no conflicts
 - [x] T018 Test: conflicts grouped by file in dry-run output (FR-010)
-- [ ] T019 Test: merge order displayed in dry-run output (FR-011)
+- [x] T019 Test: merge order displayed in dry-run output (FR-011)
 - [ ] T020 Test: status files marked as auto-resolvable in predictions (FR-012)
 
 ### Implementation Notes
