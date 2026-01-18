@@ -252,14 +252,14 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T049 Create `tests/functional/test_merge_cli_integration.py` module
-- [ ] T050 Test: `--feature <slug>` flag works from main branch (FR-030)
-- [ ] T051 Test: `--single` flag merges only current WP (FR-031)
-- [ ] T052 Test: `--dry-run` shows forecast without executing (FR-032)
-- [ ] T053 Test: feature-wide merge from any WP worktree
-- [ ] T054 Test: only "done" WPs are merged by default
-- [ ] T055 Test: merge from main without --feature prompts for selection
-- [ ] T056 Full integration test: 4-WP feature with dependencies, conflicts, and cleanup
+- [x] T049 Create `tests/functional/test_merge_cli_integration.py` module
+- [x] T050 Test: `--feature <slug>` flag works from main branch (FR-030)
+- [x] T051 Test: `--single` flag merges only current WP (FR-031)
+- [x] T052 Test: `--dry-run` shows forecast without executing (FR-032)
+- [x] T053 Test: feature-wide merge from any WP worktree
+- [x] T054 Test: only "done" WPs are merged by default
+- [x] T055 Test: merge from main without --feature prompts for selection
+- [x] T056 Full integration test: 4-WP feature with dependencies, conflicts, and cleanup
 
 ### Implementation Notes
 1. Test CLI invocation from different working directories
