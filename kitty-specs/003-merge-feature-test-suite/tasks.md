@@ -24,7 +24,7 @@
 - [x] T003 Create `WPFixture` dataclass for configurable work package state
 - [x] T004 [P] Create `MergeStateFixture` helper for `.kittify/merge-state.json` manipulation
 - [x] T005 [P] Create `ConflictFixture` helper for status file and code file conflicts
-- [ ] T006 Implement `create_test_feature()` fixture factory with configurable WP count and states
+- [x] T006 Implement `create_test_feature()` fixture factory with configurable WP count and states
 - [ ] T007 Add cleanup utilities for test isolation (worktree/branch removal)
 
 ### Implementation Notes
