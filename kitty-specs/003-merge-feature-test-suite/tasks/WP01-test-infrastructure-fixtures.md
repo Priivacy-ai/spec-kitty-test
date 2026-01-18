@@ -10,10 +10,10 @@ subtasks:
   - "T007"
 title: "Test Infrastructure & Fixtures"
 phase: "Phase 0 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "41754"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -662,3 +662,4 @@ class TestMergeFixtures:
 ## Activity Log
 
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
+- 2026-01-18T13:12:51Z – claude-opus – shell_pid=41754 – lane=doing – Started implementation via workflow command
