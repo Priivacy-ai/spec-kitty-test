@@ -11,10 +11,10 @@ subtasks:
   - "T035"
 title: "Status File Auto-Resolution Tests"
 phase: "Phase 2 - Core Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "69791"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -645,3 +645,4 @@ Expected: 8 tests, all passing.
 ## Activity Log
 
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
+- 2026-01-18T13:30:33Z – claude-opus – shell_pid=69791 – lane=doing – Started implementation via workflow command
