@@ -120,7 +120,7 @@
 
 ### Included Subtasks
 - [x] T021 Create `tests/functional/test_merge_ordering.py` module
-- [ ] T022 Test: WP with dependency merges after its dependency (FR-014)
+- [x] T022 Test: WP with dependency merges after its dependency (FR-014)
 - [ ] T023 Test: diamond dependency pattern merges in correct order
 - [ ] T024 Test: circular dependency detected with clear error (FR-015)
 - [ ] T025 Test: no dependencies falls back to numerical order (FR-016)
