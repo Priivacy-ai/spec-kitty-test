@@ -19,7 +19,7 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T001 [P] Create `tests/functional/test_merge_fixtures.py` module structure with docstrings
+- [x] T001 [P] Create `tests/functional/test_merge_fixtures.py` module structure with docstrings
 - [ ] T002 Create `MergeTestFeature` fixture class for multi-WP feature scaffolding
 - [ ] T003 Create `WPFixture` dataclass for configurable work package state
 - [ ] T004 [P] Create `MergeStateFixture` helper for `.kittify/merge-state.json` manipulation
