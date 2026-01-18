@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: CLI Flags & Integration Tests
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -16,7 +16,7 @@ subtasks:
 phase: Phase 4 - Integration
 assignee: ''
 agent: "claude-opus"
-shell_pid: "89989"
+shell_pid: "94706"
 review_status: ''
 reviewed_by: ''
 history:
@@ -646,3 +646,4 @@ pytest tests/functional/test_merge_*.py -v
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
 - 2026-01-18T13:51:21Z – claude-opus – shell_pid=89989 – lane=doing – Started implementation via workflow command
 - 2026-01-18T13:53:31Z – claude-opus – shell_pid=89989 – lane=for_review – Ready for review: 8 tests for CLI flags and full integration (FR-030 to FR-032)
+- 2026-01-18T13:58:57Z – claude-opus – shell_pid=94706 – lane=doing – Started review via workflow command
