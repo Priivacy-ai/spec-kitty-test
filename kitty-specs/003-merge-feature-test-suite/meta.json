@@ -1,0 +1,8 @@
+{
+  "feature_number": "003",
+  "slug": "merge-feature-test-suite",
+  "friendly_name": "Merge Feature Test Suite",
+  "mission": "software-dev",
+  "source_description": "create the corresponding comprehensive testing for the new merge features",
+  "created_at": "2026-01-18T14:30:00Z"
+}
