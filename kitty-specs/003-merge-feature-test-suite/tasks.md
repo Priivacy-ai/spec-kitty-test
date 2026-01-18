@@ -159,7 +159,7 @@
 - [x] T032 Test: code file conflicts NOT auto-resolved (FR-020)
 - [x] T033 Test: only `kitty-specs/**/tasks/*.md` patterns auto-resolved (FR-021)
 - [x] T034 Test: mixed status and code conflicts - status auto-resolved, code pauses
-- [ ] T035 Test: malformed YAML in status file skipped gracefully
+- [x] T035 Test: malformed YAML in status file skipped gracefully
 
 ### Implementation Notes
 1. Create WPs with conflicting lane values in task frontmatter
