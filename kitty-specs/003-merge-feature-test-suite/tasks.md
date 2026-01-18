@@ -219,13 +219,13 @@
 **Estimated Size**: ~420 lines
 
 ### Included Subtasks
-- [ ] T042 Create `tests/functional/test_merge_resume.py` module
-- [ ] T043 Test: merge state persists to `.kittify/merge-state.json` (FR-026)
-- [ ] T044 Test: `--resume` continues from last incomplete WP (FR-027)
-- [ ] T045 Test: `--abort` clears state and rolls back (FR-028)
-- [ ] T046 Test: corrupted state file detected and reported (FR-029)
-- [ ] T047 Test: `--resume` with no merge in progress shows error
-- [ ] T048 Test: state updated when resumed merge encounters new conflicts
+- [x] T042 Create `tests/functional/test_merge_resume.py` module
+- [x] T043 Test: merge state persists to `.kittify/merge-state.json` (FR-026)
+- [x] T044 Test: `--resume` continues from last incomplete WP (FR-027)
+- [x] T045 Test: `--abort` clears state and rolls back (FR-028)
+- [x] T046 Test: corrupted state file detected and reported (FR-029)
+- [x] T047 Test: `--resume` with no merge in progress shows error
+- [x] T048 Test: state updated when resumed merge encounters new conflicts
 
 ### Implementation Notes
 1. Create merge state file manually using `MergeStateFixture`
