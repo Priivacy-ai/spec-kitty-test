@@ -10,10 +10,10 @@ subtasks:
   - "T027"
 title: "Smart Merge Ordering Tests"
 phase: "Phase 2 - Core Features"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "54127"
+shell_pid: "64382"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -496,3 +496,4 @@ Expected: 6 tests, all passing.
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
 - 2026-01-18T13:27:01Z – claude-opus – shell_pid=54127 – lane=doing – Started implementation via workflow command
 - 2026-01-18T13:28:49Z – claude-opus – shell_pid=54127 – lane=for_review – Ready for review: 6 tests for smart merge ordering (FR-013 to FR-016 plus diamond pattern and parallel chains)
+- 2026-01-18T13:29:38Z – claude-opus – shell_pid=64382 – lane=doing – Started review via workflow command
