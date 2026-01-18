@@ -59,7 +59,7 @@
 - [x] T010 Test: multiple dirty worktrees reported together, not one-at-a-time (FR-007)
 - [x] T011 Test: target branch divergence is detected (FR-006)
 - [x] T012 Test: pre-flight failure exits non-zero without branch modifications (FR-008)
-- [ ] T013 Test: clean worktrees with up-to-date target passes pre-flight
+- [x] T013 Test: clean worktrees with up-to-date target passes pre-flight
 - [ ] T014 Test: deleted worktree with existing branch detected
 
 ### Implementation Notes
