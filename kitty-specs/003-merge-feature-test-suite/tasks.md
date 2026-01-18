@@ -122,7 +122,7 @@
 - [x] T021 Create `tests/functional/test_merge_ordering.py` module
 - [x] T022 Test: WP with dependency merges after its dependency (FR-014)
 - [x] T023 Test: diamond dependency pattern merges in correct order
-- [ ] T024 Test: circular dependency detected with clear error (FR-015)
+- [x] T024 Test: circular dependency detected with clear error (FR-015)
 - [ ] T025 Test: no dependencies falls back to numerical order (FR-016)
 - [ ] T026 Test: frontmatter `dependencies: []` parsed correctly (FR-013)
 - [ ] T027 Test: multiple parallel dependency chains respected
