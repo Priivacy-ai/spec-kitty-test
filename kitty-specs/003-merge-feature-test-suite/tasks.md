@@ -153,7 +153,7 @@
 
 ### Included Subtasks
 - [x] T028 Create `tests/functional/test_merge_status_resolution.py` module
-- [ ] T029 Test: lane conflicts resolve by "more done" wins (FR-017)
+- [x] T029 Test: lane conflicts resolve by "more done" wins (FR-017)
 - [ ] T030 Test: checkbox conflicts resolve by preferring `[x]` (FR-018)
 - [ ] T031 Test: history arrays merge chronologically (FR-019)
 - [ ] T032 Test: code file conflicts NOT auto-resolved (FR-020)
