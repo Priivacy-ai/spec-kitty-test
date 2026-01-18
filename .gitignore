@@ -60,3 +60,5 @@ temp_*/
 # Worktrees managed by spec-kitty
 .worktrees/
 .claude/
+# Prevent worktree-local kitty-specs/ (status managed in main repo)
+kitty-specs/
