@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: CLI Flags & Integration Tests
-lane: "doing"
+lane: "done"
 dependencies:
 - WP01
 subtasks:
@@ -17,8 +17,8 @@ phase: Phase 4 - Integration
 assignee: ''
 agent: "claude-opus"
 shell_pid: "94706"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-18T12:27:56Z'
   lane: planned
@@ -647,3 +647,4 @@ pytest tests/functional/test_merge_*.py -v
 - 2026-01-18T13:51:21Z – claude-opus – shell_pid=89989 – lane=doing – Started implementation via workflow command
 - 2026-01-18T13:53:31Z – claude-opus – shell_pid=89989 – lane=for_review – Ready for review: 8 tests for CLI flags and full integration (FR-030 to FR-032)
 - 2026-01-18T13:58:57Z – claude-opus – shell_pid=94706 – lane=doing – Started review via workflow command
+- 2026-01-18T14:00:16Z – claude-opus – shell_pid=94706 – lane=done – Review passed: All 8 tests pass. Complete coverage for FR-030 through FR-032 (--feature, --single, --dry-run flags). Full integration test with 4-WP diamond dependencies and status conflicts. Bonus content preservation test. Proper two-class structure separating CLI flag tests from integration tests.
