@@ -11,10 +11,10 @@ subtasks:
   - "T035"
 title: "Status File Auto-Resolution Tests"
 phase: "Phase 2 - Core Features"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "69791"
+shell_pid: "74333"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -647,3 +647,4 @@ Expected: 8 tests, all passing.
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
 - 2026-01-18T13:30:33Z – claude-opus – shell_pid=69791 – lane=doing – Started implementation via workflow command
 - 2026-01-18T13:32:41Z – claude-opus – shell_pid=69791 – lane=for_review – Ready for review: 7 tests for status file auto-resolution (FR-017 to FR-021 plus mixed conflicts and malformed YAML)
+- 2026-01-18T13:35:49Z – claude-opus – shell_pid=74333 – lane=doing – Started review via workflow command
