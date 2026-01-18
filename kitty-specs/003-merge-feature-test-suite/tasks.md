@@ -54,7 +54,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T008 Create `tests/functional/test_merge_preflight.py` module
+- [x] T008 Create `tests/functional/test_merge_preflight.py` module
 - [ ] T009 Test: dirty worktrees are detected and reported (FR-005)
 - [ ] T010 Test: multiple dirty worktrees reported together, not one-at-a-time (FR-007)
 - [ ] T011 Test: target branch divergence is detected (FR-006)
