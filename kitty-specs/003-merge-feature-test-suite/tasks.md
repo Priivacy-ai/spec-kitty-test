@@ -119,7 +119,7 @@
 **Estimated Size**: ~420 lines
 
 ### Included Subtasks
-- [ ] T021 Create `tests/functional/test_merge_ordering.py` module
+- [x] T021 Create `tests/functional/test_merge_ordering.py` module
 - [ ] T022 Test: WP with dependency merges after its dependency (FR-014)
 - [ ] T023 Test: diamond dependency pattern merges in correct order
 - [ ] T024 Test: circular dependency detected with clear error (FR-015)
