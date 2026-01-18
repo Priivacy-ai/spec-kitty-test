@@ -10,12 +10,12 @@ subtasks:
   - "T027"
 title: "Smart Merge Ordering Tests"
 phase: "Phase 2 - Core Features"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "64382"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-18T12:27:56Z"
@@ -497,3 +497,4 @@ Expected: 6 tests, all passing.
 - 2026-01-18T13:27:01Z – claude-opus – shell_pid=54127 – lane=doing – Started implementation via workflow command
 - 2026-01-18T13:28:49Z – claude-opus – shell_pid=54127 – lane=for_review – Ready for review: 6 tests for smart merge ordering (FR-013 to FR-016 plus diamond pattern and parallel chains)
 - 2026-01-18T13:29:38Z – claude-opus – shell_pid=64382 – lane=doing – Started review via workflow command
+- 2026-01-18T13:30:57Z – claude-opus – shell_pid=64382 – lane=done – Review passed: All 6 tests pass. Complete coverage for FR-013 through FR-016. Proper dependency ordering tests including diamond pattern, circular detection, numerical fallback, and parallel chains. Uses correct fixtures from WP01.
