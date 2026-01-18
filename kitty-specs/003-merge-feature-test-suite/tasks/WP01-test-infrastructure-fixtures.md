@@ -10,7 +10,7 @@ subtasks:
   - "T007"
 title: "Test Infrastructure & Fixtures"
 phase: "Phase 0 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "41754"
@@ -663,3 +663,4 @@ class TestMergeFixtures:
 
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
 - 2026-01-18T13:12:51Z – claude-opus – shell_pid=41754 – lane=doing – Started implementation via workflow command
+- 2026-01-18T13:16:56Z – claude-opus – shell_pid=41754 – lane=for_review – Ready for review: Created MergeTestFeature, WPFixture, MergeStateFixture, ConflictFixture, create_test_feature factory, and cleanup utilities with 12 passing self-tests
