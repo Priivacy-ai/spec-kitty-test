@@ -9,10 +9,10 @@ subtasks:
   - "T020"
 title: "Conflict Forecast Tests"
 phase: "Phase 2 - Core Features"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "49244"
+shell_pid: "54021"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -465,3 +465,4 @@ Expected: 5 tests, all passing.
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
 - 2026-01-18T13:22:32Z – claude-opus – shell_pid=49244 – lane=doing – Started implementation via workflow command
 - 2026-01-18T13:25:50Z – claude-opus – shell_pid=49244 – lane=for_review – Ready for review: 5 tests for conflict forecast (FR-009 to FR-012 plus non-overlapping files test)
+- 2026-01-18T13:26:48Z – claude-opus – shell_pid=54021 – lane=doing – Started review via workflow command
