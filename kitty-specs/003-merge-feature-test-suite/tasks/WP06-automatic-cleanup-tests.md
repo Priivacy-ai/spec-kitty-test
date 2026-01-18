@@ -12,7 +12,7 @@ phase: "Phase 3 - Extended Features"
 lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "75187"
+shell_pid: "80554"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -439,13 +439,13 @@ Expected: 5 tests, all passing.
 
 ## Definition of Done Checklist
 
-- [ ] `tests/functional/test_merge_cleanup.py` exists
-- [ ] Test: worktrees removed (FR-022)
-- [ ] Test: branches deleted (FR-023)
-- [ ] Test: --keep-worktree flag (FR-024)
-- [ ] Test: --keep-branch flag (FR-024)
-- [ ] Test: cleanup continues on failure (FR-025)
-- [ ] All tests pass: `pytest tests/functional/test_merge_cleanup.py -v`
+- [x] `tests/functional/test_merge_cleanup.py` exists
+- [x] Test: worktrees removed (FR-022)
+- [x] Test: branches deleted (FR-023)
+- [x] Test: --keep-worktree flag (FR-024)
+- [x] Test: --keep-branch flag (FR-024)
+- [x] Test: cleanup continues on failure (FR-025)
+- [x] All tests pass: `pytest tests/functional/test_merge_cleanup.py -v`
 
 ---
 
@@ -462,3 +462,5 @@ Expected: 5 tests, all passing.
 
 - 2026-01-18T12:27:56Z – system – lane=planned – Prompt created.
 - 2026-01-18T13:36:13Z – claude-opus – shell_pid=75187 – lane=doing – Started implementation via workflow command
+- 2026-01-18T13:45:00Z – claude-opus – shell_pid=75187 – lane=for_review – Implementation complete. 5 tests pass (T036-T041).
+- 2026-01-18T13:41:07Z – claude-opus – shell_pid=80554 – lane=doing – Started review via workflow command
