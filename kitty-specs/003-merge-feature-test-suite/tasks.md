@@ -125,7 +125,7 @@
 - [x] T024 Test: circular dependency detected with clear error (FR-015)
 - [x] T025 Test: no dependencies falls back to numerical order (FR-016)
 - [x] T026 Test: frontmatter `dependencies: []` parsed correctly (FR-013)
-- [ ] T027 Test: multiple parallel dependency chains respected
+- [x] T027 Test: multiple parallel dependency chains respected
 
 ### Implementation Notes
 1. Create WP frontmatter with `dependencies: ["WP01"]` declarations
