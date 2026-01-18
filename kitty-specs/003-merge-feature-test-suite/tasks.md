@@ -60,7 +60,7 @@
 - [x] T011 Test: target branch divergence is detected (FR-006)
 - [x] T012 Test: pre-flight failure exits non-zero without branch modifications (FR-008)
 - [x] T013 Test: clean worktrees with up-to-date target passes pre-flight
-- [ ] T014 Test: deleted worktree with existing branch detected
+- [x] T014 Test: deleted worktree with existing branch detected
 
 ### Implementation Notes
 1. Create feature with 3 WPs using `create_test_feature()` fixture
