@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: 'Observability: Logging and Metrics Capture'
-lane: "for_review"
+lane: "doing"
 dependencies: []
 subtasks:
 - T031
@@ -12,7 +12,7 @@ subtasks:
 phase: Phase 2 - Fixtures
 assignee: ''
 agent: "claude-opus"
-shell_pid: "61948"
+shell_pid: "66526"
 review_status: ''
 reviewed_by: ''
 history:
@@ -667,3 +667,4 @@ pytest tests/agentic/fixtures/test_observability.py -v
 
 - 2026-01-19T14:40:37Z – claude-opus – shell_pid=61948 – lane=doing – Started implementation via workflow command
 - 2026-01-19T14:44:25Z – claude-opus – shell_pid=61948 – lane=for_review – Ready for review: AgentOutputLogger, GitStateCapture, WPTransitionLogger, ContainerMetricsCollector, PostMortemExporter implemented. All classes export timestamped data in JSON/JSONL format. INDEX.md provides analysis guidance. All fixtures registered in conftest.py.
+- 2026-01-19T14:47:36Z – claude-opus – shell_pid=66526 – lane=doing – Started review via workflow command
