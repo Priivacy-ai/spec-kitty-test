@@ -94,7 +94,7 @@
 
 ### Included Subtasks
 - [x] T011 Create DiscoveredAgent and AvailabilityResult dataclasses in `tests/agentic/invoker/discovery.py`
-- [ ] T012 Create AgentDiscovery class with discover_all(), discover_one(), check_availability() in `tests/agentic/invoker/discovery.py`
+- [x] T012 Create AgentDiscovery class with discover_all(), discover_one(), check_availability() in `tests/agentic/invoker/discovery.py`
 - [ ] T013 Integrate discovery with existing AgentRegistry fixture in `tests/agentic/fixtures/agent_fixtures.py`
 
 ### Implementation Notes
