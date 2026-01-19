@@ -4,10 +4,11 @@ This module provides the pytest fixtures required for running agentic
 end-to-end tests against spec-kitty's multi-agent orchestrator.
 
 Fixture Scopes:
-- Session: Expensive operations like container image builds, agent registry
+- Session: Expensive operations like container image builds, agent registry,
+           AgentInvoker, WorktreeManager, AgentDiscovery
 - Function: Test isolation (individual containers, worktrees)
 
-Key Fixtures (implemented in subsequent WPs):
+Key Fixtures:
 - container_factory: Creates isolated Docker containers for agent execution
 - agent_registry: Loads and validates agent configurations
 - available_agents: List of agents that are installed and authenticated
@@ -17,16 +18,24 @@ Key Fixtures (implemented in subsequent WPs):
 - output_logger: Captures agent stdout/stderr
 - transition_logger: Logs WP status transitions
 
+Host-based Invocation Fixtures (WP06):
+- worktree_manager: Session-scoped WorktreeManager for git isolation
+- agent_invoker: Session-scoped AgentInvoker for subprocess management
+- agent_discovery: Session-scoped AgentDiscovery with all registered configs
+- host_available_agents: Available agents for host-based execution
+
 Usage:
     pytest tests/agentic/ -v  # Run all agentic tests
     pytest tests/agentic/ -v -k "claude"  # Run tests for Claude agent
     pytest tests/agentic/ -v -m "single_agent"  # Run single-agent tests only
 
 Note: These tests are excluded from default pytest runs because they:
-- Require Docker
+- Require Docker (container-based) or agent CLIs (host-based)
 - Make real API calls (costs money)
 - Take significant time to complete
 """
+
+import subprocess
 
 import pytest
 
@@ -180,6 +189,109 @@ def pytest_collection_modifyitems(config, items):
 
 
 # Fixtures from WP03, WP05, WP06, and WP08 are imported above
+
+
+# =============================================================================
+# Host-based Invocation Fixtures (WP06)
+# =============================================================================
+
+
+@pytest.fixture(scope="session")
+def worktree_manager():
+    """Session-scoped WorktreeManager that cleans up all worktrees.
+
+    Provides git worktree isolation for host-based agent invocations.
+    All worktrees are automatically cleaned up at end of session.
+
+    Yields:
+        WorktreeManager instance
+    """
+    from tests.agentic.invoker.worktree_manager import WorktreeManager
+
+    # Get repo root
+    result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+    )
+    repo_root = result.stdout.strip()
+
+    manager = WorktreeManager(repo_path=repo_root)
+    yield manager
+    # Cleanup all worktrees at end of session
+    manager.remove_all()
+
+
+@pytest.fixture(scope="session")
+def agent_invoker(worktree_manager):
+    """Session-scoped AgentInvoker for host-based execution.
+
+    Provides subprocess management for invoking AI coding agents
+    directly on the host machine without Docker containers.
+
+    Args:
+        worktree_manager: Session-scoped WorktreeManager
+
+    Yields:
+        AgentInvoker instance
+    """
+    from tests.agentic.invoker.agent_invoker import AgentInvoker
+
+    invoker = AgentInvoker(
+        worktree_manager=worktree_manager,
+        default_timeout=1800.0,  # 30 minutes
+        cleanup_on_exit=True,
+    )
+    yield invoker
+    # Cleanup any remaining processes
+    invoker.kill_all()
+
+
+@pytest.fixture(scope="session")
+def agent_discovery():
+    """Session-scoped AgentDiscovery with all registered configs.
+
+    Discovers which AI coding agents are installed and authenticated
+    on the current machine, with caching for performance.
+
+    Returns:
+        AgentDiscovery instance with all 5 standard agent configs
+    """
+    from tests.agentic.invoker.discovery import AgentDiscovery
+    from tests.agentic.agents import ALL_AGENT_CONFIGS
+
+    discovery = AgentDiscovery(agent_configs=ALL_AGENT_CONFIGS)
+    return discovery
+
+
+@pytest.fixture
+def host_available_agents(agent_discovery):
+    """Return list of agent configs available for host-based execution.
+
+    Uses AgentDiscovery to check which agents are installed
+    and authenticated on this machine.
+
+    Args:
+        agent_discovery: Session-scoped AgentDiscovery
+
+    Returns:
+        List of BaseAgentConfig for available agents
+    """
+    discovered = agent_discovery.get_available()
+    return [d.config for d in discovered]
+
+
+@pytest.fixture
+def host_available_agent_count(host_available_agents):
+    """Return count of available agents for skip conditions.
+
+    Args:
+        host_available_agents: List of available agent configs
+
+    Returns:
+        Number of available agents
+    """
+    return len(host_available_agents)
 
 
 # =============================================================================

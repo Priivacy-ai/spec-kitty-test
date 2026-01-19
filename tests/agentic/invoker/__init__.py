@@ -13,6 +13,9 @@ Exports:
     - WorktreeInfo: Metadata about a git worktree
     - WorktreeManager: Create and manage isolated worktrees
     - AgentInvoker: Main controller for agent invocations
+    - AgentDiscovery: Runtime agent detection
+    - DiscoveredAgent: Result of agent discovery
+    - AvailabilityResult: Agent availability check result
 """
 
 from .invocation_result import (
@@ -23,6 +26,7 @@ from .invocation_result import (
 from .agent_process import AgentProcess
 from .worktree_manager import WorktreeInfo, WorktreeManager
 from .agent_invoker import AgentInvoker
+from .discovery import AgentDiscovery, AvailabilityResult, DiscoveredAgent
 
 __all__ = [
     "InvocationOutcome",
@@ -32,4 +36,7 @@ __all__ = [
     "WorktreeInfo",
     "WorktreeManager",
     "AgentInvoker",
+    "AgentDiscovery",
+    "AvailabilityResult",
+    "DiscoveredAgent",
 ]
