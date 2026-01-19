@@ -217,7 +217,7 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T025 Add log_invocation() method to AgentOutputLogger in `tests/agentic/fixtures/observability.py`
+- [x] T025 Add log_invocation() method to AgentOutputLogger in `tests/agentic/fixtures/observability.py`
 - [ ] T026 Integrate invocations with GitStateCapture (capture before/after each invocation) in `tests/agentic/fixtures/observability.py`
 - [ ] T027 Update PostMortemExporter to include invocations list in `tests/agentic/fixtures/observability.py`
 
