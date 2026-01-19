@@ -188,7 +188,7 @@ def pytest_collection_modifyitems(config, items):
                     ))
 
 
-# Fixtures from WP03, WP05, WP06, and WP08 are imported above
+# Fixtures from WP03, WP05, WP06, WP08, and WP09 are imported above
 
 
 # =============================================================================
@@ -206,6 +206,7 @@ def worktree_manager():
     Yields:
         WorktreeManager instance
     """
+    import subprocess
     from tests.agentic.invoker.worktree_manager import WorktreeManager
 
     # Get repo root
@@ -292,6 +293,167 @@ def host_available_agent_count(host_available_agents):
         Number of available agents
     """
     return len(host_available_agents)
+
+
+# =============================================================================
+# User Agent Config Fixtures (WP09)
+# =============================================================================
+
+
+@pytest.fixture
+def agent_selection_config(host_available_agents, tmp_path):
+    """Create AgentSelectionConfig for user-configurable agent selection.
+
+    This fixture provides the user-configurable agent selection functionality.
+    It uses the host_available_agents to populate available agents.
+
+    Args:
+        host_available_agents: List of available BaseAgentConfig
+        tmp_path: pytest tmp_path for config file storage
+
+    Returns:
+        AgentSelectionConfig instance
+    """
+    from tests.agentic.agent_config import (
+        AgentConfig,
+        AgentSelectionConfig,
+        STRATEGY_PREFERRED,
+    )
+
+    available_ids = [cfg.agent_id for cfg in host_available_agents]
+    config_map = {cfg.agent_id: cfg for cfg in host_available_agents}
+
+    user_config = AgentConfig(
+        available_agents=available_ids,
+        selection_strategy=STRATEGY_PREFERRED,
+        preferred_implementer=available_ids[0] if available_ids else None,
+        preferred_reviewer=available_ids[0] if available_ids else None,
+    )
+
+    return AgentSelectionConfig(
+        config=user_config,
+        agent_configs=config_map,
+    )
+
+
+@pytest.fixture
+def saved_agent_config(host_available_agents, tmp_path):
+    """Create and save AgentConfig to .kittify/config.yaml.
+
+    This fixture simulates having run `spec-kitty init` with agent
+    selection preferences.
+
+    Args:
+        host_available_agents: List of available BaseAgentConfig
+        tmp_path: pytest tmp_path for config file storage
+
+    Returns:
+        Tuple of (AgentConfig, config_file_path)
+    """
+    from tests.agentic.agent_config import (
+        AgentConfig,
+        save_agent_config,
+        STRATEGY_PREFERRED,
+    )
+
+    available_ids = [cfg.agent_id for cfg in host_available_agents]
+
+    config = AgentConfig(
+        available_agents=available_ids,
+        selection_strategy=STRATEGY_PREFERRED,
+        preferred_implementer=available_ids[0] if available_ids else None,
+        preferred_reviewer=available_ids[1] if len(available_ids) > 1 else (available_ids[0] if available_ids else None),
+    )
+
+    config_path = save_agent_config(config, tmp_path)
+    return config, config_path
+
+
+def pytest_addoption(parser):
+    """Add CLI options for agent selection overrides."""
+    parser.addoption(
+        "--impl-agent",
+        action="store",
+        default=None,
+        help="Override implementation agent (e.g., --impl-agent claude-code)",
+    )
+    parser.addoption(
+        "--implementer",
+        action="store",
+        default=None,
+        help="Alias for --impl-agent",
+    )
+    parser.addoption(
+        "--review-agent",
+        action="store",
+        default=None,
+        help="Override review agent (e.g., --review-agent codex)",
+    )
+    parser.addoption(
+        "--reviewer",
+        action="store",
+        default=None,
+        help="Alias for --review-agent",
+    )
+
+
+@pytest.fixture
+def impl_agent_override(request):
+    """Get CLI override for implementation agent.
+
+    Returns:
+        Agent ID string or None if not specified
+    """
+    return request.config.getoption("--impl-agent") or request.config.getoption("--implementer")
+
+
+@pytest.fixture
+def review_agent_override(request):
+    """Get CLI override for review agent.
+
+    Returns:
+        Agent ID string or None if not specified
+    """
+    return request.config.getoption("--review-agent") or request.config.getoption("--reviewer")
+
+
+@pytest.fixture
+def selected_implementer(agent_selection_config, impl_agent_override):
+    """Get selected implementation agent respecting CLI overrides.
+
+    This is the main fixture for tests that need an implementation agent.
+    It respects both user config and CLI overrides.
+
+    Args:
+        agent_selection_config: AgentSelectionConfig fixture
+        impl_agent_override: CLI override if specified
+
+    Returns:
+        Selected agent ID or None
+    """
+    return agent_selection_config.select_implementer(override=impl_agent_override)
+
+
+@pytest.fixture
+def selected_reviewer(agent_selection_config, review_agent_override, selected_implementer):
+    """Get selected review agent respecting CLI overrides.
+
+    This is the main fixture for tests that need a review agent.
+    It respects both user config and CLI overrides, and handles
+    the DIFFERENT_FROM constraint for cross-review tests.
+
+    Args:
+        agent_selection_config: AgentSelectionConfig fixture
+        review_agent_override: CLI override if specified
+        selected_implementer: Implementation agent ID (for DIFFERENT_FROM)
+
+    Returns:
+        Selected agent ID or None
+    """
+    return agent_selection_config.select_reviewer(
+        override=review_agent_override,
+        different_from=selected_implementer,
+    )
 
 
 # =============================================================================
