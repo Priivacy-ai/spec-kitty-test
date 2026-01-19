@@ -32,6 +32,7 @@ class AgentProcess:
         timeout_seconds: float,
         worktree_path: str,
         prompt_hash: Optional[str] = None,
+        stdin_input: Optional[bytes] = None,
     ):
         """
         Initialize an AgentProcess wrapper.
@@ -42,6 +43,7 @@ class AgentProcess:
             timeout_seconds: Maximum time to wait before killing
             worktree_path: Path to the git worktree for this invocation
             prompt_hash: Optional SHA256 hash of the prompt (computed if not provided)
+            stdin_input: Optional bytes to send to process stdin via communicate()
         """
         self.agent_id = agent_id
         self._process = process
@@ -54,6 +56,7 @@ class AgentProcess:
         self._killed = False
         self._timeout_exceeded = False
         self._prompt_hash = prompt_hash or ""
+        self._stdin_input = stdin_input
         self._lock = threading.Lock()
 
     @property
@@ -145,7 +148,7 @@ class AgentProcess:
             timer.start()
 
         try:
-            stdout, stderr = self._process.communicate()
+            stdout, stderr = self._process.communicate(input=self._stdin_input)
 
             with self._lock:
                 if stdout:
