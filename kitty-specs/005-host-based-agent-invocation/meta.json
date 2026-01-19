@@ -1,0 +1,8 @@
+{
+  "feature_number": "005",
+  "slug": "005-host-based-agent-invocation",
+  "friendly_name": "Host-Based Agent Invocation for Agentic Tests",
+  "mission": "software-dev",
+  "source_description": "Build the missing infrastructure that allows the agentic E2E test framework to actually invoke real AI coding agents on the host, detect available agents at runtime, and execute real implement→review→done workflows.",
+  "created_at": "2026-01-19T17:30:00Z"
+}
