@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: 'Core Fixtures: Container and Agent Lifecycle'
-lane: "doing"
+lane: "done"
 dependencies: []
 subtasks:
 - T006
@@ -13,8 +13,8 @@ phase: Phase 2 - Fixtures
 assignee: ''
 agent: "claude-opus"
 shell_pid: "45329"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-19T00:00:00Z'
   lane: planned
@@ -424,3 +424,4 @@ pytest tests/agentic/fixtures/ -v -k "container"
 - 2026-01-19T10:19:59Z – claude-opus – shell_pid=30118 – lane=doing – Started implementation via workflow command
 - 2026-01-19T10:25:58Z – claude-opus – shell_pid=30118 – lane=for_review – Ready for review: Container fixtures (TestContainer, Factory, timeout) and Agent fixtures (Registry, detection, skip decorators) implemented per spec
 - 2026-01-19T12:53:08Z – claude-opus – shell_pid=45329 – lane=doing – Started review via workflow command
+- 2026-01-19T12:55:15Z – claude-opus – shell_pid=45329 – lane=done – Review passed: All subtasks complete. container_fixtures.py provides TestContainer, Factory, timeout enforcement. agent_fixtures.py provides AgentRegistry, detection (installed+auth), skip decorators. All fixtures exported in conftest.py with comprehensive markers. Distribution testing supported via explicit SPEC_KITTY_TEMPLATE_ROOT unset.
