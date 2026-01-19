@@ -124,7 +124,7 @@
 
 ### Included Subtasks
 - [x] T014 [P] Create ClaudeCodeConfig in `tests/agentic/agents/claude_code.py`
-- [ ] T015 [P] Create CopilotConfig in `tests/agentic/agents/copilot.py`
+- [x] T015 [P] Create CopilotConfig in `tests/agentic/agents/copilot.py`
 - [ ] T016 [P] Create GeminiConfig in `tests/agentic/agents/gemini.py`
 
 ### Implementation Notes
