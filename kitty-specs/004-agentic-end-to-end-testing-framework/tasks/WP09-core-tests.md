@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: 'Core Tests: Single-Agent, Distribution, and Isolation'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T036
@@ -11,8 +11,8 @@ subtasks:
 - T048
 phase: Phase 4 - Test Implementation
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "77177"
 review_status: ''
 reviewed_by: ''
 history:
@@ -815,3 +815,7 @@ pytest tests/agentic/tests/ -v -m "not slow" --tb=short
 - [ ] All tests properly marked (slow, agentic, etc.)
 - [ ] Tests skip gracefully when requirements not met
 - [ ] Tests pass with at least one available agent
+
+## Activity Log
+
+- 2026-01-19T15:06:27Z – claude-opus – shell_pid=77177 – lane=doing – Started implementation via workflow command
