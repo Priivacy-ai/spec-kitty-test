@@ -171,21 +171,15 @@ class AgentInvoker:
             env=env,
         )
 
-        # If using STDIN, write prompt but don't wait
-        if stdin_input and process.stdin:
-            try:
-                process.stdin.write(stdin_input)
-                process.stdin.close()
-            except BrokenPipeError:
-                pass  # Process might have exited quickly
-
-        # Create AgentProcess wrapper
+        # Create AgentProcess wrapper - stdin_input is passed here and
+        # handled by communicate() in AgentProcess.wait()
         agent_process = AgentProcess(
             agent_id=agent_config.agent_id,
             process=process,
             timeout_seconds=effective_timeout,
             worktree_path=worktree_path,
             prompt_hash=prompt_hash,
+            stdin_input=stdin_input,
         )
 
         # Track the process
