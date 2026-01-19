@@ -1,0 +1,126 @@
+# Docker Compose for agentic E2E testing
+# Creates isolated internal network - NO INTERNET ACCESS
+#
+# Usage:
+#   docker compose build --no-cache agent-runner
+#   docker compose run --rm agent-runner "spec-kitty --version"
+#
+# With fault injection (Toxiproxy):
+#   docker compose --profile fault-injection up -d toxiproxy
+
+networks:
+  agent-test-internal:
+    driver: bridge
+    internal: true  # CRITICAL: blocks outbound internet access
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+services:
+  # Base service definition for running agents
+  # Test fixtures extend this configuration at runtime
+  agent-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+      args:
+        SPEC_KITTY_VERSION: ${SPEC_KITTY_VERSION:-latest}
+    networks:
+      - agent-test-internal
+    # Resource limits (per plan.md)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Security configuration
+    security_opt:
+      - no-new-privileges:true
+    # Read-only root filesystem (agents can only write to /workspace)
+    read_only: true
+    # Temporary filesystem for /tmp operations
+    tmpfs:
+      - /tmp:size=1G,mode=1777
+    # Volumes - worktree is the only writable path
+    volumes:
+      - type: bind
+        source: ${WORKTREE_PATH:-.}
+        target: /workspace
+    # Secrets mounted at /run/secrets/ (read-only)
+    # Only mount secrets that exist - Docker will fail if files are missing
+    # Test fixtures should create dummy files if credentials aren't available
+    secrets:
+      - source: claude_api_key
+        target: claude_api_key
+        mode: 0400
+      - source: github_token
+        target: github_token
+        mode: 0400
+      - source: cursor_api_key
+        target: cursor_api_key
+        mode: 0400
+      - source: gemini_api_key
+        target: gemini_api_key
+        mode: 0400
+      - source: opencode_api_key
+        target: opencode_api_key
+        mode: 0400
+      - source: qwen_api_key
+        target: qwen_api_key
+        mode: 0400
+      - source: kilocode_api_key
+        target: kilocode_api_key
+        mode: 0400
+      - source: augment_api_key
+        target: augment_api_key
+        mode: 0400
+    # Environment variables
+    environment:
+      - TERM=xterm-256color
+      - HOME=/tmp
+      # Ensure no development overrides are set
+      - SPEC_KITTY_TEMPLATE_ROOT=
+    # Container settings
+    stdin_open: true
+    tty: true
+
+  # Toxiproxy for network fault injection
+  # Only started when using the fault-injection profile
+  # Usage: docker compose --profile fault-injection up -d toxiproxy
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:latest
+    networks:
+      - agent-test-internal
+    ports:
+      - "8474:8474"  # Admin API for configuring toxics
+    profiles:
+      - fault-injection
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8474/proxies"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# Secrets loaded from local files in config/secrets/
+# These files should NEVER be committed to git
+# Create placeholder files for testing without real credentials
+secrets:
+  claude_api_key:
+    file: ../config/secrets/claude_api_key.txt
+  github_token:
+    file: ../config/secrets/github_token.txt
+  cursor_api_key:
+    file: ../config/secrets/cursor_api_key.txt
+  gemini_api_key:
+    file: ../config/secrets/gemini_api_key.txt
+  opencode_api_key:
+    file: ../config/secrets/opencode_api_key.txt
+  qwen_api_key:
+    file: ../config/secrets/qwen_api_key.txt
+  kilocode_api_key:
+    file: ../config/secrets/kilocode_api_key.txt
+  augment_api_key:
+    file: ../config/secrets/augment_api_key.txt

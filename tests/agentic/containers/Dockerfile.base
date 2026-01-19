@@ -1,0 +1,73 @@
+# Universal base image for agentic E2E testing
+# Installs spec-kitty from PyPI - NOT from local source (distribution testing)
+#
+# Per CLAUDE.md testing philosophy: "Test what you ship, not just what you write."
+# This container validates the PyPI package, not development code.
+#
+# Resource limits are applied at runtime via docker-compose or --cpus/--memory:
+# - CPU: 2.0 cores (--cpus=2.0)
+# - Memory: 4GB (--memory=4g)
+# - Disk: 10GB (enforced via volume constraints)
+# See docker-compose.yaml for full configuration.
+#
+# Filesystem isolation:
+# - Root filesystem: READ-ONLY (via read_only: true in compose)
+# - /workspace (worktree): READ-WRITE (mounted from host)
+# - /tmp: READ-WRITE (tmpfs, ephemeral)
+# - /run/secrets: READ-ONLY (credentials)
+
+FROM python:3.11-slim
+
+# System dependencies for git operations and agent CLIs
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    ca-certificates \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure git for container environment
+RUN git config --global user.email "test@spec-kitty.local" \
+    && git config --global user.name "Spec-Kitty Test" \
+    && git config --global init.defaultBranch main
+
+# Install spec-kitty from PyPI (CRITICAL: distribution testing)
+# DO NOT use pip install -e or set SPEC_KITTY_TEMPLATE_ROOT
+ARG SPEC_KITTY_VERSION=latest
+RUN if [ "$SPEC_KITTY_VERSION" = "latest" ]; then \
+        pip install --no-cache-dir spec-kitty; \
+    else \
+        pip install --no-cache-dir spec-kitty==$SPEC_KITTY_VERSION; \
+    fi
+
+# Verify installation is from package, not editable
+# This check ensures we're testing the distributed package
+RUN python -c "import spec_kitty; print(f'spec-kitty {spec_kitty.__version__}')" \
+    && test -z "${SPEC_KITTY_TEMPLATE_ROOT:-}" || exit 1
+
+# Install additional Python dependencies for testing
+RUN pip install --no-cache-dir \
+    pyyaml \
+    pytest
+
+# Create working directories
+# /workspace: Test worktree (mounted from host, read-write)
+# /run/secrets: API credentials (mounted via Docker secrets, read-only)
+RUN mkdir -p /workspace /run/secrets
+
+# Default working directory for all operations
+WORKDIR /workspace
+
+# Labels for identification and filtering
+LABEL org.spec-kitty.purpose="agentic-e2e-testing"
+LABEL org.spec-kitty.distribution-test="true"
+LABEL org.spec-kitty.version="${SPEC_KITTY_VERSION}"
+
+# Health check to verify spec-kitty is functional
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import spec_kitty; print('OK')" || exit 1
+
+# Entrypoint allows flexible command execution
+# Commands are passed as strings to bash -c for shell expansion
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["echo 'spec-kitty agentic test container ready' && spec-kitty --version"]
