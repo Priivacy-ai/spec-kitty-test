@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: 'Fault Injection: Adversarial Testing Components'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T025
@@ -12,8 +12,8 @@ subtasks:
 - T030
 phase: Phase 3 - Fault Injection
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "70542"
 review_status: ''
 reviewed_by: ''
 history:
@@ -1099,3 +1099,7 @@ pytest tests/agentic/faults/ -v
 - [ ] ResourceFaultInjector with exhaustion
 - [ ] All injectors have cleanup methods
 - [ ] Unit tests for each fault type
+
+## Activity Log
+
+- 2026-01-19T14:56:15Z – claude-opus – shell_pid=70542 – lane=doing – Started implementation via workflow command
