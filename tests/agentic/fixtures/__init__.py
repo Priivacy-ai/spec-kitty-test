@@ -57,6 +57,24 @@ from .workflow_fixtures import (
     workflow_validator,
 )
 
+# Observability fixtures (WP06)
+from .observability import (
+    AgentOutputLogger,
+    ContainerMetrics,
+    ContainerMetricsCollector,
+    GitState,
+    GitStateCapture,
+    OutputCapture,
+    PostMortemExporter,
+    WPTransition,
+    WPTransitionLogger,
+    container_metrics_collector,
+    git_state_capture,
+    output_logger,
+    post_mortem_exporter,
+    transition_logger,
+)
+
 __all__ = [
     # Container fixtures
     "AgentContainerFactory",
@@ -96,4 +114,19 @@ __all__ = [
     "test_run_factory",
     "workflow_engine",
     "workflow_validator",
+    # Observability fixtures
+    "AgentOutputLogger",
+    "ContainerMetrics",
+    "ContainerMetricsCollector",
+    "GitState",
+    "GitStateCapture",
+    "OutputCapture",
+    "PostMortemExporter",
+    "WPTransition",
+    "WPTransitionLogger",
+    "container_metrics_collector",
+    "git_state_capture",
+    "output_logger",
+    "post_mortem_exporter",
+    "transition_logger",
 ]
