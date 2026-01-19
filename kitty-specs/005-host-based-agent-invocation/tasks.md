@@ -28,7 +28,7 @@
 
 ### Included Subtasks
 - [x] T001 Create InvocationResult dataclass with InvocationOutcome enum in `tests/agentic/invoker/invocation_result.py`
-- [ ] T002 Create ParsedAgentResponse dataclass in `tests/agentic/invoker/invocation_result.py`
+- [x] T002 Create ParsedAgentResponse dataclass in `tests/agentic/invoker/invocation_result.py`
 - [ ] T003 Create AgentProcess class (subprocess wrapper) in `tests/agentic/invoker/agent_process.py`
 - [ ] T004 Create WorktreeInfo dataclass in `tests/agentic/invoker/worktree_manager.py`
 - [ ] T005 Create WorktreeManager class for git worktree isolation in `tests/agentic/invoker/worktree_manager.py`
