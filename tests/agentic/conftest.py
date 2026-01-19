@@ -44,6 +44,16 @@ from tests.agentic.fixtures.agent_fixtures import (
     require_agent,
 )
 
+# Workflow fixtures (WP05)
+from tests.agentic.fixtures.workflow_fixtures import (
+    lane_monitor_factory,
+    rejection_handler,
+    test_feature_scaffold,
+    test_run_factory,
+    workflow_engine,
+    workflow_validator,
+)
+
 
 def pytest_configure(config):
     """Register custom markers for agentic tests."""
@@ -93,8 +103,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "augment: requires Augment Code agent")
 
 
-# Fixtures from WP03 are imported above
+# Fixtures from WP03 and WP05 are imported above
 # Additional fixtures will be added in:
-# - WP05 (workflow_fixtures)
 # - WP06 (observability fixtures)
 # - WP08 (fault injection fixtures)

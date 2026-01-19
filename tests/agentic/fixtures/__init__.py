@@ -35,6 +35,28 @@ from .agent_fixtures import (
     skip_if_agent_unavailable,
 )
 
+# Workflow fixtures (WP05)
+from .workflow_fixtures import (
+    EventType,
+    IterationLimitError,
+    LaneMonitor,
+    RejectionCycleHandler,
+    TestFeatureScaffold,
+    TestRun,
+    TestStatus,
+    WorkflowEngine,
+    WorkflowObservation,
+    WorkflowState,
+    WorkflowValidator,
+    WPLane,
+    lane_monitor_factory,
+    rejection_handler,
+    test_feature_scaffold,
+    test_run_factory,
+    workflow_engine,
+    workflow_validator,
+)
+
 __all__ = [
     # Container fixtures
     "AgentContainerFactory",
@@ -55,4 +77,23 @@ __all__ = [
     "require_agent",
     "require_agents",
     "skip_if_agent_unavailable",
+    # Workflow fixtures
+    "EventType",
+    "IterationLimitError",
+    "LaneMonitor",
+    "RejectionCycleHandler",
+    "TestFeatureScaffold",
+    "TestRun",
+    "TestStatus",
+    "WorkflowEngine",
+    "WorkflowObservation",
+    "WorkflowState",
+    "WorkflowValidator",
+    "WPLane",
+    "lane_monitor_factory",
+    "rejection_handler",
+    "test_feature_scaffold",
+    "test_run_factory",
+    "workflow_engine",
+    "workflow_validator",
 ]
