@@ -31,7 +31,7 @@
 - [x] T002 Create ParsedAgentResponse dataclass in `tests/agentic/invoker/invocation_result.py`
 - [x] T003 Create AgentProcess class (subprocess wrapper) in `tests/agentic/invoker/agent_process.py`
 - [x] T004 Create WorktreeInfo dataclass in `tests/agentic/invoker/worktree_manager.py`
-- [ ] T005 Create WorktreeManager class for git worktree isolation in `tests/agentic/invoker/worktree_manager.py`
+- [x] T005 Create WorktreeManager class for git worktree isolation in `tests/agentic/invoker/worktree_manager.py`
 
 ### Implementation Notes
 - InvocationResult must be frozen (immutable)
