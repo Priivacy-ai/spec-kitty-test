@@ -62,7 +62,10 @@ temp_*/
 .claude/
 # Prevent worktree-local kitty-specs/ (status managed in main repo)
 # Note: This rule is disabled in main repo - kitty-specs should be tracked there
-# kitty-specs/
+#
+# Block WP status files (managed in main repo, prevents merge conflicts)
+# Research artifacts in kitty-specs/**/research/ are allowed
+kitty-specs/**/tasks/*.md
 
 # Agentic E2E testing (secrets and results should never be committed)
 tests/agentic/config/secrets/
