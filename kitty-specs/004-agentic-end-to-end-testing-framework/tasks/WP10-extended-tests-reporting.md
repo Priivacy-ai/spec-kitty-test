@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Extended Tests and Reporting
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks:
 - T011
@@ -1240,3 +1240,4 @@ pytest tests/agentic/ -v -m "fault_injection"
 ## Activity Log
 
 - 2026-01-19T16:11:25Z – claude-opus – shell_pid=85695 – lane=doing – Started implementation via workflow command
+- 2026-01-19T16:19:42Z – claude-opus – shell_pid=85695 – lane=for_review – Ready for review: Implemented all subtasks (T011, T038-T041, T043-T044, T046-T047, T049) - 104 tests total across 8 test files, DynamicAgentRegistry, pytest markers with auto-skip, test filtering scripts, JUnit XML reports, and human-readable report generator
