@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: 'Multi-Agent Paths: Cross-Review and Parallel'
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks:
 - T016
@@ -693,3 +693,4 @@ pytest tests/agentic/paths/test_parallel.py -v
 ## Activity Log
 
 - 2026-01-19T14:48:41Z – claude-opus – shell_pid=66829 – lane=doing – Started implementation via workflow command
+- 2026-01-19T14:52:41Z – claude-opus – shell_pid=66829 – lane=for_review – Ready for review: CrossReviewPath with different-agent enforcement, ParallelThreePath with asyncio.gather. Both exported in __init__.py with helper classes.
