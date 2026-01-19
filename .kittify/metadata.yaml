@@ -5,10 +5,15 @@
 spec_kitty:
   version: 0.11.0
   initialized_at: '2026-01-14T09:05:28.971248'
-  last_upgraded_at: null
+  last_upgraded_at: '2026-01-19T09:36:50.295654'
 environment:
   python_version: 3.14.0
   platform: darwin
   platform_version: macOS-15.5-arm64-arm-64bit-Mach-O
 migrations:
-  applied: []
+  applied:
+  - id: 0.11.0_workspace_per_wp
+    applied_at: '2026-01-19T09:36:50.295645'
+    result: success
+    notes: Updated /Users/robert/Code/spec-kitty-test/.kittify/missions/software-dev/command-templates/specify.md;
+      Updated /Users/robert/Code/spec-kitty-test/.kittify/missions/software-dev/command-templates/implement.md
