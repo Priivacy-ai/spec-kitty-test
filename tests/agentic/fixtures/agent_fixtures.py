@@ -13,15 +13,19 @@ NOT from local source. No SPEC_KITTY_TEMPLATE_ROOT is ever set.
 import functools
 import shutil
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, TypeVar
 
 import pytest
 import yaml
 
 from .container_fixtures import ResourceLimits
+
+if TYPE_CHECKING:
+    from ..invoker.discovery import AgentDiscovery
+    from ..agents.base import BaseAgentConfig
 
 
 class InvocationPattern(Enum):
@@ -52,6 +56,7 @@ class AgentConfig:
         credentials_secret: Name of the credentials file in secrets/
         requires_timeout_wrapper: Whether agent needs external timeout wrapper
         resource_limits: CPU, memory, and disk constraints
+        invocation_config: Optional link to BaseAgentConfig for invoker integration
     """
 
     agent_id: str
@@ -64,6 +69,7 @@ class AgentConfig:
     credentials_secret: str
     requires_timeout_wrapper: bool
     resource_limits: ResourceLimits
+    invocation_config: Optional["BaseAgentConfig"] = field(default=None)
 
     @property
     def is_available(self) -> bool:
@@ -223,13 +229,19 @@ class AgentRegistry:
 
     Attributes:
         config_path: Path to agents.yaml configuration file
+        discovery: Optional AgentDiscovery for runtime agent detection
     """
 
-    def __init__(self, config_path: Optional[Path] = None):
+    def __init__(
+        self,
+        config_path: Optional[Path] = None,
+        discovery: Optional["AgentDiscovery"] = None,
+    ):
         """Initialize registry from configuration file.
 
         Args:
             config_path: Path to agents.yaml (defaults to config/agents.yaml)
+            discovery: Optional AgentDiscovery for runtime detection
         """
         if config_path is None:
             config_path = Path(__file__).parent.parent / "config" / "agents.yaml"
@@ -237,6 +249,7 @@ class AgentRegistry:
         self._config_path = config_path
         self._agents: Dict[str, AgentConfig] = {}
         self._defaults: Dict = {}
+        self._discovery = discovery
         self._load_config()
 
     def _load_config(self):
@@ -307,6 +320,44 @@ class AgentRegistry:
     def get_installed_agents(self) -> List[AgentConfig]:
         """Return list of agents that are installed (enabled or not)."""
         return [agent for agent in self._agents.values() if agent.is_installed]
+
+    def set_discovery(self, discovery: "AgentDiscovery") -> None:
+        """Set the AgentDiscovery instance for runtime detection.
+
+        Args:
+            discovery: AgentDiscovery instance to use
+        """
+        self._discovery = discovery
+
+    def refresh_availability(self) -> None:
+        """Refresh agent availability from discovery.
+
+        Uses the AgentDiscovery to update availability status
+        and link invocation configs for all registered agents.
+        """
+        if self._discovery is None:
+            return
+
+        for discovered in self._discovery.discover_all(use_cache=False):
+            if discovered.agent_id in self._agents:
+                agent = self._agents[discovered.agent_id]
+                # Update enabled based on discovery availability
+                # Note: We use object.__setattr__ because dataclass may be frozen
+                # in some configurations
+                agent.enabled = discovered.is_available
+                agent.invocation_config = discovered.config
+
+    def get_invocation_configs(self) -> List["BaseAgentConfig"]:
+        """Return list of BaseAgentConfig for available agents.
+
+        Returns:
+            List of invocation configs for agents that have them
+        """
+        return [
+            agent.invocation_config
+            for agent in self._agents.values()
+            if agent.invocation_config is not None
+        ]
 
 
 class DynamicAgentRegistry(AgentRegistry):
