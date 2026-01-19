@@ -154,7 +154,7 @@
 
 ### Included Subtasks
 - [x] T017 [P] Create OpenCodeConfig in `tests/agentic/agents/opencode.py`
-- [ ] T018 [P] Create CodexConfig in `tests/agentic/agents/codex.py`
+- [x] T018 [P] Create CodexConfig in `tests/agentic/agents/codex.py`
 
 ### Implementation Notes
 - OpenCodeConfig: CLI `opencode`, auth method TBD
