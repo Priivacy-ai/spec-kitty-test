@@ -182,7 +182,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T019 Update BasePath in `tests/agentic/paths/base_path.py` to accept AgentInvoker
+- [x] T019 Update BasePath in `tests/agentic/paths/base_path.py` to accept AgentInvoker
 - [ ] T020 Update SingleAgentPath in `tests/agentic/paths/single_agent.py` to use invoker
 - [ ] T021 Update CrossReviewPath in `tests/agentic/paths/cross_review.py` to use invoker
 - [ ] T022 Update ParallelThreePath in `tests/agentic/paths/parallel_three.py` to use invoker
