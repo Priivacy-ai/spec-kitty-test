@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: 'Core Fixtures: Container and Agent Lifecycle'
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks:
 - T006
@@ -422,3 +422,4 @@ pytest tests/agentic/fixtures/ -v -k "container"
 ## Activity Log
 
 - 2026-01-19T10:19:59Z – claude-opus – shell_pid=30118 – lane=doing – Started implementation via workflow command
+- 2026-01-19T10:25:58Z – claude-opus – shell_pid=30118 – lane=for_review – Ready for review: Container fixtures (TestContainer, Factory, timeout) and Agent fixtures (Registry, detection, skip decorators) implemented per spec
