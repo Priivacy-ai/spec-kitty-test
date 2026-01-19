@@ -7,6 +7,10 @@ are reached.
 
 Per CLAUDE.md: These are distribution tests - spec-kitty is installed from PyPI,
 NOT from local source. No SPEC_KITTY_TEMPLATE_ROOT is ever set.
+
+Supports two execution modes:
+1. Container-based (legacy): Uses Docker containers via execute()
+2. Host-based (new): Uses direct subprocess via execute_host_based()
 """
 
 from datetime import datetime
@@ -16,6 +20,7 @@ from .base_path import (
     AgentRole,
     AgentSlot,
     EventType,
+    PathResult,
     TestPath,
     TestPathConfig,
     TestRun,
@@ -27,6 +32,10 @@ from .base_path import (
 if TYPE_CHECKING:
     from ..fixtures.container_fixtures import AgentContainerFactory
     from ..fixtures.agent_fixtures import AgentConfig, AgentRegistry
+    from ..invoker.agent_invoker import AgentInvoker
+    from ..invoker.worktree_manager import WorktreeManager
+    from ..invoker.invocation_result import InvocationResult
+    from ..agents.base import BaseAgentConfig
 
 
 class SingleAgentPath(TestPath):
@@ -407,3 +416,139 @@ class SingleAgentPath(TestPath):
         # Default to approved if no rejection indicators found
         # (agent completed review without explicit rejection)
         return True
+
+    # =========================================================================
+    # Host-based execution (AgentInvoker)
+    # =========================================================================
+
+    def execute_host_based(
+        self,
+        invoker: "AgentInvoker",
+        worktree_manager: "WorktreeManager",
+        wp_content: str,
+        agents: List["BaseAgentConfig"],
+        timeout: float = 1800.0,
+    ) -> "PathResult":
+        """Execute single-agent implement→review workflow via host subprocess.
+
+        US1 Acceptance Criteria:
+        1. Agent is invoked for implementation
+        2. Same agent runs review
+        3. If rejected, agent is re-invoked for rework
+        4. Test passes/fails based on final outcome
+
+        Args:
+            invoker: AgentInvoker for subprocess management
+            worktree_manager: WorktreeManager for git isolation
+            wp_content: Work package content/requirements
+            agents: List of available agent configurations
+            timeout: Timeout in seconds for each invocation
+
+        Returns:
+            PathResult with execution details
+        """
+        from ..invoker.invocation_result import InvocationOutcome
+
+        if not agents:
+            return PathResult(
+                status="skipped",
+                reason="No agents available",
+                invocations=[],
+            )
+
+        agent = agents[0]
+        invocations: List["InvocationResult"] = []
+        max_iterations = self.config.max_iterations
+
+        # Create worktree for this test
+        worktree_info = worktree_manager.create()
+        try:
+            # Phase 1: Implementation
+            impl_prompt = self._build_implement_prompt(wp_content)
+            impl_result = invoker.invoke(
+                agent_config=agent,
+                prompt=impl_prompt,
+                worktree=worktree_info.path,
+                timeout=timeout,
+            )
+            invocations.append(impl_result)
+
+            if impl_result.outcome != InvocationOutcome.SUCCESS:
+                return PathResult(
+                    status="failed",
+                    reason=f"Implementation failed: {impl_result.error_message}",
+                    invocations=invocations,
+                )
+
+            # Phase 2: Review (same agent - SAME_AS constraint)
+            for iteration in range(max_iterations):
+                review_prompt = self._build_review_prompt(
+                    wp_content,
+                    impl_result.stdout,
+                )
+
+                review_result = invoker.invoke(
+                    agent_config=agent,  # Same agent
+                    prompt=review_prompt,
+                    worktree=worktree_info.path,
+                    timeout=timeout,
+                )
+                invocations.append(review_result)
+
+                if review_result.outcome != InvocationOutcome.SUCCESS:
+                    return PathResult(
+                        status="failed",
+                        reason=f"Review failed: {review_result.error_message}",
+                        invocations=invocations,
+                    )
+
+                # Check approval
+                if review_result.parsed_response and review_result.parsed_response.approval:
+                    return PathResult(
+                        status="passed",
+                        reason="Implementation approved",
+                        invocations=invocations,
+                    )
+
+                # Also check raw output for approval indicators
+                if self._parse_review_result(review_result.stdout):
+                    return PathResult(
+                        status="passed",
+                        reason="Implementation approved (detected from output)",
+                        invocations=invocations,
+                    )
+
+                # Rejected - rework needed
+                if iteration < max_iterations - 1:
+                    requested_changes = []
+                    if review_result.parsed_response:
+                        requested_changes = review_result.parsed_response.requested_changes
+
+                    rework_prompt = self._build_rework_prompt(
+                        wp_content,
+                        requested_changes,
+                    )
+                    impl_result = invoker.invoke(
+                        agent_config=agent,
+                        prompt=rework_prompt,
+                        worktree=worktree_info.path,
+                        timeout=timeout,
+                    )
+                    invocations.append(impl_result)
+
+                    if impl_result.outcome != InvocationOutcome.SUCCESS:
+                        return PathResult(
+                            status="failed",
+                            reason=f"Rework failed: {impl_result.error_message}",
+                            invocations=invocations,
+                        )
+
+            return PathResult(
+                status="failed",
+                reason="Max iterations reached without approval",
+                invocations=invocations,
+            )
+
+        finally:
+            # Cleanup worktree
+            worktree_manager.remove(worktree_info.path)
