@@ -10,4 +10,49 @@ This module exports fixtures for:
 Fixtures are registered in conftest.py and available to all tests.
 """
 
-# Exports will be added as fixtures are implemented in subsequent WPs
+# Container fixtures (WP03)
+from .container_fixtures import (
+    AgentContainerFactory,
+    ContainerTimeoutError,
+    ResourceLimits,
+    TestContainer,
+    container_factory,
+    container_timeout,
+    test_container,
+    tmp_worktree,
+)
+
+# Agent fixtures (WP03)
+from .agent_fixtures import (
+    AgentConfig,
+    AgentRegistry,
+    InvocationPattern,
+    agent_config,
+    agent_registry,
+    available_agents,
+    require_agent,
+    require_agents,
+    skip_if_agent_unavailable,
+)
+
+__all__ = [
+    # Container fixtures
+    "AgentContainerFactory",
+    "ContainerTimeoutError",
+    "ResourceLimits",
+    "TestContainer",
+    "container_factory",
+    "container_timeout",
+    "test_container",
+    "tmp_worktree",
+    # Agent fixtures
+    "AgentConfig",
+    "AgentRegistry",
+    "InvocationPattern",
+    "agent_config",
+    "agent_registry",
+    "available_agents",
+    "require_agent",
+    "require_agents",
+    "skip_if_agent_unavailable",
+]

@@ -30,6 +30,20 @@ Note: These tests are excluded from default pytest runs because they:
 
 import pytest
 
+# Import fixtures from fixtures module (WP03)
+# These become available to all tests in tests/agentic/
+from tests.agentic.fixtures.container_fixtures import (
+    container_factory,
+    test_container,
+    tmp_worktree,
+)
+from tests.agentic.fixtures.agent_fixtures import (
+    agent_config,
+    agent_registry,
+    available_agents,
+    require_agent,
+)
+
 
 def pytest_configure(config):
     """Register custom markers for agentic tests."""
@@ -79,5 +93,8 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "augment: requires Augment Code agent")
 
 
-# Fixtures will be implemented in WP03 (container_fixtures, agent_fixtures)
-# and WP05 (workflow_fixtures)
+# Fixtures from WP03 are imported above
+# Additional fixtures will be added in:
+# - WP05 (workflow_fixtures)
+# - WP06 (observability fixtures)
+# - WP08 (fault injection fixtures)
