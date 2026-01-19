@@ -1,0 +1,14 @@
+evidence_id,date,source_id,finding,relevance,decision_supported
+E001,2026-01-19,S001,"Docker provides sufficient isolation with internal networks and resource limits",High,Container isolation via Docker
+E001,2026-01-19,S002,"Enhanced Container Isolation (ECI) available via Sysbox runtime",Medium,Container isolation via Docker
+E002,2026-01-19,S003,"testcontainers-python 4.14.0 supports yield fixtures and lifecycle management",High,Use testcontainers-python
+E002,2026-01-19,S004,"Session-scoped fixtures recommended for expensive container creation",High,Use testcontainers-python
+E003,2026-01-19,S005,"Docker Secrets mount to /run/secrets/ more secure than env vars",High,Use Docker Secrets for credentials
+E003,2026-01-19,S006,"Env vars can leak in docker inspect and logs",High,Use Docker Secrets for credentials
+E004,2026-01-19,S007,"pytest-timeout supports signal and thread methods for process control",High,Use pytest-timeout
+E004,2026-01-19,S008,"pytest-subprocess wait parameter enables delay simulation",High,Use pytest-subprocess
+E005,2026-01-19,S009,"Toxiproxy provides latency timeout reset_peer toxics for network chaos",High,Use Toxiproxy for network failures
+E005,2026-01-19,S010,"Pumba enables container kill stop pause and network emulation",High,Use Pumba for container chaos
+E006,2026-01-19,S011,"0.10.8 bug affected 100% PyPI users while 323 tests passed",Critical,Install from PyPI not local
+E007,2026-01-19,S012,"9 CLI-capable agents documented with invocation patterns",High,Agent invocation patterns
+E007,2026-01-19,S012,"Cursor requires timeout wrapper due to hanging issue",High,Cursor special handling

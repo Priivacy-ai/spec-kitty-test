@@ -1,0 +1,16 @@
+source_id,type,title,url,accessed_date,notes
+S001,web,"How to Sandbox LLMs & AI Shell Tools",https://www.codeant.ai/blogs/agentic-rag-shell-sandboxing,2026-01-19,Docker gVisor Firecracker comparison
+S002,web,"Secure AI Agents at Runtime with Docker",https://www.docker.com/blog/secure-ai-agents-runtime-security/,2026-01-19,Enhanced Container Isolation
+S003,web,"testcontainers-python PyPI",https://pypi.org/project/testcontainers/,2026-01-19,Version 4.14.0 features
+S004,web,"Getting started with Testcontainers for Python",https://testcontainers.com/guides/getting-started-with-testcontainers-for-python/,2026-01-19,Fixture patterns
+S005,web,"Manage sensitive data with Docker secrets",https://docs.docker.com/engine/swarm/secrets/,2026-01-19,Official Docker docs
+S006,web,"4 Ways to Securely Store & Manage Secrets in Docker",https://blog.gitguardian.com/how-to-handle-secrets-in-docker/,2026-01-19,Best practices comparison
+S007,web,"pytest-timeout PyPI",https://pypi.org/project/pytest-timeout/,2026-01-19,Signal vs thread methods
+S008,web,"pytest-subprocess Documentation",https://pytest-subprocess.readthedocs.io/en/latest/,2026-01-19,Wait and signal_callback
+S009,web,"Toxiproxy GitHub",https://github.com/Shopify/toxiproxy,2026-01-19,TCP proxy for chaos engineering
+S010,web,"Pumba GitHub",https://github.com/alexei-led/pumba,2026-01-19,Container chaos tool
+S011,local,"findings/0.10.8/COMPREHENSIVE_TESTING_FAILURE_SUMMARY.md",N/A,2026-01-19,Distribution testing lesson
+S012,local,"spec-kitty Feature 020 plan.md and data-model.md",N/A,2026-01-19,Agent invocation patterns
+S013,web,"Resource constraints Docker Docs",https://docs.docker.com/engine/containers/resource_constraints/,2026-01-19,CPU memory disk limits
+S014,web,"pyfakefs GitHub",https://github.com/pytest-dev/pyfakefs,2026-01-19,Fake filesystem for testing
+S015,web,"Developing Resilient Applications with Toxiproxy and Testcontainers",https://www.docker.com/blog/developing-resilient-applications-with-toxiproxy-and-testcontainers/,2026-01-19,Integration example
