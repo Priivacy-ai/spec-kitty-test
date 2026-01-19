@@ -1,108 +1,375 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: Agentic End-to-End Testing Framework
 
-
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/spec-kitty.plan` command. See `.kittify/templates/commands/plan.md` for the execution workflow.
-
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+**Branch**: `004-agentic-end-to-end-testing-framework` | **Date**: 2026-01-19 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `kitty-specs/004-agentic-end-to-end-testing-framework/spec.md`
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Build a containerized, adversarial testing framework for spec-kitty's multi-agent orchestrator. The framework validates that spec-kitty works correctly with up to 9 AI coding agents through complete implement → review workflows, using real agents with real credentials, installed from PyPI packages (not development code).
+
+Key technical approach:
+1. Universal Docker base image with spec-kitty from PyPI
+2. Agent CLIs mounted/detected from host system
+3. Internal Docker network blocks internet access for safety
+4. Three modular test paths (1-agent, 2-agent, 3-agent) with pluggable agent combinations
+5. Fault injection via pytest-timeout, pytest-subprocess, Toxiproxy, and Pumba
+6. Local filesystem results storage (CI deferred)
+
+Research foundation: Phase 0 research completed with 15 sources documented.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.11+ (consistent with spec-kitty and constitution)
+**Primary Dependencies**: pytest, testcontainers-python 4.14.0, Docker, pytest-timeout, pytest-subprocess
+**Storage**: Local filesystem (`tests/agentic/results/`), JSON format
+**Testing**: pytest with custom fixtures for container lifecycle
+**Target Platform**: Unix-like (Linux, macOS per constitution)
+**Project Type**: Single project - extends existing test suite structure
+**Performance Goals**: Complete 3-agent parallel test in <2x slowest single-agent time
+**Constraints**: Manual trigger only, real API costs, rate limits per agent
+**Scale/Scope**: 9 supported agents, 3 test paths, ~15-20 test cases initially
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| Adversarial testing philosophy | **PASS** | Core feature purpose - actively breaking spec-kitty |
+| Never edit spec-kitty project | **PASS** | We test, we don't fix |
+| Python 3.11+ | **PASS** | Using Python 3.11+ |
+| pytest framework | **PASS** | Using pytest with fixtures |
+| Dual testing strategy | **PASS** | Distribution tests install from PyPI, no TEMPLATE_ROOT |
+| Unix-like platforms | **PASS** | Docker on Linux/macOS |
+| Findings directory canon | **N/A** | Test framework, not bug reporting |
+
+**Constitution compliance: PASSED** - All applicable principles satisfied.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
-├── plan.md              # This file (/spec-kitty.plan command output)
-├── research.md          # Phase 0 output (/spec-kitty.plan command)
-├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
-├── quickstart.md        # Phase 1 output (/spec-kitty.plan command)
-├── contracts/           # Phase 1 output (/spec-kitty.plan command)
-└── tasks.md             # Phase 2 output (/spec-kitty.tasks command - NOT created by /spec-kitty.plan)
+kitty-specs/004-agentic-end-to-end-testing-framework/
+├── spec.md              # Feature specification
+├── plan.md              # This file
+├── research.md          # Phase 0 output (completed)
+├── data-model.md        # Phase 0 output (completed)
+├── checklists/
+│   └── requirements.md  # Spec quality checklist
+├── research/
+│   ├── evidence-log.csv
+│   └── source-register.csv
+└── tasks/               # Work packages (generated by /spec-kitty.tasks)
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+tests/agentic/
+├── __init__.py
+├── conftest.py                    # pytest fixtures for agentic tests
+│
+├── config/
+│   ├── agents.yaml                # Agent configurations
+│   ├── paths.yaml                 # Test path definitions
+│   └── secrets/                   # Git-ignored credentials
+│       └── .gitkeep
+│
+├── containers/
+│   ├── Dockerfile.base            # Universal base image with spec-kitty
+│   └── docker-compose.yaml        # Network and volume definitions
+│
+├── fixtures/
+│   ├── __init__.py
+│   ├── container_fixtures.py      # TestContainer management
+│   ├── agent_fixtures.py          # Agent detection and config
+│   ├── fault_fixtures.py          # Fault injection utilities
+│   └── workflow_fixtures.py       # Test feature/WP scaffolding
+│
+├── paths/
+│   ├── __init__.py
+│   ├── base_path.py               # Abstract TestPath base
+│   ├── single_agent.py            # 1-agent workflow
+│   ├── cross_review.py            # 2-agent workflow
+│   └── parallel_three.py          # 3-agent workflow
+│
+├── faults/
+│   ├── __init__.py
+│   ├── process_faults.py          # SIGTERM, SIGKILL, timeout
+│   ├── file_faults.py             # Corruption, disk full
+│   └── network_faults.py          # Toxiproxy integration
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_single_agent.py       # US1: Single-agent workflow
+│   ├── test_cross_review.py       # US2: Two-agent cross-review
+│   ├── test_parallel.py           # US3: Three-agent parallel
+│   ├── test_container_isolation.py # US4: Container safety
+│   ├── test_fault_injection.py    # US5: Adversarial faults
+│   ├── test_natural_failures.py   # US6: Observe real failures
+│   ├── test_distribution.py       # US7: PyPI package validation
+│   └── test_agent_config.py       # US8: Modular configuration
+│
+└── results/                       # Git-ignored test outputs
+    └── .gitkeep
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Extends existing `tests/` directory with new `agentic/` subdirectory. Follows pytest conventions with `conftest.py` for fixtures. Keeps container/config concerns separate from test logic.
+
+## Architecture
+
+### Component Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Test Runner (pytest)                            │
+│                                                                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │ test_single │  │ test_cross  │  │ test_parallel│ │ test_faults │        │
+│  │ _agent.py   │  │ _review.py  │  │ .py         │  │ .py         │        │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘        │
+│         │                │                │                │                │
+│         └────────────────┼────────────────┼────────────────┘                │
+│                          ▼                                                   │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                         Test Path Layer                                │  │
+│  │   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │  │
+│  │   │ SingleAgent  │  │ CrossReview  │  │ ParallelThree│               │  │
+│  │   │ Path         │  │ Path         │  │ Path         │               │  │
+│  │   └──────────────┘  └──────────────┘  └──────────────┘               │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                          │                                                   │
+│                          ▼                                                   │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                        Fixture Layer (conftest.py)                     │  │
+│  │                                                                        │  │
+│  │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐          │  │
+│  │  │ container_     │  │ agent_         │  │ fault_         │          │  │
+│  │  │ fixtures       │  │ fixtures       │  │ fixtures       │          │  │
+│  │  │                │  │                │  │                │          │  │
+│  │  │ - TestContainer│  │ - AgentConfig  │  │ - ProcessFault │          │  │
+│  │  │ - ResourceLimits│ │ - Detection    │  │ - FileFault    │          │  │
+│  │  │ - Cleanup      │  │ - Credentials  │  │ - NetworkFault │          │  │
+│  │  └────────────────┘  └────────────────┘  └────────────────┘          │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           Container Layer (Docker)                           │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    Internal Network (no internet)                    │   │
+│  │                                                                      │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │   │
+│  │  │ Agent        │  │ Agent        │  │ Toxiproxy    │              │   │
+│  │  │ Container 1  │  │ Container 2  │  │ (chaos)      │              │   │
+│  │  │              │  │              │  │              │              │   │
+│  │  │ - spec-kitty │  │ - spec-kitty │  │ - latency    │              │   │
+│  │  │ - worktree   │  │ - worktree   │  │ - timeout    │              │   │
+│  │  │ - agent CLI  │  │ - agent CLI  │  │ - reset      │              │   │
+│  │  │   (mounted)  │  │   (mounted)  │  │              │              │   │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘              │   │
+│  │                                                                      │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  Resource Limits: CPU 2 cores, Memory 4GB, Disk 10GB per container          │
+│  Secrets: Mounted from host /run/secrets/                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+1. **Test Initialization**
+   - pytest loads `conftest.py` fixtures
+   - `agent_fixtures` detects available agents on host
+   - `container_fixtures` builds/pulls base Docker image
+   - Creates internal Docker network
+
+2. **Test Path Execution**
+   - Test selects path (single, cross-review, parallel)
+   - Path requests agent slots from fixture
+   - Fixture maps slots → available agents
+   - Creates test feature with WP in spec-kitty project inside container
+
+3. **Agent Invocation**
+   - Container started with:
+     - spec-kitty from PyPI (distribution testing)
+     - Agent CLI mounted from host
+     - Credentials mounted as Docker secret
+     - Worktree directory mounted read-write
+   - Agent invoked via `subprocess` inside container
+   - stdout/stderr captured to log file
+
+4. **Workflow Monitoring**
+   - Poll for WP lane changes (planned → doing → for_review → done)
+   - Detect review rejection (for_review → planned)
+   - Track iteration count
+   - Enforce max iterations
+
+5. **Result Capture**
+   - Container metrics captured (CPU, memory)
+   - Git state captured (commits, files modified)
+   - All observations written to TestRun JSON
+   - Container destroyed
+
+6. **Fault Injection (when enabled)**
+   - `fault_fixtures` inject failures at trigger points
+   - Process faults: SIGTERM, SIGKILL, timeout
+   - File faults: corrupt state files, disk full
+   - Network faults: Toxiproxy toxics (latency, reset)
+
+### Key Design Decisions
+
+#### D1: Universal Base Image
+
+**Decision**: Single `Dockerfile.base` with spec-kitty from PyPI; agent CLIs mounted from host.
+
+**Rationale**:
+- Simpler maintenance (1 Dockerfile vs 9)
+- Leverages existing agent installations on developer machines
+- Distribution testing guaranteed (PyPI install, not local)
+- Agent updates don't require image rebuilds
+
+**Trade-off**: Requires agents installed on host system.
+
+#### D2: Internal Docker Network
+
+**Decision**: Create isolated network with `--internal` flag, no internet access.
+
+**Rationale**:
+- Prevents agents from exfiltrating data
+- Blocks unexpected network calls
+- Aligns with safety requirements
+- Agents can still access worktree and local git
+
+**Trade-off**: Cannot test scenarios requiring internet (e.g., agent downloading dependencies).
+
+#### D3: pytest Fixtures over Test Classes
+
+**Decision**: Use pytest fixtures for container lifecycle, not test class setUp/tearDown.
+
+**Rationale**:
+- Session-scoped fixtures for expensive operations (image build)
+- Function-scoped fixtures for test isolation
+- Composable fixtures (agent + container + fault)
+- Better pytest integration and reporting
+
+#### D4: Local Results Only (No CI)
+
+**Decision**: Store results in local filesystem, defer CI integration.
+
+**Rationale**:
+- Focus on core functionality first
+- Avoid infrastructure complexity
+- Manual trigger workflow doesn't need CI
+- Can add CI later without changing test structure
+
+## Integration Points
+
+### External Systems
+
+| System | Integration | Notes |
+|--------|-------------|-------|
+| Docker Engine | Container lifecycle | testcontainers-python manages |
+| Agent CLIs | Volume mount from host | Detected at test start |
+| PyPI | Package install in container | Latest or pinned spec-kitty version |
+| Git | Worktree operations | Mounted into container |
+
+### Existing Test Infrastructure
+
+| File | Reuse | Notes |
+|------|-------|-------|
+| `tests/conftest.py` | Reference patterns | Version detection, clean_env fixture |
+| `tests/functional/test_all_agents.py` | Agent matrix | AGENT_TEST_MATRIX dict |
+
+## Testing Strategy
+
+### Test Categories
+
+1. **Workflow Tests** (US1-3)
+   - Single-agent, two-agent, three-agent paths
+   - Happy path + rejection cycles
+   - Parameterized by agent combinations
+
+2. **Safety Tests** (US4)
+   - File access outside worktree (should fail)
+   - Network access to non-allowlisted hosts (should fail)
+   - Resource limit enforcement
+
+3. **Fault Injection Tests** (US5)
+   - Process crash recovery
+   - Timeout handling
+   - State file corruption
+   - Git conflict handling
+   - Auth failure fallback
+
+4. **Natural Failure Tests** (US6)
+   - Extended runs observing real agent failures
+   - Log capture for post-mortem
+
+5. **Distribution Tests** (US7)
+   - Verify PyPI install (no TEMPLATE_ROOT)
+   - Version matching
+
+6. **Configuration Tests** (US8)
+   - Agent enable/disable
+   - Dynamic agent addition
+   - Graceful skip for unavailable agents
+
+### Test Execution
+
+```bash
+# Run all agentic tests (manual trigger)
+pytest tests/agentic/ -v
+
+# Run specific path
+pytest tests/agentic/tests/test_single_agent.py -v
+
+# Run with specific agent
+pytest tests/agentic/ -v -k "claude"
+
+# Run fault injection tests only
+pytest tests/agentic/tests/test_fault_injection.py -v
+```
+
+## Risks and Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Agent CLI changes | Medium | High | Version detection, graceful degradation |
+| API rate limits | High | Medium | Per-agent concurrency limits, backoff |
+| Test flakiness (non-deterministic LLMs) | High | Medium | Focus on workflow completion, not exact output |
+| Container build failures | Low | High | Cache layers, fallback to pre-built image |
+| Credential exposure | Low | Critical | Docker secrets, never in env vars or logs |
+| Long test execution | High | Low | Manual trigger, no CI blocking |
+
+## Phase 0 Research
+
+**Status**: Complete
+
+All technical decisions informed by research documented in `research.md`:
+- Container isolation patterns (E001-E003)
+- Fault injection tools (E004-E005)
+- Distribution testing principle (E006)
+- Agent invocation patterns (E007)
+
+15 sources documented in `research/source-register.csv`.
+
+## Phase 1 Artifacts
+
+- `research.md` - Decision log with evidence references (completed)
+- `data-model.md` - Entity schemas and relationships (completed)
+- `agents.yaml` schema - Configuration format (documented in data-model.md)
+- `run-{uuid}.json` schema - Test result format (documented in data-model.md)
+
+**Agent context**: Will be updated after plan approval.
+
+---
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+*No constitution violations requiring justification.*
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+The feature uses standard pytest patterns, Docker containers, and established chaos engineering tools. No unnecessary complexity introduced.
