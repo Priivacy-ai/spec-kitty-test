@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: 'Container Infrastructure: Dockerfile and Docker Compose'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T002
@@ -11,8 +11,8 @@ subtasks:
 - T007
 phase: Phase 1 - Infrastructure
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "19374"
 review_status: ''
 reviewed_by: ''
 history:
@@ -358,3 +358,7 @@ docker compose run --rm agent-runner "python -c 'x = [1]*10**9'"  # OOM test
 - [ ] Secrets mounting configured
 - [ ] README.md with complete documentation
 - [ ] Build tested locally with `docker compose build --no-cache`
+
+## Activity Log
+
+- 2026-01-19T10:08:05Z – claude-opus – shell_pid=19374 – lane=doing – Started implementation via workflow command
