@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: 'Workflow Engine: State Transitions and Validation'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T018
@@ -11,8 +11,8 @@ subtasks:
 - T024
 phase: Phase 2 - Fixtures
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "60062"
 review_status: ''
 reviewed_by: ''
 history:
@@ -621,3 +621,7 @@ pytest tests/agentic/fixtures/test_workflow.py -v
 - [ ] All classes exported in __init__.py
 - [ ] Fixtures registered in conftest.py
 - [ ] Unit tests pass
+
+## Activity Log
+
+- 2026-01-19T14:35:19Z – claude-opus – shell_pid=60062 – lane=doing – Started implementation via workflow command
