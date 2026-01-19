@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: 'Core Fixtures: Container and Agent Lifecycle'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T006
@@ -11,8 +11,8 @@ subtasks:
 - T010
 phase: Phase 2 - Fixtures
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "30118"
 review_status: ''
 reviewed_by: ''
 history:
@@ -418,3 +418,7 @@ pytest tests/agentic/fixtures/ -v -k "container"
 - [ ] Timeout enforcement implemented
 - [ ] All fixtures exposed in conftest.py
 - [ ] Unit tests for fixture logic pass
+
+## Activity Log
+
+- 2026-01-19T10:19:59Z – claude-opus – shell_pid=30118 – lane=doing – Started implementation via workflow command
