@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: 'Foundation: Directory Structure and Configuration Schemas'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T001
@@ -9,8 +9,8 @@ subtasks:
 - T012
 phase: Phase 1 - Infrastructure
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "15522"
 review_status: ''
 reviewed_by: ''
 history:
@@ -249,3 +249,7 @@ git status tests/agentic/results/
 - [ ] secrets/ and results/ directories git-ignored
 - [ ] YAML files parse without errors
 - [ ] conftest.py stub exists with docstring
+
+## Activity Log
+
+- 2026-01-19T10:04:17Z – claude-opus – shell_pid=15522 – lane=doing – Started implementation via workflow command
