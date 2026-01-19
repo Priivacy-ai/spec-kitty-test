@@ -1,0 +1,171 @@
+# Agent configuration for E2E testing
+# Defines all 9 CLI-capable agents with their invocation patterns,
+# timeouts, resource limits, and credential references.
+#
+# Per research.md E007: Agent invocation patterns from Feature 020
+# Per data-model.md: AgentConfig schema
+
+version: "1.0"
+
+agents:
+  # Claude Code - Anthropic's AI coding assistant
+  # Invocation: stdin input, -p for headless, --output-format json for structured output
+  claude-code:
+    enabled: true
+    command: "claude"
+    invocation_pattern: "stdin"
+    headless_flag: "-p"
+    json_output_flag: "--output-format json"
+    timeout_seconds: 600
+    credentials_secret: "claude_api_key"
+    requires_timeout_wrapper: false
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+  # GitHub Codex - GitHub's AI coding assistant
+  # Invocation: stdin or arg, --json for structured output
+  github-codex:
+    enabled: true
+    command: "codex exec"
+    invocation_pattern: "stdin"
+    headless_flag: "-"
+    json_output_flag: "--json"
+    timeout_seconds: 300
+    credentials_secret: "github_token"
+    requires_timeout_wrapper: false
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+  # GitHub Copilot - GitHub's AI pair programmer
+  # Invocation: argument input, -p for prompt, --silent for headless
+  github-copilot:
+    enabled: true
+    command: "copilot"
+    invocation_pattern: "argument"
+    headless_flag: "-p"
+    json_output_flag: "--silent"
+    timeout_seconds: 300
+    credentials_secret: "github_token"
+    requires_timeout_wrapper: false
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+  # Google Gemini CLI - Google's AI coding assistant
+  # Invocation: stdin input, -p for headless, --output-format json for structured output
+  google-gemini:
+    enabled: true
+    command: "gemini"
+    invocation_pattern: "stdin"
+    headless_flag: "-p"
+    json_output_flag: "--output-format json"
+    timeout_seconds: 300
+    credentials_secret: "gemini_api_key"
+    requires_timeout_wrapper: false
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+  # Qwen Code - Alibaba's AI coding assistant
+  # Invocation: stdin input, -p for headless, --output-format json for structured output
+  qwen-code:
+    enabled: true
+    command: "qwen"
+    invocation_pattern: "stdin"
+    headless_flag: "-p"
+    json_output_flag: "--output-format json"
+    timeout_seconds: 300
+    credentials_secret: "qwen_api_key"
+    requires_timeout_wrapper: false
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+  # OpenCode - Open-source AI coding assistant
+  # Invocation: stdin or -f file, --format json for structured output
+  opencode:
+    enabled: true
+    command: "opencode run"
+    invocation_pattern: "stdin"
+    headless_flag: ""
+    json_output_flag: "--format json"
+    timeout_seconds: 300
+    credentials_secret: "opencode_api_key"
+    requires_timeout_wrapper: false
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+  # Kilocode - AI coding assistant
+  # Invocation: argument input, -a for auto mode, -j for JSON output
+  kilocode:
+    enabled: true
+    command: "kilocode"
+    invocation_pattern: "argument"
+    headless_flag: "-a"
+    json_output_flag: "-j"
+    timeout_seconds: 300
+    credentials_secret: "kilocode_api_key"
+    requires_timeout_wrapper: false
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+  # Augment Code - AI coding assistant
+  # Invocation: argument input, --acp for auto-code-pilot mode
+  # Note: Only provides exit code, no JSON output
+  augment-code:
+    enabled: true
+    command: "auggie"
+    invocation_pattern: "argument"
+    headless_flag: "--acp"
+    json_output_flag: ""
+    timeout_seconds: 300
+    credentials_secret: "augment_api_key"
+    requires_timeout_wrapper: false
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+  # Cursor - AI-powered code editor
+  # Invocation: argument input, -p for prompt, --output-format json for structured output
+  # WARNING: Requires timeout wrapper due to known hanging issue (research.md E007)
+  cursor:
+    enabled: true
+    command: "cursor agent"
+    invocation_pattern: "argument"
+    headless_flag: "-p"
+    json_output_flag: "--output-format json"
+    timeout_seconds: 300
+    credentials_secret: "cursor_api_key"
+    requires_timeout_wrapper: true  # CRITICAL: Known hanging issue
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      disk_mb: 10240
+
+# Default configuration applied when agent-specific values not provided
+defaults:
+  timeout_seconds: 300
+  requires_timeout_wrapper: false
+  resource_limits:
+    cpu_cores: 2.0
+    memory_mb: 4096
+    disk_mb: 10240
+
+# Network configuration for container isolation
+# Per research.md E001: Docker provides sufficient isolation with internal networks
+network:
+  name: "agent-test-internal"
+  driver: "bridge"
+  internal: true  # CRITICAL: Blocks outbound internet access for safety
