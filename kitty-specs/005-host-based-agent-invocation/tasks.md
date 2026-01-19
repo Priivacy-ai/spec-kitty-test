@@ -64,7 +64,7 @@
 - [x] T007 Create AgentInvoker class with core invoke() method in `tests/agentic/invoker/agent_invoker.py`
 - [x] T008 Add invoke_async() method returning AgentProcess in `tests/agentic/invoker/agent_invoker.py`
 - [x] T009 Add invoke_with_constraint() for same_as/different_from handling in `tests/agentic/invoker/agent_invoker.py`
-- [ ] T010 Add process cleanup, atexit handlers, and kill_all() in `tests/agentic/invoker/agent_invoker.py`
+- [x] T010 Add process cleanup, atexit handlers, and kill_all() in `tests/agentic/invoker/agent_invoker.py`
 
 ### Implementation Notes
 - BaseAgentConfig is a Protocol with: agent_id, display_name, cli_command, prompt_method, build_command(), check_installed(), check_authenticated(), parse_output()
