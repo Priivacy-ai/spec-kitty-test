@@ -186,7 +186,7 @@
 - [x] T020 Update SingleAgentPath in `tests/agentic/paths/single_agent.py` to use invoker
 - [x] T021 Update CrossReviewPath in `tests/agentic/paths/cross_review.py` to use invoker
 - [x] T022 Update ParallelThreePath in `tests/agentic/paths/parallel_three.py` to use invoker
-- [ ] T023 Add agent_invoker and worktree_manager fixtures to `tests/agentic/conftest.py`
+- [x] T023 Add agent_invoker and worktree_manager fixtures to `tests/agentic/conftest.py`
 - [ ] T024 Update available_agents fixture to use AgentDiscovery in `tests/agentic/conftest.py`
 
 ### Implementation Notes
