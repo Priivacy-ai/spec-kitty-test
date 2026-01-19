@@ -125,7 +125,7 @@
 ### Included Subtasks
 - [x] T014 [P] Create ClaudeCodeConfig in `tests/agentic/agents/claude_code.py`
 - [x] T015 [P] Create CopilotConfig in `tests/agentic/agents/copilot.py`
-- [ ] T016 [P] Create GeminiConfig in `tests/agentic/agents/gemini.py`
+- [x] T016 [P] Create GeminiConfig in `tests/agentic/agents/gemini.py`
 
 ### Implementation Notes
 - ClaudeCodeConfig: CLI `claude`, prompt via STDIN, env var ANTHROPIC_API_KEY
