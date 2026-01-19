@@ -236,6 +236,7 @@ class AgentRegistry:
 
         self._config_path = config_path
         self._agents: Dict[str, AgentConfig] = {}
+        self._defaults: Dict = {}
         self._load_config()
 
     def _load_config(self):
@@ -243,7 +244,8 @@ class AgentRegistry:
         with open(self._config_path) as f:
             data = yaml.safe_load(f)
 
-        defaults = data.get("defaults", {})
+        self._defaults = data.get("defaults", {})
+        defaults = self._defaults
         default_limits = defaults.get("resource_limits", {})
 
         for agent_id, config in data.get("agents", {}).items():
@@ -305,6 +307,120 @@ class AgentRegistry:
     def get_installed_agents(self) -> List[AgentConfig]:
         """Return list of agents that are installed (enabled or not)."""
         return [agent for agent in self._agents.values() if agent.is_installed]
+
+
+class DynamicAgentRegistry(AgentRegistry):
+    """Agent registry that supports runtime configuration updates.
+
+    Extends AgentRegistry with methods to add, remove, and update agents
+    at runtime. This is useful for testing scenarios where agent
+    configuration needs to change during test execution.
+
+    T011: Support dynamic agent configuration loading
+    """
+
+    def add_agent(self, agent_config: AgentConfig) -> None:
+        """Add a new agent at runtime.
+
+        Args:
+            agent_config: Configuration for the new agent
+        """
+        self._agents[agent_config.agent_id] = agent_config
+
+    def remove_agent(self, agent_id: str) -> bool:
+        """Remove an agent from registry.
+
+        Args:
+            agent_id: ID of the agent to remove
+
+        Returns:
+            True if agent was removed, False if not found
+        """
+        if agent_id in self._agents:
+            del self._agents[agent_id]
+            return True
+        return False
+
+    def update_agent(self, agent_id: str, **kwargs) -> bool:
+        """Update agent configuration.
+
+        Updates only the specified fields, leaving others unchanged.
+
+        Args:
+            agent_id: ID of the agent to update
+            **kwargs: Fields to update (e.g., timeout_seconds=600)
+
+        Returns:
+            True if agent was updated, False if not found
+        """
+        if agent_id not in self._agents:
+            return False
+
+        agent = self._agents[agent_id]
+        for key, value in kwargs.items():
+            if hasattr(agent, key):
+                # Handle special cases for nested objects
+                if key == "resource_limits" and isinstance(value, dict):
+                    current_limits = agent.resource_limits
+                    new_limits = ResourceLimits(
+                        cpu_cores=value.get("cpu_cores", current_limits.cpu_cores),
+                        memory_mb=value.get("memory_mb", current_limits.memory_mb),
+                        disk_mb=value.get("disk_mb", current_limits.disk_mb),
+                    )
+                    object.__setattr__(agent, key, new_limits)
+                elif key == "invocation_pattern" and isinstance(value, str):
+                    object.__setattr__(agent, key, InvocationPattern(value))
+                else:
+                    object.__setattr__(agent, key, value)
+        return True
+
+    def reload_config(self) -> None:
+        """Reload configuration from YAML file.
+
+        Clears all current agents and reloads from the original config file.
+        """
+        self._agents.clear()
+        self._load_config()
+
+    def create_agent_from_dict(self, agent_id: str, config: Dict) -> AgentConfig:
+        """Create an AgentConfig from a dictionary.
+
+        Useful for creating agents from test data.
+
+        Args:
+            agent_id: ID for the new agent
+            config: Configuration dictionary
+
+        Returns:
+            New AgentConfig instance
+        """
+        defaults = self._defaults
+        default_limits = defaults.get("resource_limits", {})
+        limits_data = config.get("resource_limits", default_limits)
+
+        return AgentConfig(
+            agent_id=agent_id,
+            enabled=config.get("enabled", True),
+            command=config.get("command", "echo"),
+            invocation_pattern=InvocationPattern(
+                config.get("invocation_pattern", "stdin")
+            ),
+            headless_flag=config.get("headless_flag", ""),
+            json_output_flag=config.get("json_output_flag", ""),
+            timeout_seconds=config.get(
+                "timeout_seconds", defaults.get("timeout_seconds", 300)
+            ),
+            credentials_secret=config.get("credentials_secret", "none"),
+            requires_timeout_wrapper=config.get(
+                "requires_timeout_wrapper",
+                defaults.get("requires_timeout_wrapper", False),
+            ),
+            resource_limits=ResourceLimits(
+                cpu_cores=limits_data.get("cpu_cores", 2.0),
+                memory_mb=limits_data.get("memory_mb", 4096),
+                disk_mb=limits_data.get("disk_mb", 10240),
+            ),
+        )
 
 
 # Type variable for decorator return type preservation
