@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Extended Tests and Reporting
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T011
@@ -16,8 +16,8 @@ subtasks:
 - T049
 phase: Phase 4 - Test Implementation
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "85695"
 review_status: ''
 reviewed_by: ''
 history:
@@ -1236,3 +1236,7 @@ pytest tests/agentic/ -v -m "fault_injection"
 - [ ] test_natural_failures.py complete
 - [ ] test_agent_config.py complete
 - [ ] Helper scripts created
+
+## Activity Log
+
+- 2026-01-19T16:11:25Z – claude-opus – shell_pid=85695 – lane=doing – Started implementation via workflow command
