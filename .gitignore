@@ -61,4 +61,5 @@ temp_*/
 .worktrees/
 .claude/
 # Prevent worktree-local kitty-specs/ (status managed in main repo)
-kitty-specs/
+# Note: This rule is disabled in main repo - kitty-specs should be tracked there
+# kitty-specs/

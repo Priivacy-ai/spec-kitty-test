@@ -1,0 +1,8 @@
+{
+  "feature_number": "004",
+  "slug": "agentic-end-to-end-testing-framework",
+  "friendly_name": "Agentic End-to-End Testing Framework",
+  "mission": "software-dev",
+  "source_description": "This is the spec kitty external testing team's chance to shine. We have the hardest testing challenge ahead of us. We need to be able to test spec kitty working with as many as 12 different agents (with more in the future) through complex workflows that have complex requirements (eg agents installed, agents authenticated, many steps in spec kitty workflow (specify, plan, tasks, implement, review merge)) and all of this must be modular (so we can extend the tests to include new agents in the future) and safe (so that none of our tests accidentally brick our local system or let AGI loose into the wild). This is a software development project with a HEAVY research requirement.",
+  "created_at": "2026-01-19T12:00:00Z"
+}
