@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: 'Fault Injection: Adversarial Testing Components'
-lane: "for_review"
+lane: "doing"
 dependencies: []
 subtasks:
 - T025
@@ -13,7 +13,7 @@ subtasks:
 phase: Phase 3 - Fault Injection
 assignee: ''
 agent: "claude-opus"
-shell_pid: "70542"
+shell_pid: "77330"
 review_status: ''
 reviewed_by: ''
 history:
@@ -1104,3 +1104,4 @@ pytest tests/agentic/faults/ -v
 
 - 2026-01-19T14:56:15Z – claude-opus – shell_pid=70542 – lane=doing – Started implementation via workflow command
 - 2026-01-19T15:05:53Z – claude-opus – shell_pid=70542 – lane=for_review – Moved to for_review
+- 2026-01-19T15:06:36Z – claude-opus – shell_pid=77330 – lane=doing – Started review via workflow command
