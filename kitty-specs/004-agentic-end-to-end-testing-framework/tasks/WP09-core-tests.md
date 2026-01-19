@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: 'Core Tests: Single-Agent, Distribution, and Isolation'
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks:
 - T036
@@ -819,3 +819,4 @@ pytest tests/agentic/tests/ -v -m "not slow" --tb=short
 ## Activity Log
 
 - 2026-01-19T15:06:27Z – claude-opus – shell_pid=77177 – lane=doing – Started implementation via workflow command
+- 2026-01-19T15:16:00Z – claude-opus – shell_pid=77177 – lane=for_review – Ready for review: Implemented all P1 core tests (49 tests total) - test_distribution.py (T036/T037/T048), test_single_agent.py (T042), test_container_isolation.py (T045)
