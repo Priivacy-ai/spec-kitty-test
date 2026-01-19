@@ -135,6 +135,50 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "augment: requires Augment Code agent")
 
 
+def pytest_collection_modifyitems(config, items):
+    """Auto-skip tests for unavailable agents.
+
+    T038: Add pytest markers for manual test triggering
+
+    This hook runs after test collection and adds skip markers to tests
+    that require agents which are not installed or authenticated.
+    """
+    from pathlib import Path
+    from tests.agentic.fixtures.agent_fixtures import AgentRegistry
+
+    # Load registry once for all items
+    config_path = Path(__file__).parent / "config" / "agents.yaml"
+    if config_path.exists():
+        try:
+            registry = AgentRegistry(config_path)
+            available = {a.agent_id for a in registry.get_available_agents()}
+        except Exception:
+            available = set()
+    else:
+        available = set()
+
+    # Mapping of marker names to agent IDs
+    agent_markers = {
+        "claude": "claude-code",
+        "copilot": "github-copilot",
+        "codex": "github-codex",
+        "gemini": "google-gemini",
+        "cursor": "cursor",
+        "qwen": "qwen-code",
+        "opencode": "opencode",
+        "kilocode": "kilocode",
+        "augment": "augment-code",
+    }
+
+    for item in items:
+        for marker_name, agent_id in agent_markers.items():
+            if marker_name in item.keywords:
+                if agent_id not in available:
+                    item.add_marker(pytest.mark.skip(
+                        reason=f"Agent {agent_id} not available"
+                    ))
+
+
 # Fixtures from WP03, WP05, WP06, and WP08 are imported above
 
 
