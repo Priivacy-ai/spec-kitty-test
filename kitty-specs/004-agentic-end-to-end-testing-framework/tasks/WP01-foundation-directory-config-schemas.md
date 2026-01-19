@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: 'Foundation: Directory Structure and Configuration Schemas'
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks:
 - T001
@@ -253,3 +253,4 @@ git status tests/agentic/results/
 ## Activity Log
 
 - 2026-01-19T10:04:17Z – claude-opus – shell_pid=15522 – lane=doing – Started implementation via workflow command
+- 2026-01-19T10:07:19Z – claude-opus – shell_pid=15522 – lane=for_review – Ready for review: Created tests/agentic/ directory structure with all __init__.py files, agents.yaml with 9 agents, paths.yaml with 3 test paths, conftest.py with pytest markers, and .gitignore entries for secrets/results
