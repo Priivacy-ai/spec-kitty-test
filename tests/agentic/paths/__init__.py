@@ -29,6 +29,8 @@ from .base_path import (
     WorkflowStep,
 )
 from .single_agent import SingleAgentPath
+from .cross_review import CrossReviewPath
+from .parallel_three import ParallelThreePath, ParallelWorkItem, WorkItemResult
 
 # Type variable for decorator return type preservation
 F = TypeVar("F", bound=Callable)
@@ -299,6 +301,11 @@ __all__ = [
     "WorkflowStep",
     # Path implementations
     "SingleAgentPath",
+    "CrossReviewPath",
+    "ParallelThreePath",
+    # Parallel path helpers
+    "ParallelWorkItem",
+    "WorkItemResult",
     # Utilities
     "agent_combo_ids",
     "generate_agent_combinations",
