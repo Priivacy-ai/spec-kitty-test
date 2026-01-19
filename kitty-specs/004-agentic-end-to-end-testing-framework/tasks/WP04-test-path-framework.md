@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: 'Test Path Framework: Base Class and Path Definitions'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T013
@@ -9,8 +9,8 @@ subtasks:
 - T015
 phase: Phase 2 - Fixtures
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "45460"
 review_status: ''
 reviewed_by: ''
 history:
@@ -538,3 +538,7 @@ pytest tests/agentic/paths/ -v
 - [ ] Workflow step execution with containers
 - [ ] TestRun result capture
 - [ ] Unit tests for path logic
+
+## Activity Log
+
+- 2026-01-19T12:53:15Z – claude-opus – shell_pid=45460 – lane=doing – Started implementation via workflow command
