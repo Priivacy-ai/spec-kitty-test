@@ -183,7 +183,7 @@
 
 ### Included Subtasks
 - [x] T019 Update BasePath in `tests/agentic/paths/base_path.py` to accept AgentInvoker
-- [ ] T020 Update SingleAgentPath in `tests/agentic/paths/single_agent.py` to use invoker
+- [x] T020 Update SingleAgentPath in `tests/agentic/paths/single_agent.py` to use invoker
 - [ ] T021 Update CrossReviewPath in `tests/agentic/paths/cross_review.py` to use invoker
 - [ ] T022 Update ParallelThreePath in `tests/agentic/paths/parallel_three.py` to use invoker
 - [ ] T023 Add agent_invoker and worktree_manager fixtures to `tests/agentic/conftest.py`
