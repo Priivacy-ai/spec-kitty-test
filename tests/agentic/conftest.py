@@ -63,6 +63,29 @@ from tests.agentic.fixtures.observability import (
     transition_logger,
 )
 
+# Fault injection fixtures (WP08)
+from tests.agentic.faults import (
+    # Process faults
+    ProcessFaultInjector,
+    TimeoutFaultInjector,
+    ProcessCrashInjector,
+    # File faults
+    FileFaultInjector,
+    GitFaultInjector,
+    PermissionFaultInjector,
+    CorruptionType,
+    # Auth faults
+    AuthFaultInjector,
+    AuthFaultType,
+    CredentialType,
+    # Resource faults
+    ResourceFaultInjector,
+    ResourceType,
+    ExhaustionLevel,
+    # Common types
+    TriggerCondition,
+)
+
 
 def pytest_configure(config):
     """Register custom markers for agentic tests."""
@@ -112,6 +135,177 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "augment: requires Augment Code agent")
 
 
-# Fixtures from WP03, WP05, and WP06 are imported above
-# Additional fixtures will be added in:
-# - WP08 (fault injection fixtures)
+# Fixtures from WP03, WP05, WP06, and WP08 are imported above
+
+
+# =============================================================================
+# Fault Injection Fixtures (WP08)
+# =============================================================================
+
+
+@pytest.fixture
+def process_fault_injector():
+    """Create a ProcessFaultInjector for signal-based faults.
+
+    Yields:
+        ProcessFaultInjector instance
+
+    Cleanup:
+        Restores any stopped processes (SIGSTOP -> SIGCONT)
+    """
+    import signal
+
+    injector = ProcessFaultInjector(signal_type=signal.SIGTERM)
+    yield injector
+    injector.restore()
+
+
+@pytest.fixture
+def timeout_fault_injector():
+    """Create a TimeoutFaultInjector for delay simulation.
+
+    Yields:
+        TimeoutFaultInjector instance
+
+    Cleanup:
+        Unpauses any paused containers
+    """
+    injector = TimeoutFaultInjector(delay_type="artificial", delay_seconds=30.0)
+    yield injector
+    injector.restore()
+
+
+@pytest.fixture
+def crash_fault_injector():
+    """Create a ProcessCrashInjector for crash simulation.
+
+    Yields:
+        ProcessCrashInjector instance
+    """
+    injector = ProcessCrashInjector(crash_type="exit_error", exit_code=1)
+    yield injector
+
+
+@pytest.fixture
+def file_fault_injector(tmp_path):
+    """Create a FileFaultInjector with temp backup directory.
+
+    Args:
+        tmp_path: pytest tmp_path fixture
+
+    Yields:
+        FileFaultInjector instance
+
+    Cleanup:
+        Restores corrupted files and cleans up backups
+    """
+    injector = FileFaultInjector(
+        corruption_type=CorruptionType.RANDOM_BYTES,
+        corruption_ratio=0.1,
+        backup_dir=tmp_path / "fault_backups",
+    )
+    yield injector
+    injector.restore()
+    injector.cleanup()
+
+
+@pytest.fixture
+def git_fault_injector():
+    """Create a GitFaultInjector for git-related faults.
+
+    Yields:
+        GitFaultInjector instance
+
+    Cleanup:
+        Restores git repository state
+    """
+    injector = GitFaultInjector(fault_type="merge_conflict")
+    yield injector
+    injector.restore()
+
+
+@pytest.fixture
+def permission_fault_injector():
+    """Create a PermissionFaultInjector.
+
+    Yields:
+        PermissionFaultInjector instance
+
+    Cleanup:
+        Restores original file permissions
+    """
+    from tests.agentic.faults.file_faults import PermissionFault
+
+    injector = PermissionFaultInjector(permission_fault=PermissionFault.READ_ONLY)
+    yield injector
+    injector.restore()
+
+
+@pytest.fixture
+def auth_fault_injector():
+    """Create an AuthFaultInjector for credential faults.
+
+    Yields:
+        AuthFaultInjector instance
+
+    Cleanup:
+        Restores credentials from backup
+    """
+    injector = AuthFaultInjector(
+        fault_type=AuthFaultType.CREDENTIAL_REMOVAL,
+        credential_type=CredentialType.ANTHROPIC_API_KEY,
+    )
+    yield injector
+    injector.restore()
+    injector.cleanup()
+
+
+@pytest.fixture
+def resource_fault_injector(tmp_path):
+    """Create a ResourceFaultInjector for resource exhaustion.
+
+    Args:
+        tmp_path: pytest tmp_path fixture
+
+    Yields:
+        ResourceFaultInjector instance
+
+    Cleanup:
+        Cleans up fill files and stops stress threads
+    """
+    injector = ResourceFaultInjector(
+        resource_type=ResourceType.DISK,
+        exhaustion_level=ExhaustionLevel.MODERATE,
+    )
+    yield injector
+    injector.restore()
+
+
+@pytest.fixture
+def fault_injection_suite(
+    process_fault_injector,
+    timeout_fault_injector,
+    file_fault_injector,
+    git_fault_injector,
+    auth_fault_injector,
+    resource_fault_injector,
+):
+    """Provide all fault injectors as a combined fixture.
+
+    This fixture is useful for tests that need access to multiple
+    fault injection capabilities.
+
+    Yields:
+        Dict containing all fault injectors
+
+    Cleanup:
+        All individual injectors handle their own cleanup
+    """
+    return {
+        "process": process_fault_injector,
+        "timeout": timeout_fault_injector,
+        "file": file_fault_injector,
+        "git": git_fault_injector,
+        "auth": auth_fault_injector,
+        "resource": resource_fault_injector,
+    }
