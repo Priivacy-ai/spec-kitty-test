@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: 'Core Tests: Single-Agent, Distribution, and Isolation'
-lane: "doing"
+lane: "done"
 dependencies: []
 subtasks:
 - T036
@@ -13,8 +13,8 @@ phase: Phase 4 - Test Implementation
 assignee: ''
 agent: "claude-opus"
 shell_pid: "79929"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Robert Douglass"
 history:
 - timestamp: '2026-01-19T00:00:00Z'
   lane: planned
@@ -821,3 +821,4 @@ pytest tests/agentic/tests/ -v -m "not slow" --tb=short
 - 2026-01-19T15:06:27Z – claude-opus – shell_pid=77177 – lane=doing – Started implementation via workflow command
 - 2026-01-19T15:16:00Z – claude-opus – shell_pid=77177 – lane=for_review – Ready for review: Implemented all P1 core tests (49 tests total) - test_distribution.py (T036/T037/T048), test_single_agent.py (T042), test_container_isolation.py (T045)
 - 2026-01-19T15:19:20Z – claude-opus – shell_pid=79929 – lane=doing – Started review via workflow command
+- 2026-01-19T15:21:27Z – claude-opus – shell_pid=79929 – lane=done – Review passed: All 5 subtasks verified - T036 PyPI install verification (no SPEC_KITTY_TEMPLATE_ROOT), T037 version verification, T042 single-agent tests (all 4 US1 scenarios + 10 tests parameterized for 5 agents), T045 container isolation tests (all 5 US4 scenarios + security baseline = 21 tests), T048 distribution edge cases. Total 49 tests with proper pytest marks (distribution, slow, agentic, isolation, security, single_agent). All imports verified.
