@@ -153,7 +153,7 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T017 [P] Create OpenCodeConfig in `tests/agentic/agents/opencode.py`
+- [x] T017 [P] Create OpenCodeConfig in `tests/agentic/agents/opencode.py`
 - [ ] T018 [P] Create CodexConfig in `tests/agentic/agents/codex.py`
 
 ### Implementation Notes
