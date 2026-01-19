@@ -8,18 +8,25 @@ This path validates:
 
 Per CLAUDE.md: These are distribution tests - spec-kitty is installed from PyPI,
 NOT from local source. No SPEC_KITTY_TEMPLATE_ROOT is ever set.
+
+Supports two execution modes:
+1. Container-based (legacy): Uses Docker containers via execute()
+2. Host-based (new): Uses direct subprocess via execute_host_based()
 """
 
 import asyncio
+import concurrent.futures
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional
+from uuid import uuid4
 
 from .base_path import (
     AgentRole,
     AgentSlot,
     EventType,
+    PathResult,
     TestPath,
     TestPathConfig,
     TestRun,
@@ -31,6 +38,10 @@ from .base_path import (
 if TYPE_CHECKING:
     from ..fixtures.agent_fixtures import AgentConfig, AgentRegistry
     from ..fixtures.container_fixtures import AgentContainerFactory
+    from ..invoker.agent_invoker import AgentInvoker
+    from ..invoker.worktree_manager import WorktreeManager
+    from ..invoker.invocation_result import InvocationResult
+    from ..agents.base import BaseAgentConfig
 
 
 @dataclass
@@ -569,3 +580,118 @@ class ParallelThreePath(TestPath):
                 else None
             ),
         }
+
+    # =========================================================================
+    # Host-based execution (AgentInvoker)
+    # =========================================================================
+
+    def execute_host_based(
+        self,
+        invoker: "AgentInvoker",
+        worktree_manager: "WorktreeManager",
+        wp_content: str,
+        agents: List["BaseAgentConfig"],
+        timeout: float = 1800.0,
+    ) -> "PathResult":
+        """Execute parallel workflow with 3 agents on 3 WPs.
+
+        US4 Acceptance Criteria:
+        1. 3 agent subprocesses start within 30 seconds
+        2. Total time < 2x slowest individual
+
+        Args:
+            invoker: AgentInvoker for subprocess management
+            worktree_manager: WorktreeManager for git isolation
+            wp_content: Work package content/requirements
+            agents: List of available agent configurations (need at least 3)
+            timeout: Timeout in seconds for each invocation
+
+        Returns:
+            PathResult with execution details
+        """
+        from ..invoker.invocation_result import InvocationOutcome
+
+        if len(agents) < 3:
+            return PathResult(
+                status="skipped",
+                reason=f"Parallel requires 3 agents, only {len(agents)} available",
+                invocations=[],
+            )
+
+        # Use first 3 agents
+        selected_agents = agents[:3]
+        invocations: List["InvocationResult"] = []
+        worktrees = []
+
+        try:
+            # Create 3 worktrees
+            for i in range(3):
+                wt = worktree_manager.create(
+                    branch_name=f"parallel-{i}-{uuid4().hex[:8]}"
+                )
+                worktrees.append(wt)
+
+            # Run 3 implementations in parallel
+            start_time = datetime.utcnow()
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+                futures: Dict[concurrent.futures.Future, int] = {}
+
+                for i, (agent, worktree) in enumerate(zip(selected_agents, worktrees)):
+                    impl_prompt = self._build_implement_prompt(wp_content)
+                    future = executor.submit(
+                        invoker.invoke,
+                        agent_config=agent,
+                        prompt=impl_prompt,
+                        worktree=worktree.path,
+                        timeout=timeout,
+                    )
+                    futures[future] = i
+
+                # Collect results
+                results: List[Optional["InvocationResult"]] = [None] * 3
+                for future in concurrent.futures.as_completed(futures):
+                    idx = futures[future]
+                    try:
+                        result = future.result()
+                        results[idx] = result
+                        invocations.append(result)
+                    except Exception as e:
+                        return PathResult(
+                            status="failed",
+                            reason=f"Agent {idx} failed: {e}",
+                            invocations=invocations,
+                        )
+
+            end_time = datetime.utcnow()
+            total_time = (end_time - start_time).total_seconds()
+
+            # Check timing criteria
+            individual_times = [r.duration_seconds for r in results if r]
+            if individual_times:
+                max_individual = max(individual_times)
+                if total_time > max_individual * 2:
+                    return PathResult(
+                        status="failed",
+                        reason=f"Parallel not efficient: {total_time:.1f}s > 2x{max_individual:.1f}s",
+                        invocations=invocations,
+                    )
+
+            # Check all succeeded
+            failures = [r for r in results if r and r.outcome != InvocationOutcome.SUCCESS]
+            if failures:
+                return PathResult(
+                    status="failed",
+                    reason=f"{len(failures)} agent(s) failed",
+                    invocations=invocations,
+                )
+
+            return PathResult(
+                status="passed",
+                reason=f"3 agents completed in {total_time:.1f}s",
+                invocations=invocations,
+            )
+
+        finally:
+            for wt in worktrees:
+                worktree_manager.remove(wt.path)
