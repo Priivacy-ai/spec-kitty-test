@@ -1,0 +1,140 @@
+# Test path definitions for E2E testing
+# Defines reusable workflow templates with agent slots that can be
+# filled with specific agents at runtime.
+#
+# Per spec.md: Three test paths for different agent configurations
+# Per data-model.md: TestPath and AgentSlot schemas
+
+version: "1.0"
+
+paths:
+  # Single-agent path: One agent performs both implementation and review
+  # Use case: Basic workflow validation, testing individual agent capabilities
+  # User Story: US1 - Single-Agent Workflow Validation
+  single-agent:
+    description: "Single agent performs both implementation and review"
+    agent_slots:
+      - slot_id: "implementer"
+        role: "implementation"
+        required: true
+        fallback_allowed: false
+      - slot_id: "reviewer"
+        role: "review"
+        required: true
+        fallback_allowed: false
+        same_as: "implementer"  # Same agent fills both slots
+    workflow_steps:
+      - step_id: "implement"
+        slot_id: "implementer"
+        action: "implement"
+        on_success: "review"
+        on_failure: null
+      - step_id: "review"
+        slot_id: "reviewer"
+        action: "review"
+        on_success: "complete"
+        on_failure: "rework"
+      - step_id: "rework"
+        slot_id: "implementer"
+        action: "rework"
+        on_success: "review"
+        on_failure: null
+      - step_id: "complete"
+        slot_id: null
+        action: "complete"
+        on_success: null
+        on_failure: null
+    max_iterations: 5
+    timeout_seconds: 1800
+
+  # Cross-review path: Different agents for implementation vs review
+  # Use case: Catching blind spots that single-agent review might miss
+  # User Story: US2 - Two-Agent Cross-Review Validation
+  cross-review:
+    description: "Different agents for implementation vs review"
+    agent_slots:
+      - slot_id: "implementer"
+        role: "implementation"
+        required: true
+        fallback_allowed: true
+      - slot_id: "reviewer"
+        role: "review"
+        required: true
+        fallback_allowed: true
+        different_from: "implementer"  # Must be different agent
+    workflow_steps:
+      - step_id: "implement"
+        slot_id: "implementer"
+        action: "implement"
+        on_success: "review"
+        on_failure: null
+      - step_id: "review"
+        slot_id: "reviewer"
+        action: "review"
+        on_success: "complete"
+        on_failure: "rework"
+      - step_id: "rework"
+        slot_id: "implementer"
+        action: "rework"
+        on_success: "review"
+        on_failure: null
+      - step_id: "complete"
+        slot_id: null
+        action: "complete"
+        on_success: null
+        on_failure: null
+    max_iterations: 3
+    timeout_seconds: 2400
+
+  # Parallel-three path: Three agents working on independent WPs
+  # Use case: Testing parallel orchestration and resource isolation
+  # User Story: US3 - Three-Agent Parallel Execution
+  parallel-three:
+    description: "Three agents working on independent WPs in parallel"
+    agent_slots:
+      - slot_id: "worker_1"
+        role: "implementation"
+        required: true
+        fallback_allowed: true
+      - slot_id: "worker_2"
+        role: "implementation"
+        required: false  # Can run with fewer agents
+        fallback_allowed: true
+      - slot_id: "worker_3"
+        role: "implementation"
+        required: false  # Can run with fewer agents
+        fallback_allowed: true
+    workflow_steps:
+      # Each worker executes independently
+      # Actual parallel coordination handled by test path implementation
+      - step_id: "parallel_execute"
+        slot_id: null  # All workers
+        action: "parallel_implement_review"
+        on_success: "complete"
+        on_failure: "partial_complete"
+      - step_id: "complete"
+        slot_id: null
+        action: "complete"
+        on_success: null
+        on_failure: null
+      - step_id: "partial_complete"
+        slot_id: null
+        action: "partial_complete"
+        on_success: null
+        on_failure: null
+    max_iterations: 3
+    timeout_seconds: 3600
+
+# Default configuration applied when path-specific values not provided
+defaults:
+  max_iterations: 3
+  timeout_seconds: 1800
+
+# Agent roles
+roles:
+  implementation:
+    description: "Writes code to implement the work package"
+    actions: ["implement", "rework"]
+  review:
+    description: "Reviews implementation and provides feedback"
+    actions: ["review", "approve", "reject"]
