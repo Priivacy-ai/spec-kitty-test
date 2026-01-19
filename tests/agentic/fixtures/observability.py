@@ -28,6 +28,7 @@ import pytest
 
 if TYPE_CHECKING:
     from .workflow_fixtures import TestRun
+    from ..invoker.invocation_result import InvocationResult
 
 
 # =============================================================================
@@ -201,6 +202,199 @@ class AgentOutputLogger:
             Path to the log directory
         """
         return self._log_dir
+
+    # =========================================================================
+    # T025: InvocationResult logging methods
+    # =========================================================================
+
+    def log_invocation(
+        self,
+        result: "InvocationResult",
+        step: str = "invocation",
+    ) -> Path:
+        """Log an InvocationResult to files.
+
+        Creates:
+        - {timestamp}_{agent_id}_{step}_stdout.log
+        - {timestamp}_{agent_id}_{step}_stderr.log
+        - {timestamp}_{agent_id}_{step}_combined.log
+        - {timestamp}_{agent_id}_{step}_result.json (metadata)
+
+        Args:
+            result: The InvocationResult to log
+            step: Workflow step name (e.g., "implement", "review")
+
+        Returns:
+            Path to the combined log file
+        """
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        prefix = f"{timestamp}_{result.agent_id}_{step}"
+
+        stdout_path = self._log_dir / f"{prefix}_stdout.log"
+        stderr_path = self._log_dir / f"{prefix}_stderr.log"
+        combined_path = self._log_dir / f"{prefix}_combined.log"
+        result_path = self._log_dir / f"{prefix}_result.json"
+
+        # Write stdout
+        with open(stdout_path, "w") as f:
+            header = (
+                f"# Agent: {result.agent_id} | Step: {step}\n"
+                f"# Started: {result.started_at.isoformat()}Z\n"
+                f"# Duration: {result.duration_seconds:.2f}s\n"
+                f"# Outcome: {result.outcome.value}\n\n"
+            )
+            f.write(header)
+            f.write(result.stdout or "")
+
+        # Write stderr
+        with open(stderr_path, "w") as f:
+            f.write(result.stderr or "")
+
+        # Write combined
+        with open(combined_path, "w") as f:
+            f.write("[INVOCATION METADATA]\n")
+            f.write(f"Agent: {result.agent_id}\n")
+            f.write(f"Step: {step}\n")
+            f.write(f"Started: {result.started_at.isoformat()}Z\n")
+            f.write(f"Completed: {result.completed_at.isoformat()}Z\n")
+            f.write(f"Duration: {result.duration_seconds:.2f}s\n")
+            f.write(f"Exit Code: {result.exit_code}\n")
+            f.write(f"Outcome: {result.outcome.value}\n")
+            if result.error_message:
+                f.write(f"Error: {result.error_message}\n")
+            f.write("\n[STDOUT]\n")
+            f.write(result.stdout or "")
+            f.write("\n[STDERR]\n")
+            f.write(result.stderr or "")
+
+        # Write JSON metadata
+        with open(result_path, "w") as f:
+            metadata = {
+                "agent_id": result.agent_id,
+                "step": step,
+                "started_at": result.started_at.isoformat() + "Z",
+                "completed_at": result.completed_at.isoformat() + "Z",
+                "duration_seconds": result.duration_seconds,
+                "exit_code": result.exit_code,
+                "outcome": result.outcome.value,
+                "timeout_exceeded": result.timeout_exceeded,
+                "killed": result.killed,
+                "error_message": result.error_message,
+                "prompt_hash": result.prompt_hash,
+                "worktree_path": result.worktree_path,
+                "stdout_bytes": len((result.stdout or "").encode()),
+                "stderr_bytes": len((result.stderr or "").encode()),
+            }
+            json.dump(metadata, f, indent=2)
+
+        return combined_path
+
+    def log_invocations(
+        self,
+        results: List["InvocationResult"],
+        workflow: str = "workflow",
+    ) -> List[Path]:
+        """Log multiple invocations from a workflow.
+
+        Args:
+            results: List of InvocationResult to log
+            workflow: Workflow name prefix for step names
+
+        Returns:
+            List of paths to combined log files
+        """
+        paths = []
+        for i, result in enumerate(results):
+            step = f"{workflow}_{i:02d}"
+            path = self.log_invocation(result, step)
+            paths.append(path)
+        return paths
+
+    def log_invocation_with_git(
+        self,
+        result: "InvocationResult",
+        git_capture: "GitStateCapture",
+        step: str = "invocation",
+    ) -> tuple[Path, Optional["GitState"], "GitState"]:
+        """Log invocation with git state capture.
+
+        Args:
+            result: The InvocationResult to log
+            git_capture: GitStateCapture initialized with worktree
+            step: Workflow step name
+
+        Returns:
+            Tuple of (combined_log_path, git_before, git_after)
+            git_before is None (would need to be passed in)
+        """
+        # Capture git state after invocation
+        git_after = git_capture.capture()
+
+        # Log the invocation
+        log_path = self.log_invocation(result, step)
+
+        # Also save git state
+        git_path = self._log_dir / f"{step}_git_state.json"
+        git_capture.capture_to_file(git_path)
+
+        return log_path, None, git_after
+
+    @contextmanager
+    def capture_with_git_state(
+        self,
+        worktree_path: str,
+        step: str,
+    ):
+        """Context manager that captures git state before and after.
+
+        Usage:
+            with logger.capture_with_git_state(worktree, "implement") as ctx:
+                result = invoker.invoke(...)
+                ctx.set_result(result)
+            # Git states and invocation logged automatically
+
+        Args:
+            worktree_path: Path to the git worktree
+            step: Workflow step name
+
+        Yields:
+            CaptureContext with set_result() method
+        """
+        git_capture = GitStateCapture(worktree_path)
+        before_state = git_capture.capture()
+
+        class CaptureContext:
+            def __init__(self):
+                self.result: Optional["InvocationResult"] = None
+                self.before_state = before_state
+                self.after_state: Optional["GitState"] = None
+
+            def set_result(self, r: "InvocationResult"):
+                self.result = r
+
+        ctx = CaptureContext()
+        try:
+            yield ctx
+        finally:
+            if ctx.result:
+                ctx.after_state = git_capture.capture()
+                self.log_invocation(ctx.result, step)
+
+                # Log git diff
+                timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+                diff_path = self._log_dir / f"{timestamp}_{step}_git_diff.json"
+                with open(diff_path, "w") as f:
+                    # Get new commits by comparing commit hashes
+                    before_hashes = {c["hash"] for c in ctx.before_state.recent_commits}
+                    new_commits = [
+                        c for c in ctx.after_state.recent_commits
+                        if c["hash"] not in before_hashes
+                    ]
+                    json.dump({
+                        "before": ctx.before_state.to_dict(),
+                        "after": ctx.after_state.to_dict(),
+                        "new_commits": new_commits,
+                    }, f, indent=2)
 
 
 # =============================================================================
@@ -731,6 +925,7 @@ class PostMortemExporter:
         test_run: "TestRun",
         git_state: Optional[GitState] = None,
         container_metrics: Optional[List[ContainerMetrics]] = None,
+        invocations: Optional[List["InvocationResult"]] = None,
         additional_context: Optional[Dict[str, Any]] = None,
     ) -> Path:
         """Export all data for post-mortem analysis.
@@ -739,6 +934,7 @@ class PostMortemExporter:
             test_run: TestRun instance with execution data
             git_state: Optional git state snapshot
             container_metrics: Optional container metrics history
+            invocations: Optional list of InvocationResults from agent calls
             additional_context: Optional additional context dict
 
         Returns:
@@ -800,24 +996,84 @@ class PostMortemExporter:
         for log_file in self.output_logger.get_log_files():
             shutil.copy(log_file, logs_dir / log_file.name)
 
-        # 7. Export additional context
+        # 7. Export invocations if provided
+        if invocations:
+            invocations_path = self._export_dir / "invocations.json"
+            with open(invocations_path, "w") as f:
+                json.dump(
+                    [self._invocation_to_dict(inv) for inv in invocations],
+                    f,
+                    indent=2,
+                )
+
+            # Also export individual invocation logs
+            invocations_dir = self._export_dir / "invocation_logs"
+            invocations_dir.mkdir(exist_ok=True)
+            for i, inv in enumerate(invocations):
+                inv_path = invocations_dir / f"invocation_{i:02d}_{inv.agent_id}.json"
+                with open(inv_path, "w") as f:
+                    json.dump(self._invocation_to_dict(inv), f, indent=2)
+
+        # 8. Export additional context
         if additional_context:
             context_path = self._export_dir / "context.json"
             with open(context_path, "w") as f:
                 json.dump(additional_context, f, indent=2)
 
-        # 8. Create index file
-        self._write_index(test_run)
+        # 9. Create index file
+        self._write_index(test_run, has_invocations=bool(invocations))
 
         return self._export_dir
 
-    def _write_index(self, test_run: "TestRun"):
+    def _invocation_to_dict(self, inv: "InvocationResult") -> Dict[str, Any]:
+        """Convert InvocationResult to JSON-serializable dict.
+
+        Args:
+            inv: InvocationResult to convert
+
+        Returns:
+            JSON-serializable dictionary
+        """
+        return {
+            "agent_id": inv.agent_id,
+            "started_at": inv.started_at.isoformat() + "Z",
+            "completed_at": inv.completed_at.isoformat() + "Z",
+            "duration_seconds": inv.duration_seconds,
+            "exit_code": inv.exit_code,
+            "outcome": inv.outcome.value,
+            "timeout_exceeded": inv.timeout_exceeded,
+            "killed": inv.killed,
+            "error_message": inv.error_message,
+            "prompt_hash": inv.prompt_hash,
+            "worktree_path": inv.worktree_path,
+            "stdout_preview": (inv.stdout or "")[:1000],
+            "stderr_preview": (inv.stderr or "")[:1000],
+            "stdout_bytes": len((inv.stdout or "").encode()),
+            "stderr_bytes": len((inv.stderr or "").encode()),
+            "parsed_response": (
+                inv.parsed_response.to_dict()
+                if inv.parsed_response else None
+            ),
+        }
+
+    def _write_index(self, test_run: "TestRun", has_invocations: bool = False):
         """Write INDEX.md file for navigation.
 
         Args:
             test_run: TestRun instance for status info
+            has_invocations: Whether invocations were exported
         """
         index_path = self._export_dir / "INDEX.md"
+
+        # Build dynamic sections based on what was exported
+        invocation_files = ""
+        invocation_step = ""
+        if has_invocations:
+            invocation_files = """- `invocations.json` - All agent invocations
+- `invocation_logs/` - Individual invocation details
+"""
+            invocation_step = "2. Check `invocations.json` for agent outputs at each step\n"
+
         with open(index_path, "w") as f:
             f.write(f"""# Post-Mortem Export: {test_run.run_id}
 
@@ -833,15 +1089,15 @@ class PostMortemExporter:
 - `git_state.json` - Git repository state
 - `container_metrics.json` - Resource usage
 - `logs/` - Agent stdout/stderr logs
-- `context.json` - Additional context
+{invocation_files}- `context.json` - Additional context
 
 ## How to Analyze
 
 1. Start with `summary.json` for the failure reason
-2. Check `transitions.json` for workflow progression
-3. Review `logs/` for agent output at failure point
-4. Compare `git_state.json` for code changes
-5. Check `container_metrics.json` for resource issues
+{invocation_step}3. Check `transitions.json` for workflow progression
+4. Review `logs/` for agent output at failure point
+5. Compare `git_state.json` for code changes
+6. Check `container_metrics.json` for resource issues
 """)
 
     def get_export_dir(self) -> Path:
