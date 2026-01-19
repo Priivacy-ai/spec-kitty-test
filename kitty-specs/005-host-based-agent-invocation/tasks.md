@@ -62,7 +62,7 @@
 ### Included Subtasks
 - [x] T006 Create BaseAgentConfig protocol in `tests/agentic/agents/base.py`
 - [x] T007 Create AgentInvoker class with core invoke() method in `tests/agentic/invoker/agent_invoker.py`
-- [ ] T008 Add invoke_async() method returning AgentProcess in `tests/agentic/invoker/agent_invoker.py`
+- [x] T008 Add invoke_async() method returning AgentProcess in `tests/agentic/invoker/agent_invoker.py`
 - [ ] T009 Add invoke_with_constraint() for same_as/different_from handling in `tests/agentic/invoker/agent_invoker.py`
 - [ ] T010 Add process cleanup, atexit handlers, and kill_all() in `tests/agentic/invoker/agent_invoker.py`
 
