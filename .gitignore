@@ -63,3 +63,9 @@ temp_*/
 # Prevent worktree-local kitty-specs/ (status managed in main repo)
 # Note: This rule is disabled in main repo - kitty-specs should be tracked there
 # kitty-specs/
+
+# Agentic E2E testing (secrets and results should never be committed)
+tests/agentic/config/secrets/
+!tests/agentic/config/secrets/.gitkeep
+tests/agentic/results/
+!tests/agentic/results/.gitkeep
