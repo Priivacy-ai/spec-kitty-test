@@ -248,7 +248,7 @@
 ### Included Subtasks
 - [x] T028 Create smoke test for single-agent workflow in `tests/agentic/tests/test_smoke_single_agent.py`
 - [x] T029 Create smoke test for cross-review workflow in `tests/agentic/tests/test_smoke_cross_review.py`
-- [ ] T030 Create smoke test for agent discovery in `tests/agentic/tests/test_smoke_discovery.py`
+- [x] T030 Create smoke test for agent discovery in `tests/agentic/tests/test_smoke_discovery.py`
 - [ ] T031 Add timeout and error handling validation tests in `tests/agentic/tests/test_invoker_edge_cases.py`
 
 ### Implementation Notes
