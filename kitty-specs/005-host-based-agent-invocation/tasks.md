@@ -219,7 +219,7 @@
 ### Included Subtasks
 - [x] T025 Add log_invocation() method to AgentOutputLogger in `tests/agentic/fixtures/observability.py`
 - [x] T026 Integrate invocations with GitStateCapture (capture before/after each invocation) in `tests/agentic/fixtures/observability.py`
-- [ ] T027 Update PostMortemExporter to include invocations list in `tests/agentic/fixtures/observability.py`
+- [x] T027 Update PostMortemExporter to include invocations list in `tests/agentic/fixtures/observability.py`
 
 ### Implementation Notes
 - log_invocation() writes InvocationResult to existing log structure
