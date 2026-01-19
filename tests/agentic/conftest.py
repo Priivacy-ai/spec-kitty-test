@@ -54,6 +54,15 @@ from tests.agentic.fixtures.workflow_fixtures import (
     workflow_validator,
 )
 
+# Observability fixtures (WP06)
+from tests.agentic.fixtures.observability import (
+    container_metrics_collector,
+    git_state_capture,
+    output_logger,
+    post_mortem_exporter,
+    transition_logger,
+)
+
 
 def pytest_configure(config):
     """Register custom markers for agentic tests."""
@@ -103,7 +112,6 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "augment: requires Augment Code agent")
 
 
-# Fixtures from WP03 and WP05 are imported above
+# Fixtures from WP03, WP05, and WP06 are imported above
 # Additional fixtures will be added in:
-# - WP06 (observability fixtures)
 # - WP08 (fault injection fixtures)
