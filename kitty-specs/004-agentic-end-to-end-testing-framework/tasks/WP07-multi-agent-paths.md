@@ -1,15 +1,15 @@
 ---
 work_package_id: WP07
 title: 'Multi-Agent Paths: Cross-Review and Parallel'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T016
 - T017
 phase: Phase 3 - Test Paths
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "66829"
 review_status: ''
 reviewed_by: ''
 history:
@@ -689,3 +689,7 @@ pytest tests/agentic/paths/test_parallel.py -v
 - [ ] Partial success handling
 - [ ] Work item assignment logic
 - [ ] Unit tests for both paths
+
+## Activity Log
+
+- 2026-01-19T14:48:41Z – claude-opus – shell_pid=66829 – lane=doing – Started implementation via workflow command
