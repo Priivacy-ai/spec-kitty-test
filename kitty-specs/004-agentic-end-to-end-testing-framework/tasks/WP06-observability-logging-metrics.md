@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: 'Observability: Logging and Metrics Capture'
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T031
@@ -11,8 +11,8 @@ subtasks:
 - T035
 phase: Phase 2 - Fixtures
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "61948"
 review_status: ''
 reviewed_by: ''
 history:
@@ -662,3 +662,7 @@ pytest tests/agentic/fixtures/test_observability.py -v
 - [ ] INDEX.md in export directory
 - [ ] All fixtures exposed in conftest.py
 - [ ] Unit tests pass
+
+## Activity Log
+
+- 2026-01-19T14:40:37Z – claude-opus – shell_pid=61948 – lane=doing – Started implementation via workflow command
