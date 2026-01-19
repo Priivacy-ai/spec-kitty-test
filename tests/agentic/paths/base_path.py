@@ -6,6 +6,12 @@ enabling the same test path to run with different agent combinations.
 
 Per CLAUDE.md: These are distribution tests - spec-kitty is installed from PyPI,
 NOT from local source. No SPEC_KITTY_TEMPLATE_ROOT is ever set.
+
+Supports two execution modes:
+1. Container-based (legacy): Uses Docker containers via AgentContainerFactory
+2. Host-based (new): Uses direct subprocess via AgentInvoker
+
+The host-based mode enables running agents natively without Docker overhead.
 """
 
 from abc import ABC, abstractmethod
@@ -17,6 +23,10 @@ from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..fixtures.container_fixtures import AgentContainerFactory
     from ..fixtures.agent_fixtures import AgentRegistry
+    from ..invoker.agent_invoker import AgentInvoker
+    from ..invoker.worktree_manager import WorktreeManager
+    from ..invoker.invocation_result import InvocationResult
+    from ..agents.base import BaseAgentConfig
 
 
 class AgentRole(Enum):
@@ -221,6 +231,31 @@ class TestPathConfig:
     timeout_seconds: int = 1800
 
 
+@dataclass
+class PathResult:
+    """Result of a host-based test path execution.
+
+    Used by the new AgentInvoker-based execution mode.
+
+    Attributes:
+        status: Final status ("passed", "failed", "skipped", "error")
+        reason: Human-readable explanation of the result
+        invocations: List of InvocationResult from each agent call
+    """
+
+    status: str
+    reason: str
+    invocations: List["InvocationResult"] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to JSON-serializable dictionary."""
+        return {
+            "status": self.status,
+            "reason": self.reason,
+            "invocations": [inv.to_dict() for inv in self.invocations],
+        }
+
+
 class TestPath(ABC):
     """Abstract base class for test path implementations.
 
@@ -385,3 +420,98 @@ class TestPath(ABC):
             if step.step_id == step_id:
                 return i
         raise ValueError(f"Step '{step_id}' not found in workflow")
+
+    # =========================================================================
+    # Host-based execution support (AgentInvoker)
+    # =========================================================================
+
+    def _build_implement_prompt(self, wp_content: str) -> str:
+        """Build implementation prompt from WP content.
+
+        Args:
+            wp_content: The work package content/requirements
+
+        Returns:
+            Formatted prompt for agent implementation
+        """
+        return f"""You are implementing a work package. Follow these instructions exactly:
+
+{wp_content}
+
+Complete all subtasks and commit your changes."""
+
+    def _build_review_prompt(self, wp_content: str, implementation_output: str) -> str:
+        """Build review prompt from WP content and implementation.
+
+        Args:
+            wp_content: The work package requirements
+            implementation_output: Output from the implementation phase
+
+        Returns:
+            Formatted prompt for agent review
+        """
+        return f"""You are reviewing an implementation. The work package requirements are:
+
+{wp_content}
+
+The implementation produced this output:
+{implementation_output}
+
+Review the changes and either approve or request changes.
+If approved, output 'APPROVED'.
+If changes needed, output 'CHANGES_REQUESTED: ' followed by specific feedback."""
+
+    def _build_rework_prompt(self, wp_content: str, requested_changes: List[str]) -> str:
+        """Build rework prompt addressing review feedback.
+
+        Args:
+            wp_content: The original work package requirements
+            requested_changes: List of changes requested by reviewer
+
+        Returns:
+            Formatted prompt for agent rework
+        """
+        changes_text = "\n".join(f"- {c}" for c in requested_changes)
+        return f"""Your implementation was reviewed and changes were requested:
+
+{changes_text}
+
+Original requirements:
+{wp_content}
+
+Address the requested changes and commit your updates."""
+
+    def execute_host_based(
+        self,
+        invoker: "AgentInvoker",
+        worktree_manager: "WorktreeManager",
+        wp_content: str,
+        agents: List["BaseAgentConfig"],
+        timeout: float = 1800.0,
+    ) -> "PathResult":
+        """Execute this path using host-based agent invocation.
+
+        This is the new execution mode that invokes agents as native
+        subprocesses on the host machine, without Docker containers.
+
+        Default implementation returns "not implemented" - subclasses
+        should override this for host-based execution support.
+
+        Args:
+            invoker: AgentInvoker for subprocess management
+            worktree_manager: WorktreeManager for git isolation
+            wp_content: Work package content/requirements
+            agents: List of available agent configurations
+            timeout: Timeout in seconds for each invocation
+
+        Returns:
+            PathResult with execution details
+        """
+        # Import here to avoid circular imports at module level
+        from ..invoker.invocation_result import InvocationResult
+
+        return PathResult(
+            status="error",
+            reason=f"Host-based execution not implemented for {self.__class__.__name__}",
+            invocations=[],
+        )
