@@ -433,11 +433,11 @@
 - [x] T075 [P] Implement data safety edge cases (locked files during cleanup, path length limits, deleted kitty-specs)
 - [x] T076 [P] Implement distribution edge cases (missing deps, incorrect encoding, partial migration, PATH priority)
 - [x] T077 [P] Implement stale detection edge cases (empty git log, deleted branch, negative time, zero threshold)
-- [ ] T078 [P] Implement agent invocation edge cases (interactive auth, stderr with exit 0, huge output, empty config)
-- [ ] T079 [P] Implement test_circular_dependency_detailed.py - comprehensive circular dep error messages
-- [ ] T080 [P] Implement test_corruption_scenarios.py - JSON corruption, file encoding issues, symlink problems
-- [ ] T081 [P] Implement test_boundary_conditions.py - empty features, single WP, 100+ WPs
-- [ ] T082 [P] Implement test_regression_suite.py - tests for previously discovered bugs
+- [x] T078 [P] Implement agent invocation edge cases (interactive auth, stderr with exit 0, huge output, empty config)
+- [x] T079 [P] Implement test_circular_dependency_detailed.py - comprehensive circular dep error messages
+- [x] T080 [P] Implement test_corruption_scenarios.py - JSON corruption, file encoding issues, symlink problems
+- [x] T081 [P] Implement test_boundary_conditions.py - empty features, single WP, 100+ WPs
+- [x] T082 [P] Implement test_regression_suite.py - tests for previously discovered bugs
 - [ ] T088 [P] Implement test_legacy_frontmatter.py - old frontmatter formats without dependency fields (FR-047)
 
 ### Implementation Notes
@@ -467,8 +467,8 @@
 **Estimated Size**: ~340 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T083 Update tests/README.md with new test organization (functional/orchestrator, integration, distribution)
-- [ ] T084 [P] Create GitHub Actions workflow for functional tests (<10 min target)
+- [x] T083 Update tests/README.md with new test organization (functional/orchestrator, integration, distribution)
+- [x] T084 [P] Create GitHub Actions workflow for functional tests (<10 min target)
 - [ ] T085 [P] Create GitHub Actions workflow for distribution tests (<45 min target)
 - [ ] T086 [P] Create GitHub Actions workflow for integration tests (adaptive, optional)
 - [ ] T087 Update quickstart.md with actual pytest commands after implementation
