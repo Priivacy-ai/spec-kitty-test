@@ -62,7 +62,7 @@
 **Estimated Size**: ~500 lines (7 subtasks)
 
 ### Included Subtasks
-- [ ] T008 Create tests/distribution/templates_migrations/ directory
+- [x] T008 Create tests/distribution/templates_migrations/ directory
 - [ ] T009 Create tests/distribution/templates_migrations/conftest.py with wheel builder fixture
 - [ ] T010 [P] Implement test_template_bundling.py - validate wheel contains all .kittify/missions/*/templates/ files
 - [ ] T011 [P] Implement test_migration_execution.py - validate all migrations execute successfully on fresh install
