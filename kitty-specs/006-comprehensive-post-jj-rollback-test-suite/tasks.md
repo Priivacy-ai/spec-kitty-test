@@ -33,7 +33,7 @@
 - [x] T003 [P] Create agent detection fixture (detect_available_agents) using spec-kitty's detect_installed_agents()
 - [x] T004 [P] Create requires_agent marker implementation with auto-skip logic
 - [x] T005 Create spec_kitty_git_test fixture pointing to /Users/robert/Code/spec-kitty-git-test
-- [ ] T006 Create reset_test_harness fixture that runs cleanup-bookmarks.sh
+- [x] T006 Create reset_test_harness fixture that runs cleanup-bookmarks.sh
 - [ ] T007 Update MARKER_DEFINITIONS registration in conftest.py pytest_configure hook
 
 ### Implementation Notes
