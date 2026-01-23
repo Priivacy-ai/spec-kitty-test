@@ -1,0 +1,79 @@
+# Coverage configuration for spec-kitty-test
+# SC-008: >85% coverage target for changed modules
+
+[run]
+# Source directories to measure coverage
+# Adjust path if spec-kitty is installed elsewhere
+source = ../spec-kitty/src/specify_cli
+
+# Files/patterns to exclude from coverage
+omit =
+    */tests/*
+    */__pycache__/*
+    */migrations/*
+    */.venv/*
+    */venv/*
+
+# Enable branch coverage
+branch = True
+
+# Store coverage data in this file
+data_file = .coverage
+
+# Run coverage in parallel (for pytest-xdist)
+parallel = True
+concurrency = multiprocessing
+
+[report]
+# Precision for coverage percentages
+precision = 2
+
+# Show line numbers of missing coverage
+show_missing = True
+
+# Fail if coverage is below this threshold (SC-008)
+fail_under = 85
+
+# Exclude lines matching these patterns from coverage
+exclude_lines =
+    # Re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code
+    def __repr__
+
+    # Don't complain if tests don't hit defensive assertions
+    raise AssertionError
+    raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+
+    # Don't complain about abstract methods
+    @abstractmethod
+
+[paths]
+# Module-specific paths for coverage tracking (SC-008)
+# These are the key modules changed since 2026-01-19
+source =
+    ../spec-kitty/src/specify_cli
+
+# Specific modules with >85% coverage target
+# Core modules requiring high coverage:
+# - detection.py: Feature and project detection
+# - implement.py: Implement command implementation
+# - orchestrator/*: All orchestrator modules
+# - merge.py: Merge command
+# - stale_detection.py: Stale detection logic
+
+[html]
+# Output directory for HTML reports
+directory = htmlcov
+
+# Title for the HTML report
+title = Spec-Kitty Test Coverage
+
+[xml]
+# Output file for XML reports (Codecov integration)
+output = coverage.xml
