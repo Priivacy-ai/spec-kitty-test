@@ -102,7 +102,7 @@
 - [x] T017 [P] Implement test_state_machine.py - test valid transitions (PENDING→IMPLEMENTATION→REVIEW→DONE)
 - [x] T018 [P] Implement test_idempotent_transitions.py - call start_implementation() twice, verify state stays IMPLEMENTATION
 - [x] T019 [P] Implement test_review_rework_cycle.py - REVIEW rejection transitions to REWORK, re-invokes implementation agent
-- [ ] T020 [P] Implement test_blocked_state.py - WP04 depends on WP01-WP03, WP02 fails, WP04 marked BLOCKED
+- [x] T020 [P] Implement test_blocked_state.py - WP04 depends on WP01-WP03, WP02 fails, WP04 marked BLOCKED
 - [ ] T021 [P] Implement test_invalid_transitions.py - PENDING→REVIEW (skip IMPLEMENTATION) raises error
 
 ### Implementation Notes
