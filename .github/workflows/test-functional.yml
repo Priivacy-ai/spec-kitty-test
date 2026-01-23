@@ -1,0 +1,81 @@
+name: Functional Tests
+
+on:
+  push:
+    branches: [main, 'feature/*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  functional:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # 10 min target + 5 min buffer
+
+    steps:
+      - name: Checkout spec-kitty-test
+        uses: actions/checkout@v4
+        with:
+          path: spec-kitty-test
+
+      - name: Checkout spec-kitty
+        uses: actions/checkout@v4
+        with:
+          repository: anthropics/spec-kitty
+          path: spec-kitty
+          token: ${{ secrets.SPEC_KITTY_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          cd spec-kitty-test
+          pip install -r requirements.txt
+          pip install pytest-cov pytest-xdist
+
+      - name: Install spec-kitty (editable)
+        run: |
+          cd spec-kitty
+          pip install -e .
+
+      - name: Run functional tests
+        run: |
+          cd spec-kitty-test
+          pytest -m functional --cov=../spec-kitty/src/specify_cli --cov-report=xml --cov-report=term -v -n auto
+        env:
+          SPEC_KITTY_REPO: ${{ github.workspace }}/spec-kitty
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./spec-kitty-test/coverage.xml
+          flags: functional
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Check coverage threshold
+        run: |
+          cd spec-kitty-test
+          pytest -m functional --cov=../spec-kitty/src/specify_cli --cov-fail-under=85 --cov-report=term -q
+        env:
+          SPEC_KITTY_REPO: ${{ github.workspace }}/spec-kitty
+
+      - name: Verify timing (<10 min)
+        run: |
+          cd spec-kitty-test
+          start=$(date +%s)
+          pytest -m functional -q -n auto
+          end=$(date +%s)
+          duration=$((end - start))
+          echo "Functional tests took ${duration}s"
+          if [ $duration -gt 600 ]; then
+            echo "::error::Functional tests exceeded 10 minute target (took ${duration}s)"
+            exit 1
+          fi
+          echo "::notice::Functional tests completed in ${duration}s (target: <600s)"
+        env:
+          SPEC_KITTY_REPO: ${{ github.workspace }}/spec-kitty

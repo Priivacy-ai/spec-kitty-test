@@ -1,0 +1,85 @@
+name: Distribution Tests
+
+on:
+  push:
+    branches: [main, 'feature/*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  distribution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # 45 min target + 15 min buffer
+
+    steps:
+      - name: Checkout spec-kitty-test
+        uses: actions/checkout@v4
+        with:
+          path: spec-kitty-test
+
+      - name: Checkout spec-kitty
+        uses: actions/checkout@v4
+        with:
+          repository: anthropics/spec-kitty
+          path: spec-kitty
+          token: ${{ secrets.SPEC_KITTY_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Build wheel from source
+        run: |
+          cd spec-kitty
+          pip install build
+          python -m build
+
+      - name: Install test dependencies
+        run: |
+          cd spec-kitty-test
+          pip install -r requirements.txt
+          pip install pytest-xdist
+
+      - name: Install spec-kitty from wheel (like PyPI users)
+        run: |
+          pip install spec-kitty/dist/*.whl
+
+      - name: Verify no bypass variables set
+        run: |
+          if [ -n "$SPEC_KITTY_TEMPLATE_ROOT" ]; then
+            echo "::error::SPEC_KITTY_TEMPLATE_ROOT should NOT be set for distribution tests"
+            exit 1
+          fi
+          if [ -n "$SPEC_KITTY_REPO" ]; then
+            echo "::error::SPEC_KITTY_REPO should NOT be set for distribution tests"
+            exit 1
+          fi
+          echo "Environment verified: No bypass variables set"
+
+      - name: Run distribution tests
+        run: |
+          cd spec-kitty-test
+          pytest -m distribution -v -n auto
+        env:
+          # Explicitly unset bypass variables (defense in depth)
+          SPEC_KITTY_TEMPLATE_ROOT: ''
+          SPEC_KITTY_REPO: ''
+
+      - name: Verify timing (<45 min)
+        run: |
+          cd spec-kitty-test
+          start=$(date +%s)
+          pytest -m distribution -q -n auto
+          end=$(date +%s)
+          duration=$((end - start))
+          echo "Distribution tests took ${duration}s"
+          if [ $duration -gt 2700 ]; then
+            echo "::error::Distribution tests exceeded 45 minute target (took ${duration}s)"
+            exit 1
+          fi
+          echo "::notice::Distribution tests completed in ${duration}s (target: <2700s)"
+        env:
+          SPEC_KITTY_TEMPLATE_ROOT: ''
+          SPEC_KITTY_REPO: ''

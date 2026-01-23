@@ -1,0 +1,105 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:  # Manual trigger for on-demand testing
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    continue-on-error: true  # Integration tests are optional
+
+    steps:
+      - name: Checkout spec-kitty-test
+        uses: actions/checkout@v4
+        with:
+          path: spec-kitty-test
+
+      - name: Checkout spec-kitty
+        uses: actions/checkout@v4
+        with:
+          repository: anthropics/spec-kitty
+          path: spec-kitty
+          token: ${{ secrets.SPEC_KITTY_TOKEN }}
+
+      - name: Checkout spec-kitty-git-test harness (optional)
+        uses: actions/checkout@v4
+        with:
+          repository: anthropics/spec-kitty-git-test
+          path: spec-kitty-git-test
+          token: ${{ secrets.SPEC_KITTY_TOKEN }}
+        continue-on-error: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install test dependencies
+        run: |
+          cd spec-kitty-test
+          pip install -r requirements.txt
+          pip install pytest-xdist
+
+      - name: Install spec-kitty (editable)
+        run: |
+          cd spec-kitty
+          pip install -e .
+
+      - name: Check agent availability
+        id: agents
+        run: |
+          echo "Checking available agents..."
+          if command -v claude &> /dev/null; then
+            echo "claude=true" >> $GITHUB_OUTPUT
+            echo "Claude Code CLI found"
+          else
+            echo "claude=false" >> $GITHUB_OUTPUT
+            echo "Claude Code CLI not found (tests will skip)"
+          fi
+          if command -v opencode &> /dev/null; then
+            echo "opencode=true" >> $GITHUB_OUTPUT
+            echo "OpenCode CLI found"
+          else
+            echo "opencode=false" >> $GITHUB_OUTPUT
+            echo "OpenCode CLI not found (tests will skip)"
+          fi
+        continue-on-error: true
+
+      - name: Check harness availability
+        id: harness
+        run: |
+          if [ -d "spec-kitty-git-test" ]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+            echo "spec-kitty-git-test harness available"
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+            echo "spec-kitty-git-test harness not available (tests will skip)"
+          fi
+
+      - name: Run integration tests
+        run: |
+          cd spec-kitty-test
+          echo "Running integration tests (will auto-skip if agents/harness unavailable)..."
+          pytest -m integration -v --tb=short
+        env:
+          SPEC_KITTY_REPO: ${{ github.workspace }}/spec-kitty
+          SPEC_KITTY_GIT_TEST: ${{ github.workspace }}/spec-kitty-git-test
+        continue-on-error: true
+
+      - name: Report integration test status
+        run: |
+          echo "## Integration Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| spec-kitty-git-test harness | ${{ steps.harness.outputs.available == 'true' && 'Available' || 'Not available (tests skipped)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Claude Code CLI | ${{ steps.agents.outputs.claude == 'true' && 'Available' || 'Not available (tests skipped)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| OpenCode CLI | ${{ steps.agents.outputs.opencode == 'true' && 'Available' || 'Not available (tests skipped)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Note: Integration tests auto-skip when required components are unavailable." >> $GITHUB_STEP_SUMMARY
