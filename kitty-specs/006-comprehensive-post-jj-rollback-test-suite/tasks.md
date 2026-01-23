@@ -398,7 +398,7 @@
 - [x] T069 [P] Implement test_agent_integration.py - real agent invocations produce commits
 - [x] T070 [P] Implement test_state_persistence.py - orchestration-state.json validates against schema
 - [x] T071 [P] Implement test_harness_reset.py - cleanup-bookmarks.sh resets state successfully
-- [ ] T072 [P] Implement test_adaptive_agent_selection.py - orchestration adapts to installed agents
+- [x] T072 [P] Implement test_adaptive_agent_selection.py - orchestration adapts to installed agents
 
 ### Implementation Notes
 - Requires /Users/robert/Code/spec-kitty-git-test to exist
@@ -428,11 +428,11 @@
 **Estimated Size**: ~750 lines (11 subtasks)
 
 ### Included Subtasks
-- [ ] T073 [P] Implement orchestrator edge cases (unreachable deps, unparseable output, corrupted state file, concurrent processes)
-- [ ] T074 [P] Implement VCS edge cases (broken git binary, invalid vcs name in meta.json, manual VCS modification)
-- [ ] T075 [P] Implement data safety edge cases (locked files during cleanup, path length limits, deleted kitty-specs)
-- [ ] T076 [P] Implement distribution edge cases (missing deps, incorrect encoding, partial migration, PATH priority)
-- [ ] T077 [P] Implement stale detection edge cases (empty git log, deleted branch, negative time, zero threshold)
+- [x] T073 [P] Implement orchestrator edge cases (unreachable deps, unparseable output, corrupted state file, concurrent processes)
+- [x] T074 [P] Implement VCS edge cases (broken git binary, invalid vcs name in meta.json, manual VCS modification)
+- [x] T075 [P] Implement data safety edge cases (locked files during cleanup, path length limits, deleted kitty-specs)
+- [x] T076 [P] Implement distribution edge cases (missing deps, incorrect encoding, partial migration, PATH priority)
+- [x] T077 [P] Implement stale detection edge cases (empty git log, deleted branch, negative time, zero threshold)
 - [ ] T078 [P] Implement agent invocation edge cases (interactive auth, stderr with exit 0, huge output, empty config)
 - [ ] T079 [P] Implement test_circular_dependency_detailed.py - comprehensive circular dep error messages
 - [ ] T080 [P] Implement test_corruption_scenarios.py - JSON corruption, file encoding issues, symlink problems
