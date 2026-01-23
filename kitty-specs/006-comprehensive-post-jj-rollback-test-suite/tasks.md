@@ -232,9 +232,9 @@
 - [x] T038 Create tests/functional/vcs_abstraction/ directory and conftest.py with VCS mocking fixtures
 - [x] T039 Create subprocess command logger fixture (mock subprocess.run, capture all commands)
 - [x] T040 [P] Implement test_git_path.py - git-only environment executes only git commands
-- [ ] T041 [P] Implement test_jj_disabled.py - is_jj_available() always returns False despite jj on PATH
-- [ ] T042 [P] Implement test_vcs_factory.py - jj disabled always returns GitVCS instance
-- [ ] T043 [P] Implement test_mixed_features.py - feature1 vcs=git, feature2 vcs=jj (legacy), correct VCS for each
+- [x] T041 [P] Implement test_jj_disabled.py - is_jj_available() always returns False despite jj on PATH
+- [x] T042 [P] Implement test_vcs_factory.py - jj disabled always returns GitVCS instance
+- [x] T043 [P] Implement test_mixed_features.py - feature1 vcs=git, feature2 vcs=jj (legacy), correct VCS for each
 
 ### Implementation Notes
 - Mock subprocess.run to log all executed commands
@@ -262,10 +262,10 @@
 **Estimated Size**: ~450 lines (6 subtasks)
 
 ### Included Subtasks
-- [ ] T044 [P] Implement test_jj_detection_disabled.py - is_jj_available() returns False even with jj on PATH
-- [ ] T045 [P] Implement test_no_jj_commands.py - full workflow (init→implement→merge) never executes jj
-- [ ] T046 [P] Implement test_legacy_conversion.py - meta.json vcs=jj auto-converts to git with warning
-- [ ] T047 [P] Implement test_init_shows_git_only.py - spec-kitty init displays git as VCS, no jj reference
+- [x] T044 [P] Implement test_jj_detection_disabled.py - is_jj_available() returns False even with jj on PATH
+- [x] T045 [P] Implement test_no_jj_commands.py - full workflow (init→implement→merge) never executes jj
+- [x] T046 [P] Implement test_legacy_conversion.py - meta.json vcs=jj auto-converts to git with warning
+- [x] T047 [P] Implement test_init_shows_git_only.py - spec-kitty init displays git as VCS, no jj reference
 - [ ] T048 [P] Implement test_error_messages_git_only.py - VCS errors mention only git installation
 - [ ] T049 [P] Implement test_jujutsu_vcs_never_invoked.py - zero calls to JujutsuVCS methods via instrumentation
 
