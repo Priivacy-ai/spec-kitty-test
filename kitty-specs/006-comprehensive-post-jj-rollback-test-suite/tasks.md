@@ -332,8 +332,8 @@
 - [x] T057 [P] Implement test_stale_threshold.py - configurable --stale-threshold respected
 - [x] T058 [P] Implement test_preflight_validation.py - uncommitted changes, diverged branch detected before merge
 - [x] T059 [P] Implement test_preflight_all_blockers.py - multiple issues reported in single pass
-- [ ] T060 [P] Implement test_merge_dry_run.py - --dry-run shows predicted conflicts without merging
-- [ ] T061 [P] Implement test_merge_dependency_order.py - merge order follows topological sort
+- [x] T060 [P] Implement test_merge_dry_run.py - --dry-run shows predicted conflicts without merging
+- [x] T061 [P] Implement test_merge_dependency_order.py - merge order follows topological sort
 
 ### Implementation Notes
 - Use StalenessConfig entity to create WPs with specific commit times
@@ -361,9 +361,9 @@
 **Estimated Size**: ~420 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T062 Create tests/distribution/vcs_abstraction/ and tests/distribution/orchestrator/ directories
-- [ ] T063 [P] Implement test_jj_rollback.py (distribution) - jj never invoked from PyPI install
-- [ ] T064 [P] Implement test_legacy_conversion.py (distribution) - legacy jj features auto-convert from package
+- [x] T062 Create tests/distribution/vcs_abstraction/ and tests/distribution/orchestrator/ directories
+- [x] T063 [P] Implement test_jj_rollback.py (distribution) - jj never invoked from PyPI install
+- [x] T064 [P] Implement test_legacy_conversion.py (distribution) - legacy jj features auto-convert from package
 - [ ] T065 [P] Implement test_fresh_install.py (orchestrator) - init → orchestrate workflow from wheel
 - [ ] T066 [P] Implement test_agent_detection.py (orchestrator) - detect_installed_agents() works from package
 
