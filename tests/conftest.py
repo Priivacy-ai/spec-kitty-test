@@ -14,13 +14,41 @@ import pytest
 
 def pytest_configure(config):
     """Register custom markers for jj and distribution tests."""
-    # T001: Register jj marker
-    config.addinivalue_line("markers", "jj: tests requiring jujutsu VCS")
-    # T004: Register distribution marker
-    config.addinivalue_line("markers", "distribution: tests validating PyPI user experience (no TEMPLATE_ROOT bypass)")
-    # Additional markers for test organization
-    config.addinivalue_line("markers", "upgrade: tests validating upgrade paths")
-    config.addinivalue_line("markers", "adversarial: tests for edge cases and corruption scenarios")
+    # Import marker definitions from contracts
+    # Note: We import inline to avoid circular dependency issues
+    import sys
+    from pathlib import Path
+
+    # Find kitty-specs relative to this conftest.py
+    conftest_path = Path(__file__).resolve()
+    repo_root = conftest_path.parent.parent
+    contracts_dir = repo_root / "kitty-specs" / "006-comprehensive-post-jj-rollback-test-suite" / "contracts"
+
+    if contracts_dir.exists():
+        sys.path.insert(0, str(contracts_dir.parent))
+        try:
+            from contracts.markers import MARKER_DEFINITIONS
+            # Register all markers from the contract
+            for marker_name, description in MARKER_DEFINITIONS.items():
+                config.addinivalue_line("markers", f"{marker_name}: {description}")
+        finally:
+            sys.path.pop(0)
+    else:
+        # Fallback: register minimal set if contracts not available
+        config.addinivalue_line("markers", "jj: tests requiring jujutsu VCS")
+        config.addinivalue_line("markers", "distribution: tests validating PyPI user experience (no TEMPLATE_ROOT bypass)")
+        config.addinivalue_line("markers", "upgrade: tests validating upgrade paths")
+        config.addinivalue_line("markers", "adversarial: tests for edge cases and corruption scenarios")
+        config.addinivalue_line("markers", "functional: Fast functional tests with mocked dependencies")
+        config.addinivalue_line("markers", "integration: Integration tests using real orchestration")
+        config.addinivalue_line("markers", "orchestrator: Tests for orchestrator system")
+        config.addinivalue_line("markers", "vcs: Tests for VCS abstraction")
+        config.addinivalue_line("markers", "data_loss: Tests for data loss prevention")
+        config.addinivalue_line("markers", "templates: Tests for template bundling and resolution")
+        config.addinivalue_line("markers", "migrations: Tests for migration execution and registry")
+        config.addinivalue_line("markers", "regression: Regression test for previously discovered bugs")
+        config.addinivalue_line("markers", "slow: Test takes >30 seconds")
+        config.addinivalue_line("markers", "very_slow: Test takes >2 minutes")
 
 
 def pytest_collection_modifyitems(config, items):
