@@ -97,7 +97,7 @@
 **Estimated Size**: ~550 lines (7 subtasks)
 
 ### Included Subtasks
-- [ ] T015 Create tests/functional/orchestrator/ directory and conftest.py
+- [x] T015 Create tests/functional/orchestrator/ directory and conftest.py
 - [ ] T016 Create MockAgent fixture with configurable success_probability, execution_delay, exit_code
 - [ ] T017 [P] Implement test_state_machine.py - test valid transitions (PENDING→IMPLEMENTATION→REVIEW→DONE)
 - [ ] T018 [P] Implement test_idempotent_transitions.py - call start_implementation() twice, verify state stays IMPLEMENTATION
