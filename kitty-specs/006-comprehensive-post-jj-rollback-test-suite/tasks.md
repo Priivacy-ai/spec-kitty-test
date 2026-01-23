@@ -166,11 +166,11 @@
 **Estimated Size**: ~420 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T028 [P] Implement test_dependency_graph.py - parse dependencies from WP frontmatter
-- [ ] T029 [P] Implement test_topological_sort.py - WP01→WP02→WP04, verify execution order
-- [ ] T030 [P] Implement test_circular_dependency_detection.py - WP01→WP02→WP03→WP01 fails fast with clear error
-- [ ] T031 [P] Implement test_parallel_execution.py - WP01,WP02,WP03 independent, execute concurrently
-- [ ] T032 [P] Implement test_dependency_blocking.py - WP04 waits for WP01-WP03 to complete
+- [x] T028 [P] Implement test_dependency_graph.py - parse dependencies from WP frontmatter
+- [x] T029 [P] Implement test_topological_sort.py - WP01→WP02→WP04, verify execution order
+- [x] T030 [P] Implement test_circular_dependency_detection.py - WP01→WP02→WP03→WP01 fails fast with clear error
+- [x] T031 [P] Implement test_parallel_execution.py - WP01,WP02,WP03 independent, execute concurrently
+- [x] T032 [P] Implement test_dependency_blocking.py - WP04 waits for WP01-WP03 to complete
 
 ### Implementation Notes
 - Use TestFeature entity to create features with known dependency graphs
@@ -197,8 +197,8 @@
 **Estimated Size**: ~380 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T033 [P] Implement test_resume.py - interrupt at IMPLEMENTATION state, --resume continues from IMPLEMENTATION
-- [ ] T034 [P] Implement test_state_persistence.py - validate orchestration-state.json persists after each transition
+- [x] T033 [P] Implement test_resume.py - interrupt at IMPLEMENTATION state, --resume continues from IMPLEMENTATION
+- [x] T034 [P] Implement test_state_persistence.py - validate orchestration-state.json persists after each transition
 - [ ] T035 [P] Implement test_partial_completion.py - WP01 done, WP02 in progress, WP03 pending → resume starts WP02
 - [ ] T036 [P] Implement test_stale_state_detection.py - new orchestration with existing state file prompts --resume or --clean
 - [ ] T037 [P] Implement test_committed_work_preserved.py - partial commits not re-executed on resume
