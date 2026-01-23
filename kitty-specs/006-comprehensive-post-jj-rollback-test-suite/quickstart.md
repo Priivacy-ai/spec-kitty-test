@@ -1,8 +1,14 @@
 # Test Suite Quickstart Guide
 
 **Feature**: Comprehensive Post-JJ-Rollback Test Suite
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Date**: 2026-01-23
+
+## CI Status
+
+![Functional Tests](https://github.com/anthropics/spec-kitty-test/workflows/Functional%20Tests/badge.svg)
+![Distribution Tests](https://github.com/anthropics/spec-kitty-test/workflows/Distribution%20Tests/badge.svg)
+![Integration Tests](https://github.com/anthropics/spec-kitty-test/workflows/Integration%20Tests/badge.svg)
 
 ## Overview
 
@@ -19,6 +25,8 @@ This guide explains how to run the comprehensive test suite covering spec-kitty 
 - Python 3.11+
 - Git installed and configured
 - pytest 8.4.2+ (install via `pip install -r requirements.txt`)
+- pytest-xdist 3.5.0+ (for parallel execution)
+- pytest-cov 4.1.0+ (for coverage reporting)
 
 ### Optional (for specific test categories)
 
@@ -59,8 +67,14 @@ pytest tests/functional/orchestrator/ \
 # All functional tests (<10 minutes)
 pytest -m functional -v
 
+# With parallel execution (faster, requires pytest-xdist)
+pytest -m functional -n auto -v
+
 # With coverage report
 pytest -m functional --cov=../spec-kitty/src/specify_cli --cov-report=html
+
+# With coverage threshold enforcement (>85%)
+pytest -m functional --cov=../spec-kitty/src/specify_cli --cov-fail-under=85
 ```
 
 ### 4. Run Distribution Tests
