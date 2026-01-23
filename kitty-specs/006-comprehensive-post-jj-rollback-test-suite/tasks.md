@@ -131,13 +131,13 @@
 **Estimated Size**: ~550 lines (7 subtasks)
 
 ### Included Subtasks
-- [ ] T022 [P] Implement test_agent_selection.py - priority-based agent selection (claude-code first, cursor last)
-- [ ] T023 [P] Implement test_agent_aliases.py - normalize "claude"→"claude-code", "auggie"→"augment"
-- [ ] T024 [P] Implement test_agent_detection.py - detect_installed_agents() returns only installed agents
-- [ ] T025 [P] Implement test_fallback_strategies.py - next_in_list, same_agent, fail strategies
-- [ ] T026 [P] Implement test_agent_specific_flags.py - OpenCode --agent build, Cursor timeout, Gemini 120s timeout
-- [ ] T027 [P] Implement test_no_agents_available.py - clear error when all agents unavailable
-- [ ] T089 [P] Implement test_agent_retry.py - retry on failure, max retry exhaustion, retry count tracking (FR-011)
+- [x] T022 [P] Implement test_agent_selection.py - priority-based agent selection (claude-code first, cursor last)
+- [x] T023 [P] Implement test_agent_aliases.py - normalize "claude"→"claude-code", "auggie"→"augment"
+- [x] T024 [P] Implement test_agent_detection.py - detect_installed_agents() returns only installed agents
+- [x] T025 [P] Implement test_fallback_strategies.py - next_in_list, same_agent, fail strategies
+- [x] T026 [P] Implement test_agent_specific_flags.py - OpenCode --agent build, Cursor timeout, Gemini 120s timeout
+- [x] T027 [P] Implement test_no_agents_available.py - clear error when all agents unavailable
+- [x] T089 [P] Implement test_agent_retry.py - retry on failure, max retry exhaustion, retry count tracking (FR-011)
 
 ### Implementation Notes
 - Mock shutil.which() to control agent availability
