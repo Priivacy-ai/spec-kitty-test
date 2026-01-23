@@ -14,22 +14,126 @@ import pytest
 
 def pytest_configure(config):
     """Register custom markers for jj and distribution tests."""
-    # T001: Register jj marker
+    # Existing markers (keep these)
     config.addinivalue_line("markers", "jj: tests requiring jujutsu VCS")
-    # T004: Register distribution marker
-    config.addinivalue_line("markers", "distribution: tests validating PyPI user experience (no TEMPLATE_ROOT bypass)")
-    # Additional markers for test organization
     config.addinivalue_line("markers", "upgrade: tests validating upgrade paths")
-    config.addinivalue_line("markers", "adversarial: tests for edge cases and corruption scenarios")
+
+    # NEW: Test tier markers
+    config.addinivalue_line("markers", "functional: Fast functional tests with mocked dependencies (<10 min)")
+    config.addinivalue_line("markers", "integration: Integration tests using real orchestration (adaptive timing)")
+    config.addinivalue_line("markers", "distribution: Distribution tests validating PyPI user experience (no bypasses, <45 min)")
+
+    # NEW: Feature area markers
+    config.addinivalue_line("markers", "orchestrator: Tests for orchestrator system (state machine, agents, execution)")
+    config.addinivalue_line("markers", "vcs: Tests for VCS abstraction (git/jj isolation, detection, factory)")
+    config.addinivalue_line("markers", "data_loss: Tests for data loss prevention (cleanup, corruption, conflicts)")
+    config.addinivalue_line("markers", "templates: Tests for template bundling and resolution")
+    config.addinivalue_line("markers", "migrations: Tests for migration execution and registry")
+
+    # NEW: Agent requirement markers
+    config.addinivalue_line("markers", "requires_agent: Test requires specific agent to be installed (parametrized)")
+    config.addinivalue_line("markers", "requires_claude: Test requires Claude Code agent")
+    config.addinivalue_line("markers", "requires_opencode: Test requires OpenCode agent")
+    config.addinivalue_line("markers", "requires_codex: Test requires GitHub Codex agent")
+    config.addinivalue_line("markers", "requires_copilot: Test requires GitHub Copilot agent")
+    config.addinivalue_line("markers", "requires_gemini: Test requires Google Gemini agent")
+
+    # NEW: Test philosophy markers
+    config.addinivalue_line("markers", "adversarial: Adversarial test designed to break spec-kitty with edge cases")
+    config.addinivalue_line("markers", "regression: Regression test for previously discovered bugs")
+
+    # NEW: Performance markers
+    config.addinivalue_line("markers", "slow: Test takes >30 seconds (may be skipped for quick test runs)")
+    config.addinivalue_line("markers", "very_slow: Test takes >2 minutes (skipped by default)")
 
 
 def pytest_collection_modifyitems(config, items):
-    """Auto-skip @pytest.mark.jj tests when jj is not installed (T003)."""
+    """Auto-skip tests when dependencies are not available.
+
+    Handles:
+    - @pytest.mark.jj tests when jj not installed
+    - @pytest.mark.requires_agent("name") tests when agent not installed
+    - Specific agent markers (requires_claude, requires_opencode, etc.)
+    """
+    # Skip jj tests if jj not installed
     if not _jj_is_available():
         skip_jj = pytest.mark.skip(reason="jj (jujutsu) not installed")
         for item in items:
             if "jj" in item.keywords:
                 item.add_marker(skip_jj)
+
+    # Detect installed agents once for all tests
+    try:
+        from specify_cli.orchestrator.agents import detect_installed_agents
+        installed_agents = detect_installed_agents()
+    except Exception as e:
+        print(f"Warning: Agent detection failed: {e}")
+        installed_agents = []
+
+    # Agent ID normalization map
+    agent_id_map = {
+        "claude": "claude-code",
+        "auggie": "augment",
+        "opencode": "opencode",
+        "codex": "codex",
+        "copilot": "copilot",
+        "gemini": "gemini",
+    }
+
+    # Skip tests requiring specific agents
+    for item in items:
+        # Handle parametrized @pytest.mark.requires_agent("name")
+        for marker in item.iter_markers(name="requires_agent"):
+            if marker.args:
+                required_agent = marker.args[0]
+                # Normalize agent ID
+                normalized = agent_id_map.get(required_agent, required_agent)
+                if normalized not in installed_agents:
+                    skip_marker = pytest.mark.skip(
+                        reason=f"Agent '{required_agent}' not installed"
+                    )
+                    item.add_marker(skip_marker)
+
+        # Handle specific agent markers
+        if "requires_claude" in item.keywords and "claude-code" not in installed_agents:
+            item.add_marker(pytest.mark.skip(reason="Claude Code agent not installed"))
+
+        if "requires_opencode" in item.keywords and "opencode" not in installed_agents:
+            item.add_marker(pytest.mark.skip(reason="OpenCode agent not installed"))
+
+        if "requires_codex" in item.keywords and "codex" not in installed_agents:
+            item.add_marker(pytest.mark.skip(reason="GitHub Codex agent not installed"))
+
+        if "requires_copilot" in item.keywords and "copilot" not in installed_agents:
+            item.add_marker(pytest.mark.skip(reason="GitHub Copilot agent not installed"))
+
+        if "requires_gemini" in item.keywords and "gemini" not in installed_agents:
+            item.add_marker(pytest.mark.skip(reason="Google Gemini agent not installed"))
+
+
+@pytest.fixture(scope="session")
+def detect_available_agents():
+    """Detect which AI agents are installed on this system.
+
+    Returns:
+        list: List of installed agent identifiers (e.g., ['claude-code', 'augment'])
+
+    This is session-scoped for performance - agent detection runs once per test run.
+    If detection fails, returns empty list (tests requiring agents will auto-skip).
+
+    Example:
+        @pytest.mark.requires_agent("claude")
+        def test_claude_implementation(detect_available_agents):
+            assert "claude-code" in detect_available_agents
+    """
+    try:
+        from specify_cli.orchestrator.agents import detect_installed_agents
+        installed = detect_installed_agents()
+        return installed
+    except Exception as e:
+        # Graceful degradation if detection fails
+        print(f"Warning: Agent detection failed: {e}")
+        return []
 
 
 @pytest.fixture(scope="session")
@@ -466,6 +570,81 @@ def no_template_bypass(monkeypatch):
     monkeypatch.delenv("SPEC_KITTY_REPO", raising=False)
     yield
     # Environment automatically restored by monkeypatch
+
+
+@pytest.fixture
+def spec_kitty_git_test():
+    """Provides path to spec-kitty-git-test harness.
+
+    Auto-skips if harness not available or required scripts missing.
+
+    Returns:
+        Path: Path to the integration test harness directory
+
+    Example:
+        @pytest.mark.integration
+        def test_real_orchestration(spec_kitty_git_test):
+            harness_path = spec_kitty_git_test
+            # Run integration test using harness
+    """
+    harness_path = Path("/Users/robert/Code/spec-kitty-git-test")
+
+    if not harness_path.exists():
+        pytest.skip(
+            f"spec-kitty-git-test harness not available at {harness_path}"
+        )
+
+    # Verify required scripts exist
+    required_scripts = [
+        "cleanup-bookmarks.sh",
+        "run-orchestrate.sh"
+    ]
+    for script in required_scripts:
+        script_path = harness_path / script
+        if not script_path.exists():
+            pytest.skip(f"Required script not found: {script}")
+
+    return harness_path
+
+
+@pytest.fixture
+def reset_test_harness(spec_kitty_git_test):
+    """Resets spec-kitty-git-test harness before test.
+
+    Runs cleanup-bookmarks.sh to clear all worktrees and bookmarks,
+    ensuring clean state for integration tests.
+
+    Args:
+        spec_kitty_git_test: Path to test harness (from fixture)
+
+    Yields:
+        Path: Path to the harness directory (after cleanup)
+
+    Example:
+        @pytest.mark.integration
+        def test_clean_orchestration(reset_test_harness):
+            # Harness is guaranteed clean
+            harness_path = reset_test_harness
+    """
+    cleanup_script = spec_kitty_git_test / "cleanup-bookmarks.sh"
+
+    # Run cleanup before test
+    result = subprocess.run(
+        [str(cleanup_script)],
+        cwd=spec_kitty_git_test,
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        pytest.fail(
+            f"Harness cleanup failed: {result.stderr}"
+        )
+
+    yield spec_kitty_git_test
+
+    # Optionally cleanup after test (currently disabled for debugging)
+    # Could add post-test cleanup here if needed
 
 
 @pytest.fixture(autouse=True)
