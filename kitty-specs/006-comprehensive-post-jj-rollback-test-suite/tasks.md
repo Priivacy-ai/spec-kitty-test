@@ -125,10 +125,10 @@
 
 ## Work Package WP04: Orchestrator Agent Selection & Fallback (Priority: P1)
 
-**Goal**: Validate agent detection, alias normalization, priority selection, and fallback strategies.
-**Independent Test**: Agent selection logic correctly chooses agents based on priority, handles failures, and falls back appropriately.
+**Goal**: Validate agent detection, alias normalization, priority selection, fallback strategies, and retry logic.
+**Independent Test**: Agent selection logic correctly chooses agents based on priority, handles failures, retries appropriately, and falls back correctly.
 **Prompt**: `tasks/WP04-orchestrator-agent-selection-and-fallback.md`
-**Estimated Size**: ~480 lines (6 subtasks)
+**Estimated Size**: ~550 lines (7 subtasks)
 
 ### Included Subtasks
 - [ ] T022 [P] Implement test_agent_selection.py - priority-based agent selection (claude-code first, cursor last)
@@ -137,15 +137,17 @@
 - [ ] T025 [P] Implement test_fallback_strategies.py - next_in_list, same_agent, fail strategies
 - [ ] T026 [P] Implement test_agent_specific_flags.py - OpenCode --agent build, Cursor timeout, Gemini 120s timeout
 - [ ] T027 [P] Implement test_no_agents_available.py - clear error when all agents unavailable
+- [ ] T089 [P] Implement test_agent_retry.py - retry on failure, max retry exhaustion, retry count tracking (FR-011)
 
 ### Implementation Notes
 - Mock shutil.which() to control agent availability
 - Test with various agents.yaml configurations
 - Verify correct command construction for each agent type
 - Simulate rate limit failures to test fallback
+- Test retry logic with configurable max_retries
 
 ### Parallel Opportunities
-- All subtasks (T022-T027) can proceed in parallel
+- All subtasks (T022-T027, T089) can proceed in parallel
 
 ### Dependencies
 - Depends on WP01 (test infrastructure), WP03 (MockAgent fixture)
@@ -420,10 +422,10 @@
 
 ## Work Package WP13: Edge Cases & Adversarial Tests (Priority: P3)
 
-**Goal**: Validate 30+ edge cases across all risk areas (orchestrator, VCS, data loss, distribution, integration).
+**Goal**: Validate 30+ edge cases across all risk areas (orchestrator, VCS, data loss, distribution, integration) plus backward compatibility scenarios.
 **Independent Test**: All documented edge cases have corresponding tests with expected behavior.
 **Prompt**: `tasks/WP13-edge-cases-and-adversarial-tests.md`
-**Estimated Size**: ~680 lines (10 subtasks - at upper limit!)
+**Estimated Size**: ~750 lines (11 subtasks)
 
 ### Included Subtasks
 - [ ] T073 [P] Implement orchestrator edge cases (unreachable deps, unparseable output, corrupted state file, concurrent processes)
@@ -436,6 +438,7 @@
 - [ ] T080 [P] Implement test_corruption_scenarios.py - JSON corruption, file encoding issues, symlink problems
 - [ ] T081 [P] Implement test_boundary_conditions.py - empty features, single WP, 100+ WPs
 - [ ] T082 [P] Implement test_regression_suite.py - tests for previously discovered bugs
+- [ ] T088 [P] Implement test_legacy_frontmatter.py - old frontmatter formats without dependency fields (FR-047)
 
 ### Implementation Notes
 - Mark all tests with @pytest.mark.adversarial
@@ -444,14 +447,15 @@
 - Use parametrize for testing multiple similar edge cases
 
 ### Parallel Opportunities
-- All subtasks (T073-T082) can proceed in parallel
+- All subtasks (T073-T082, T088) can proceed in parallel
 
 ### Dependencies
 - Depends on WP01-WP12 (all test infrastructure and fixtures)
 
 ### Risks & Mitigations
-- Too many edge cases → this WP is at upper size limit (10 subtasks, ~680 lines)
-- If grows beyond this → split into WP13A (orchestrator+VCS edges) and WP13B (data+dist+agent edges)
+- Edge case volume → this WP has 11 subtasks (~750 lines estimated)
+- Legacy frontmatter testing (T088) addresses FR-047 coverage gap
+- If grows beyond this → consider splitting orchestrator+VCS edges from data+dist+agent edges
 
 ---
 
@@ -468,15 +472,19 @@
 - [ ] T085 [P] Create GitHub Actions workflow for distribution tests (<45 min target)
 - [ ] T086 [P] Create GitHub Actions workflow for integration tests (adaptive, optional)
 - [ ] T087 Update quickstart.md with actual pytest commands after implementation
+- [ ] T090 [P] Configure and test pytest-xdist parallel execution (FR-055)
+- [ ] T091 [P] Add coverage target configuration for specific modules (FR-056, SC-008)
 
 ### Implementation Notes
 - Document marker usage, fixture availability, and execution patterns
 - CI workflows should match success criteria timing (<10min functional, <45min distribution)
 - Integration tests optional in CI (may not have agents or harness)
-- Include coverage reporting in CI (target >85%)
+- Include coverage reporting in CI (target >85% for: detection.py, implement.py, orchestrator/*, merge.py, stale_detection.py)
+- Configure pytest-xdist for parallel execution: `pytest -n auto` or `pytest -n 4`
+- Coverage configuration in .coveragerc or pyproject.toml with module-specific targets
 
 ### Parallel Opportunities
-- T084, T085, T086 (CI workflows) can be written in parallel
+- T084, T085, T086, T090, T091 (CI workflows and config) can be written in parallel
 
 ### Dependencies
 - Depends on WP01-WP13 (all tests implemented)
@@ -605,13 +613,17 @@
 | T085 | CI distribution tests | WP14 | P3 | Yes | .github/workflows/test-distribution.yml |
 | T086 | CI integration tests | WP14 | P3 | Yes | .github/workflows/test-integration.yml |
 | T087 | Update quickstart.md | WP14 | P3 | No | kitty-specs/006-.../quickstart.md |
+| T088 | Test legacy frontmatter | WP13 | P3 | Yes | tests/functional/test_legacy_frontmatter.py |
+| T089 | Test agent retry logic | WP04 | P1 | Yes | tests/functional/orchestrator/test_agent_retry.py |
+| T090 | Test pytest-xdist parallel | WP14 | P3 | Yes | tests/functional/test_parallel_execution_support.py |
+| T091 | Configure coverage targets | WP14 | P3 | Yes | .coveragerc or pyproject.toml |
 
 ---
 
-**Total Subtasks**: 87
+**Total Subtasks**: 91
 **Total Work Packages**: 14
-**Average Subtasks per WP**: 6.2
-**Estimated Average Prompt Size**: ~460 lines/WP
+**Average Subtasks per WP**: 6.5
+**Estimated Average Prompt Size**: ~470 lines/WP
 
 **Size Validation**:
 ✅ All WPs within 3-10 subtask range

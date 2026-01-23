@@ -57,10 +57,19 @@ Simulated agent for testing orchestrator without real AI agent dependencies.
 - `output_pattern`: str - Pattern for stdout/stderr output
 - `exit_code`: int - Exit code to return (0 for success, non-zero for failure)
 
+**Methods** (required for U5 - underspecification fix):
+- `execute(wp_id: str, workspace: Path) -> tuple[int, str, str]`: Simulate agent invocation, return (exit_code, stdout, stderr)
+- `fail()`: Configure agent to always fail (exit_code=1)
+- `timeout()`: Configure agent to simulate timeout (execution_delay=inf)
+- `succeed()`: Configure agent to always succeed (exit_code=0, success_probability=1.0)
+- `set_exit_code(code: int)`: Set specific exit code for next invocation
+- `get_invocation_count() -> int`: Return number of times agent was invoked
+
 **Behavior**:
 - Responds to invocation with deterministic success/failure
 - Simulates timeouts when execution_delay exceeds threshold
 - Generates realistic output patterns for parsing tests
+- Tracks invocation count for retry testing
 
 **Example**:
 ```python
@@ -144,11 +153,20 @@ Captured orchestration state at specific point for resume testing.
 - `agent_assignments`: dict[str, str] - Which agent is assigned to each WP
 - `execution_history`: list[dict] - Ordered list of state transitions
 
+**Methods** (required for U3 - underspecification fix):
+- `save(path: Path) -> None`: Serialize snapshot to orchestration-state.json file
+- `load(path: Path) -> StateSnapshot`: Deserialize snapshot from file
+- `to_dict() -> dict`: Convert to dictionary for JSON serialization
+- `from_dict(data: dict) -> StateSnapshot`: Create from dictionary (deserialization)
+- `get_wp_state(wp_id: str) -> str`: Get current state for specific WP
+- `set_wp_state(wp_id: str, state: str) -> None`: Update WP state in snapshot
+- `validate_schema() -> bool`: Validate snapshot matches expected JSON schema
+
 **Usage**:
-1. Take snapshot during orchestration
+1. Take snapshot during orchestration: `snapshot = StateSnapshot.from_state_file(state_file)`
 2. Simulate interruption (kill process)
-3. Restore snapshot and resume
-4. Verify continuation from correct state
+3. Restore snapshot and resume: `snapshot.save(state_file); orchestrate(resume=True)`
+4. Verify continuation from correct state: `assert snapshot.get_wp_state("WP01") == "DONE"`
 
 **Example**:
 ```python
@@ -221,6 +239,15 @@ Built wheel for distribution testing with template and migration manifests.
 - `template_manifest`: list[str] - List of bundled template files
 - `migration_list`: list[str] - Registered migrations
 - `installed_path`: Path - site-packages installation location after pip install
+
+**Methods** (required for U4 - underspecification fix):
+- `build(source_dir: Path) -> DistributionPackage`: Build wheel from source using `python -m build`
+- `inspect_wheel() -> dict`: Extract wheel contents and metadata using zipfile
+- `validate_templates() -> list[str]`: Check all templates present, return list of missing templates (empty if valid)
+- `validate_migrations() -> list[str]`: Check migrations registered in __init__.py, return missing migrations (empty if valid)
+- `install_in_venv(venv_path: Path) -> Path`: Install wheel in virtualenv, return installed site-packages path
+- `get_template_content(template_name: str) -> str`: Read template from installed package (validates accessibility)
+- `list_bundled_files() -> list[str]`: List all files in wheel (for debugging)
 
 **Validation**:
 - Wheel contains all required template files

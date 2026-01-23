@@ -25,6 +25,11 @@ This test suite provides comprehensive, adversarial validation of all changes ma
 4. **Distribution/packaging** - Templates missing from PyPI, env vars not working, migrations failing
 5. **Integration failures** - Command interactions, workflow breakage, backward compatibility
 
+**Testing Strategy Note**: Some requirements have both functional tests (fast, mocked, with SPEC_KITTY_TEMPLATE_ROOT bypass) AND distribution tests (slow, real package, no bypasses). This dual coverage is intentional:
+- **Functional tests**: Validate logic correctness (e.g., legacy jj→git conversion logic)
+- **Distribution tests**: Validate packaging correctness (e.g., conversion works from installed package)
+- **Example**: FR-016 (legacy jj conversion) tested by T046 (functional/mocked) AND T064 (distribution/real package)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Distribution Test: Fresh Install Workflow (Priority: P1)
@@ -65,7 +70,7 @@ The orchestrator manages complex state transitions (PENDING → IMPLEMENTATION �
 
 3. **Given** orchestration with parallel WPs (WP01, WP02, WP03), **When** WP02 fails after WP01 succeeds, **Then** WP03 continues independently and WP02 can be retried without affecting WP01/WP03 state
 
-4. **Given** orchestration state file exists from previous run, **When** user starts new orchestration without --resume, **Then** command detects stale state and prompts user to --resume or --clean
+4. **Given** orchestration state file exists from previous run (stale state defined as: status="running" AND no process with matching PID, OR status="failed"/"completed" from previous session), **When** user starts new orchestration without --resume, **Then** command detects stale state and prompts user to --resume or --clean with clear explanation
 
 5. **Given** WP in IMPLEMENTATION state, **When** calling start_implementation() again (idempotent transition), **Then** state remains IMPLEMENTATION without error (no invalid transition exception)
 
@@ -292,42 +297,42 @@ Changes included automatic conversion of legacy jj features to git, agent alias 
 ### Edge Cases
 
 **Orchestrator Edge Cases:**
-- What happens when WP dependency graph has unreachable nodes (WP05 depends on WP99 which doesn't exist)?
-- What happens when agent produces output that can't be parsed as success/failure?
-- What happens when worktree creation succeeds but initial commit fails (partial workspace state)?
-- What happens when state file is corrupted (invalid JSON)?
-- What happens when two orchestration processes run concurrently on the same feature?
-- What happens when agent timeout occurs during critical operation (mid-commit)?
+- What happens when WP dependency graph has unreachable nodes (WP05 depends on WP99 which doesn't exist)? → **Expected**: Validation fails fast with error "WP99 not found in feature" before orchestration starts
+- What happens when agent produces output that can't be parsed as success/failure? → **Expected**: Treat as failure, increment retry count, log unparseable output
+- What happens when worktree creation succeeds but initial commit fails (partial workspace state)? → **Expected**: Clean up partial worktree, mark WP as FAILED, log error
+- What happens when state file is corrupted (invalid JSON)? → **Expected**: Detect on load, prompt user to --clean with backup suggestion, do not proceed with corrupted state
+- What happens when two orchestration processes run concurrently on the same feature? → **Expected**: Second process detects lock (PID in state file), fails with "Orchestration already running (PID: XXXX)" error
+- What happens when agent timeout occurs during critical operation (mid-commit)? → **Expected**: SIGKILL agent process, mark WP as FAILED with timeout reason, state persists for resume
 
 **VCS Edge Cases:**
-- What happens when git binary exists but is broken (returns non-zero for `--version`)?
-- What happens when feature meta.json has `"vcs": "invalid-vcs-name"`?
-- What happens when git worktree creation fails due to existing directory?
-- What happens when user manually modifies VCS field in meta.json after feature creation?
+- What happens when git binary exists but is broken (returns non-zero for `--version`)? → **Expected**: Fail with clear error "git not working properly, please reinstall", suggest `git --version` troubleshooting
+- What happens when feature meta.json has `"vcs": "invalid-vcs-name"`? → **Expected**: Fall back to git with warning "Unknown VCS 'invalid-vcs-name', using git", update meta.json to vcs=git
+- What happens when git worktree creation fails due to existing directory? → **Expected**: Fail with clear error "Worktree directory already exists at .worktrees/...", suggest manual cleanup or different WP
+- What happens when user manually modifies VCS field in meta.json after feature creation? → **Expected**: Detect mismatch, warn user "VCS cannot be changed after feature creation", revert to original VCS or require manual migration
 
 **Data Safety Edge Cases:**
-- What happens when merge cleanup encounters file in use (Windows lock)?
-- What happens when worktree path exceeds OS path length limits?
-- What happens when main repo kitty-specs directory is deleted during WP operation?
-- What happens when disk full during state persistence?
+- What happens when merge cleanup encounters file in use (Windows lock)? → **Expected**: Log warning "Could not delete [file]: in use", continue with other cleanups, exit with partial success status
+- What happens when worktree path exceeds OS path length limits? → **Expected**: Fail worktree creation with clear error "Path too long (260 char limit on Windows)", suggest shorter feature slug
+- What happens when main repo kitty-specs directory is deleted during WP operation? → **Expected**: Fail with FileNotFoundError, clear message "kitty-specs/ not found, repository may be corrupted"
+- What happens when disk full during state persistence? → **Expected**: Raise OSError(28, "No space left on device"), preserve previous state file if exists, do not corrupt partial write
 
 **Distribution Edge Cases:**
-- What happens when package is installed with --no-deps (missing dependencies)?
-- What happens when template file has incorrect encoding (non-UTF8)?
-- What happens when migration partially completes then crashes?
-- What happens when user has both pip and conda installations (PATH priority issues)?
+- What happens when package is installed with --no-deps (missing dependencies)? → **Expected**: Import fails with ModuleNotFoundError for pytest/etc, error message suggests `pip install spec-kitty-cli` (with deps)
+- What happens when template file has incorrect encoding (non-UTF8)? → **Expected**: Detect encoding error on load, fail with "Template encoding error in [file], expected UTF-8", suggest file repair
+- What happens when migration partially completes then crashes? → **Expected**: Migration system detects incomplete migration, rolls back changes or marks as failed, prevents further operations until resolved
+- What happens when user has both pip and conda installations (PATH priority issues)? → **Expected**: Use whichever `spec-kitty` binary is first in PATH, warn if multiple installations detected
 
 **Stale Detection Edge Cases:**
-- What happens when git log returns empty output (no commits in worktree)?
-- What happens when worktree exists but branch is deleted?
-- What happens when system clock is set backwards (negative time delta)?
-- What happens when --stale-threshold is set to 0 or negative value?
+- What happens when git log returns empty output (no commits in worktree)? → **Expected**: Use worktree creation time as baseline for staleness calculation, do not crash
+- What happens when worktree exists but branch is deleted? → **Expected**: Skip staleness check for that WP, log warning "Cannot determine staleness for WP01 (branch missing)"
+- What happens when system clock is set backwards (negative time delta)? → **Expected**: Treat negative delta as zero (not stale), log warning "System clock may be incorrect"
+- What happens when --stale-threshold is set to 0 or negative value? → **Expected**: Validate input, reject with error "stale-threshold must be positive integer (minutes)", suggest valid range (1-1440)
 
 **Agent Invocation Edge Cases:**
-- What happens when agent binary exists but requires interactive auth on first run?
-- What happens when agent writes to stderr but exits with code 0?
-- What happens when agent produces extremely large output (>100MB logs)?
-- What happens when agent config has empty priority list (no agents specified)?
+- What happens when agent binary exists but requires interactive auth on first run? → **Expected**: Timeout after 30s waiting for stdin, fail with "Agent appears to require interactive authentication", suggest running agent manually first
+- What happens when agent writes to stderr but exits with code 0? → **Expected**: Treat as success (exit code authoritative), capture stderr for debugging but do not fail orchestration
+- What happens when agent produces extremely large output (>100MB logs)? → **Expected**: Truncate logs at 10MB, log warning "Output truncated (exceeded 10MB)", preserve truncated logs for debugging
+- What happens when agent config has empty priority list (no agents specified)? → **Expected**: Validation fails with error "agents.available list is empty", suggest agent configuration format
 
 ## Requirements *(mandatory)*
 
@@ -370,7 +375,7 @@ Changes included automatic conversion of legacy jj features to git, agent alias 
 - **FR-026**: Test suite MUST test stale detection for WPs in "doing" lane only
 - **FR-027**: Test suite MUST validate git log parsing for commit timestamps
 - **FR-028**: Test suite MUST test graceful handling of missing worktrees or branches
-- **FR-029**: Test suite MUST validate JSON output includes stale WP information
+- **FR-029**: Test suite MUST validate JSON output includes stale WP information (schema: `{"stale_wps": ["WP01", "WP02"], "stale_count": 2}` per WP status with `stale: true/false` field)
 
 **Merge Preflight Testing**
 - **FR-030**: Test suite MUST validate preflight detects uncommitted changes in all worktrees
@@ -403,13 +408,13 @@ Changes included automatic conversion of legacy jj features to git, agent alias 
 - **FR-049**: Test suite MUST test all edge cases listed in Edge Cases section
 - **FR-050**: Test suite MUST validate error messages are clear and actionable
 - **FR-051**: Test suite MUST test graceful degradation when non-critical components fail
-- **FR-052**: Test suite MUST validate concurrent operation safety (file locking, state conflicts)
+- **FR-052**: Test suite MUST validate concurrent operation safety including: (a) two orchestrations on same feature detect lock conflict, (b) simultaneous implement + sync operations handle file locking, (c) state file writes are atomic (no corruption from concurrent access)
 
 **Test Infrastructure Requirements**
 - **FR-053**: Test suite MUST use pytest markers to categorize tests (functional, distribution, orchestrator, vcs, etc.)
 - **FR-054**: Test suite MUST provide fixtures for common setup (clean env, mock agents, test features)
-- **FR-055**: Test suite MUST support parallel test execution where safe
-- **FR-056**: Test suite MUST generate coverage reports identifying untested code paths
+- **FR-055**: Test suite MUST support parallel test execution where safe (using pytest-xdist: `pytest -n auto` or `pytest -n 4`)
+- **FR-056**: Test suite MUST generate coverage reports identifying untested code paths (using pytest-cov for modules: detection.py, implement.py, orchestrator/*, merge.py, stale_detection.py with >85% target per SC-008)
 - **FR-057**: Test suite MUST include integration tests that exercise full workflows end-to-end
 
 ### Key Entities
@@ -429,6 +434,24 @@ Changes included automatic conversion of legacy jj features to git, agent alias 
 - **ConflictScenario**: Pre-configured merge conflict for testing resolution. Attributes: wp_modifications, conflict_type (code/status), expected_resolution, auto_resolvable.
 
 - **StalenessConfig**: Staleness detection test parameters. Attributes: threshold_minutes, wp_lane, last_commit_time, expected_stale_status.
+
+### Mission Types (Context for FR-044)
+
+Spec-kitty supports three mission types, each with specific templates:
+
+- **software-dev**: Software development projects (default)
+  - Templates: spec-template.md, plan-template.md, tasks-template.md, task-prompt-template.md
+  - Used for: features, bug fixes, refactoring
+
+- **research**: Research and investigation projects
+  - Templates: research-template.md, data-model-template.md, spec-template.md (research variant)
+  - Used for: feasibility studies, technology evaluation, literature reviews
+
+- **documentation**: Documentation projects
+  - Templates: Divio framework templates (tutorial, how-to, explanation, reference), release-template.md
+  - Used for: user docs, API docs, guides
+
+**Test Scope**: FR-044 requires validating that creating features with each mission type loads the correct mission-specific templates from the package.
 
 ## Success Criteria *(mandatory)*
 
