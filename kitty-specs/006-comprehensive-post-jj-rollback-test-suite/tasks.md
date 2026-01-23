@@ -438,7 +438,7 @@
 - [x] T080 [P] Implement test_corruption_scenarios.py - JSON corruption, file encoding issues, symlink problems
 - [x] T081 [P] Implement test_boundary_conditions.py - empty features, single WP, 100+ WPs
 - [x] T082 [P] Implement test_regression_suite.py - tests for previously discovered bugs
-- [ ] T088 [P] Implement test_legacy_frontmatter.py - old frontmatter formats without dependency fields (FR-047)
+- [x] T088 [P] Implement test_legacy_frontmatter.py - old frontmatter formats without dependency fields (FR-047)
 
 ### Implementation Notes
 - Mark all tests with @pytest.mark.adversarial
