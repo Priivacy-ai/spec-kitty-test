@@ -29,7 +29,7 @@
 
 ### Included Subtasks
 - [x] T001 Update root conftest.py with new marker registrations (orchestrator, vcs, data_loss, etc.)
-- [ ] T002 Create tests/fixtures/ directory with shared utilities (mock subprocess runner, command logger)
+- [x] T002 Create tests/fixtures/ directory with shared utilities (mock subprocess runner, command logger)
 - [ ] T003 [P] Create agent detection fixture (detect_available_agents) using spec-kitty's detect_installed_agents()
 - [ ] T004 [P] Create requires_agent marker implementation with auto-skip logic
 - [ ] T005 Create spec_kitty_git_test fixture pointing to /Users/robert/Code/spec-kitty-git-test
