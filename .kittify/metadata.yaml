@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 0.11.1
+  version: 0.11.3
   initialized_at: '2026-01-14T09:05:28.971248'
-  last_upgraded_at: '2026-01-19T19:03:59.917346'
+  last_upgraded_at: '2026-01-23T16:41:54.293323'
 environment:
   python_version: 3.14.0
   platform: darwin
@@ -17,3 +17,19 @@ migrations:
     result: success
     notes: Updated /Users/robert/Code/spec-kitty-test/.kittify/missions/software-dev/command-templates/specify.md;
       Updated /Users/robert/Code/spec-kitty-test/.kittify/missions/software-dev/command-templates/implement.md
+  - id: 0.11.1_improved_workflow_templates
+    applied_at: '2026-01-23T16:41:54.291559'
+    result: skipped
+    notes: Not applicable
+  - id: 0.11.1_update_implement_slash_command
+    applied_at: '2026-01-23T16:41:54.292172'
+    result: skipped
+    notes: Not applicable
+  - id: 0.11.2_improved_workflow_templates
+    applied_at: '2026-01-23T16:41:54.292751'
+    result: skipped
+    notes: Not applicable
+  - id: 0.11.3_workflow_agent_flag
+    applied_at: '2026-01-23T16:41:54.293322'
+    result: skipped
+    notes: Not applicable
