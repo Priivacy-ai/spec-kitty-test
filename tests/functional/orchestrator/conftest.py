@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """Fixtures for orchestrator state machine testing.
 
 This module provides fixtures for testing the orchestrator state machine,
@@ -11,6 +10,10 @@ import json
 from datetime import datetime
 import random
 import time
+import tempfile
+from typing import Callable, Any
+from unittest.mock import Mock, patch, MagicMock
+import yaml
 
 
 @pytest.fixture
@@ -188,21 +191,6 @@ def mock_failing_agent(mock_agent_factory):
         Test failure scenarios and error handling
     """
     return mock_agent_factory(success_probability=0.0, exit_code=1)
-=======
-"""
-Fixtures for orchestrator tests (WP05).
-
-Provides fixtures for dependency graph testing, parallel execution validation,
-and mock agents for orchestration testing.
-"""
-import pytest
-import tempfile
-import json
-import time
-from pathlib import Path
-from typing import Callable, Any
-from unittest.mock import Mock, patch, MagicMock
-import yaml
 
 
 # =============================================================================
@@ -458,4 +446,3 @@ def convergent_dependency_graph(temp_feature_dir, create_wp_file):
     create_wp_file(temp_feature_dir, "WP04", ["WP01", "WP02", "WP03"])
 
     return temp_feature_dir
->>>>>>> 006-comprehensive-post-jj-rollback-test-suite-WP05
