@@ -266,8 +266,8 @@
 - [x] T045 [P] Implement test_no_jj_commands.py - full workflow (init→implement→merge) never executes jj
 - [x] T046 [P] Implement test_legacy_conversion.py - meta.json vcs=jj auto-converts to git with warning
 - [x] T047 [P] Implement test_init_shows_git_only.py - spec-kitty init displays git as VCS, no jj reference
-- [ ] T048 [P] Implement test_error_messages_git_only.py - VCS errors mention only git installation
-- [ ] T049 [P] Implement test_jujutsu_vcs_never_invoked.py - zero calls to JujutsuVCS methods via instrumentation
+- [x] T048 [P] Implement test_error_messages_git_only.py - VCS errors mention only git installation
+- [x] T049 [P] Implement test_jujutsu_vcs_never_invoked.py - zero calls to JujutsuVCS methods via instrumentation
 
 ### Implementation Notes
 - Use command logger from WP07 to verify no jj commands
@@ -295,10 +295,10 @@
 **Estimated Size**: ~520 lines (6 subtasks)
 
 ### Included Subtasks
-- [ ] T050 Create tests/functional/data_loss/ directory and conftest.py with data loss scenario fixtures
-- [ ] T051 [P] Implement test_worktree_cleanup.py - merge --remove-worktree only deletes WP worktrees
-- [ ] T052 [P] Implement test_main_repo_usage.py - WP operations use main repo kitty-specs, not worktree copies
-- [ ] T053 [P] Implement test_conflict_resolution.py - status file conflicts (lane, checkboxes) auto-resolve correctly
+- [x] T050 Create tests/functional/data_loss/ directory and conftest.py with data loss scenario fixtures
+- [x] T051 [P] Implement test_worktree_cleanup.py - merge --remove-worktree only deletes WP worktrees
+- [x] T052 [P] Implement test_main_repo_usage.py - WP operations use main repo kitty-specs, not worktree copies
+- [x] T053 [P] Implement test_conflict_resolution.py - status file conflicts (lane, checkboxes) auto-resolve correctly
 - [ ] T054 [P] Implement test_cleanup_failure_handling.py - locked file during cleanup logs error, continues with other worktrees
 - [ ] T055 [P] Implement test_uncommitted_changes_preserved.py - sync with uncommitted changes preserves local work
 
