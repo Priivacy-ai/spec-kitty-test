@@ -199,9 +199,9 @@
 ### Included Subtasks
 - [x] T033 [P] Implement test_resume.py - interrupt at IMPLEMENTATION state, --resume continues from IMPLEMENTATION
 - [x] T034 [P] Implement test_state_persistence.py - validate orchestration-state.json persists after each transition
-- [ ] T035 [P] Implement test_partial_completion.py - WP01 done, WP02 in progress, WP03 pending → resume starts WP02
-- [ ] T036 [P] Implement test_stale_state_detection.py - new orchestration with existing state file prompts --resume or --clean
-- [ ] T037 [P] Implement test_committed_work_preserved.py - partial commits not re-executed on resume
+- [x] T035 [P] Implement test_partial_completion.py - WP01 done, WP02 in progress, WP03 pending → resume starts WP02
+- [x] T036 [P] Implement test_stale_state_detection.py - new orchestration with existing state file prompts --resume or --clean
+- [x] T037 [P] Implement test_committed_work_preserved.py - partial commits not re-executed on resume
 
 ### Implementation Notes
 - Use StateSnapshot to capture state at interruption points
@@ -229,9 +229,9 @@
 **Estimated Size**: ~520 lines (6 subtasks)
 
 ### Included Subtasks
-- [ ] T038 Create tests/functional/vcs_abstraction/ directory and conftest.py with VCS mocking fixtures
-- [ ] T039 Create subprocess command logger fixture (mock subprocess.run, capture all commands)
-- [ ] T040 [P] Implement test_git_path.py - git-only environment executes only git commands
+- [x] T038 Create tests/functional/vcs_abstraction/ directory and conftest.py with VCS mocking fixtures
+- [x] T039 Create subprocess command logger fixture (mock subprocess.run, capture all commands)
+- [x] T040 [P] Implement test_git_path.py - git-only environment executes only git commands
 - [ ] T041 [P] Implement test_jj_disabled.py - is_jj_available() always returns False despite jj on PATH
 - [ ] T042 [P] Implement test_vcs_factory.py - jj disabled always returns GitVCS instance
 - [ ] T043 [P] Implement test_mixed_features.py - feature1 vcs=git, feature2 vcs=jj (legacy), correct VCS for each
