@@ -34,7 +34,7 @@
 - [x] T004 [P] Create requires_agent marker implementation with auto-skip logic
 - [x] T005 Create spec_kitty_git_test fixture pointing to /Users/robert/Code/spec-kitty-git-test
 - [x] T006 Create reset_test_harness fixture that runs cleanup-bookmarks.sh
-- [ ] T007 Update MARKER_DEFINITIONS registration in conftest.py pytest_configure hook
+- [x] T007 Update MARKER_DEFINITIONS registration in conftest.py pytest_configure hook
 
 ### Implementation Notes
 - Extend existing tests/conftest.py (don't replace)
