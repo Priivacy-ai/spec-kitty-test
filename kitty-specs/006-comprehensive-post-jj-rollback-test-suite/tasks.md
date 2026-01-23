@@ -299,8 +299,8 @@
 - [x] T051 [P] Implement test_worktree_cleanup.py - merge --remove-worktree only deletes WP worktrees
 - [x] T052 [P] Implement test_main_repo_usage.py - WP operations use main repo kitty-specs, not worktree copies
 - [x] T053 [P] Implement test_conflict_resolution.py - status file conflicts (lane, checkboxes) auto-resolve correctly
-- [ ] T054 [P] Implement test_cleanup_failure_handling.py - locked file during cleanup logs error, continues with other worktrees
-- [ ] T055 [P] Implement test_uncommitted_changes_preserved.py - sync with uncommitted changes preserves local work
+- [x] T054 [P] Implement test_cleanup_failure_handling.py - locked file during cleanup logs error, continues with other worktrees
+- [x] T055 [P] Implement test_uncommitted_changes_preserved.py - sync with uncommitted changes preserves local work
 
 ### Implementation Notes
 - Create test data in multiple locations (main, worktrees, other features)
@@ -328,10 +328,10 @@
 **Estimated Size**: ~460 lines (6 subtasks)
 
 ### Included Subtasks
-- [ ] T056 [P] Implement test_stale_detection.py - WP in "doing" with old commit marked stale, other lanes not checked
-- [ ] T057 [P] Implement test_stale_threshold.py - configurable --stale-threshold respected
-- [ ] T058 [P] Implement test_preflight_validation.py - uncommitted changes, diverged branch detected before merge
-- [ ] T059 [P] Implement test_preflight_all_blockers.py - multiple issues reported in single pass
+- [x] T056 [P] Implement test_stale_detection.py - WP in "doing" with old commit marked stale, other lanes not checked
+- [x] T057 [P] Implement test_stale_threshold.py - configurable --stale-threshold respected
+- [x] T058 [P] Implement test_preflight_validation.py - uncommitted changes, diverged branch detected before merge
+- [x] T059 [P] Implement test_preflight_all_blockers.py - multiple issues reported in single pass
 - [ ] T060 [P] Implement test_merge_dry_run.py - --dry-run shows predicted conflicts without merging
 - [ ] T061 [P] Implement test_merge_dependency_order.py - merge order follows topological sort
 
