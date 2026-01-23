@@ -103,7 +103,7 @@
 - [x] T018 [P] Implement test_idempotent_transitions.py - call start_implementation() twice, verify state stays IMPLEMENTATION
 - [x] T019 [P] Implement test_review_rework_cycle.py - REVIEW rejection transitions to REWORK, re-invokes implementation agent
 - [x] T020 [P] Implement test_blocked_state.py - WP04 depends on WP01-WP03, WP02 fails, WP04 marked BLOCKED
-- [ ] T021 [P] Implement test_invalid_transitions.py - PENDING→REVIEW (skip IMPLEMENTATION) raises error
+- [x] T021 [P] Implement test_invalid_transitions.py - PENDING→REVIEW (skip IMPLEMENTATION) raises error
 
 ### Implementation Notes
 - Mock orchestration state file at .kittify/orchestration-state.json
