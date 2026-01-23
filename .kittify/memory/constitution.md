@@ -41,7 +41,20 @@ We are an **adversarial testing project**. Our mission is to:
 
 - **Python 3.11+** minimum required
 - **pytest** for test framework
-- **Playwright** for browser/dashboard testing
+- **Playwright** for browser/dashboard testing (always run headless)
+
+### Running Tests
+
+Always run Playwright tests in headless mode to prevent browser windows from opening:
+
+```bash
+PWHEADLESS=1 pytest tests/
+```
+
+Or use the environment variable permanently:
+```bash
+export PWHEADLESS=1
+```
 
 ### Testing Requirements
 
