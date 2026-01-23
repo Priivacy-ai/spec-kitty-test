@@ -364,8 +364,8 @@
 - [x] T062 Create tests/distribution/vcs_abstraction/ and tests/distribution/orchestrator/ directories
 - [x] T063 [P] Implement test_jj_rollback.py (distribution) - jj never invoked from PyPI install
 - [x] T064 [P] Implement test_legacy_conversion.py (distribution) - legacy jj features auto-convert from package
-- [ ] T065 [P] Implement test_fresh_install.py (orchestrator) - init → orchestrate workflow from wheel
-- [ ] T066 [P] Implement test_agent_detection.py (orchestrator) - detect_installed_agents() works from package
+- [x] T065 [P] Implement test_fresh_install.py (orchestrator) - init → orchestrate workflow from wheel
+- [x] T066 [P] Implement test_agent_detection.py (orchestrator) - detect_installed_agents() works from package
 
 ### Implementation Notes
 - Install wheel in clean venv, unset SPEC_KITTY_TEMPLATE_ROOT
@@ -393,11 +393,11 @@
 **Estimated Size**: ~490 lines (6 subtasks)
 
 ### Included Subtasks
-- [ ] T067 Create tests/integration/ directory and conftest.py with spec-kitty-git-test fixtures
-- [ ] T068 [P] Implement test_real_orchestration.py - full orchestration cycle with available agents
-- [ ] T069 [P] Implement test_agent_integration.py - real agent invocations produce commits
-- [ ] T070 [P] Implement test_state_persistence.py - orchestration-state.json validates against schema
-- [ ] T071 [P] Implement test_harness_reset.py - cleanup-bookmarks.sh resets state successfully
+- [x] T067 Create tests/integration/ directory and conftest.py with spec-kitty-git-test fixtures
+- [x] T068 [P] Implement test_real_orchestration.py - full orchestration cycle with available agents
+- [x] T069 [P] Implement test_agent_integration.py - real agent invocations produce commits
+- [x] T070 [P] Implement test_state_persistence.py - orchestration-state.json validates against schema
+- [x] T071 [P] Implement test_harness_reset.py - cleanup-bookmarks.sh resets state successfully
 - [ ] T072 [P] Implement test_adaptive_agent_selection.py - orchestration adapts to installed agents
 
 ### Implementation Notes
