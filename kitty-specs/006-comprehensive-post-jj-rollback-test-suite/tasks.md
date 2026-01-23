@@ -469,9 +469,9 @@
 ### Included Subtasks
 - [x] T083 Update tests/README.md with new test organization (functional/orchestrator, integration, distribution)
 - [x] T084 [P] Create GitHub Actions workflow for functional tests (<10 min target)
-- [ ] T085 [P] Create GitHub Actions workflow for distribution tests (<45 min target)
-- [ ] T086 [P] Create GitHub Actions workflow for integration tests (adaptive, optional)
-- [ ] T087 Update quickstart.md with actual pytest commands after implementation
+- [x] T085 [P] Create GitHub Actions workflow for distribution tests (<45 min target)
+- [x] T086 [P] Create GitHub Actions workflow for integration tests (adaptive, optional)
+- [x] T087 Update quickstart.md with actual pytest commands after implementation
 - [ ] T090 [P] Configure and test pytest-xdist parallel execution (FR-055)
 - [ ] T091 [P] Add coverage target configuration for specific modules (FR-056, SC-008)
 
