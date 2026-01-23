@@ -68,7 +68,7 @@
 - [x] T011 [P] Implement test_migration_execution.py - validate all migrations execute successfully on fresh install
 - [x] T012 [P] Implement test_mission_templates.py - verify software-dev, research, documentation templates load correctly
 - [x] T013 Create DistributionPackage helper class for wheel inspection and validation
-- [ ] T014 Create test_fresh_install_workflow.py - init → specify → plan → tasks → implement end-to-end
+- [x] T014 Create test_fresh_install_workflow.py - init → specify → plan → tasks → implement end-to-end
 
 ### Implementation Notes
 - Use zipfile to inspect wheel contents
