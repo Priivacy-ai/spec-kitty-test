@@ -27,9 +27,10 @@ def test_all_missions_have_templates(build_wheel):
 
         for mission in missions:
             # Check that mission has templates directory
+            # In the wheel, templates are under specify_cli/missions/<mission>/templates/
             mission_templates = [
                 path for path in contents
-                if f".kittify/missions/{mission}/templates/" in path
+                if f"specify_cli/missions/{mission}/templates/" in path
             ]
             assert mission_templates, (
                 f"No templates found for mission '{mission}' in wheel"
@@ -51,7 +52,7 @@ def test_software_dev_templates_complete(build_wheel):
         contents = zf.namelist()
 
         for template in required_templates:
-            pattern = f".kittify/missions/software-dev/templates/{template}"
+            pattern = f"specify_cli/missions/software-dev/templates/{template}"
             found = any(pattern in path for path in contents)
             assert found, (
                 f"Missing {template} for software-dev mission in wheel"
@@ -75,7 +76,7 @@ def test_research_templates_complete(build_wheel):
         contents = zf.namelist()
 
         for template in required_templates:
-            pattern = f".kittify/missions/research/templates/{template}"
+            pattern = f"specify_cli/missions/research/templates/{template}"
             found = any(pattern in path for path in contents)
             assert found, (
                 f"Missing {template} for research mission in wheel"
@@ -107,7 +108,7 @@ def test_documentation_templates_complete(build_wheel):
 
         # Check main templates
         for template in required_templates:
-            pattern = f".kittify/missions/documentation/templates/{template}"
+            pattern = f"specify_cli/missions/documentation/templates/{template}"
             found = any(pattern in path for path in contents)
             assert found, (
                 f"Missing {template} for documentation mission in wheel"
@@ -115,7 +116,7 @@ def test_documentation_templates_complete(build_wheel):
 
         # Check divio templates
         for template in divio_templates:
-            pattern = f".kittify/missions/documentation/templates/{template}"
+            pattern = f"specify_cli/missions/documentation/templates/{template}"
             found = any(pattern in path for path in contents)
             assert found, (
                 f"Missing {template} for documentation mission in wheel"
@@ -140,7 +141,7 @@ def test_command_templates_present(build_wheel):
 
         for mission in missions:
             for template in command_templates:
-                pattern = f".kittify/missions/{mission}/command-templates/{template}"
+                pattern = f"specify_cli/missions/{mission}/command-templates/{template}"
                 found = any(pattern in path for path in contents)
                 # Note: Not all missions may have all command templates,
                 # so we just check that at least some exist
@@ -175,7 +176,7 @@ def test_templates_have_content(build_wheel):
         # Get all template files
         template_files = [
             path for path in contents
-            if ".kittify/missions/" in path
+            if "specify_cli/missions/" in path
             and "/templates/" in path
             and path.endswith(".md")
         ]
@@ -207,9 +208,9 @@ def test_0_10_8_regression_templates_exist(build_wheel):
     templates were not included in the distributed package.
     """
     critical_templates = [
-        ".kittify/missions/software-dev/templates/spec-template.md",
-        ".kittify/missions/software-dev/templates/plan-template.md",
-        ".kittify/missions/software-dev/templates/tasks-template.md",
+        "specify_cli/missions/software-dev/templates/spec-template.md",
+        "specify_cli/missions/software-dev/templates/plan-template.md",
+        "specify_cli/missions/software-dev/templates/tasks-template.md",
     ]
 
     with zipfile.ZipFile(build_wheel) as zf:

@@ -44,7 +44,7 @@ def test_migration_registry_accessible(installed_spec_kitty):
         [str(python), "-c",
          "from specify_cli.upgrade.registry import MigrationRegistry; "
          "registry = MigrationRegistry(); "
-         "migrations = registry.get_all_migrations(); "
+         "migrations = registry.get_all();"
          "print(len(migrations))"],
         capture_output=True,
         text=True
@@ -75,8 +75,8 @@ def test_critical_migrations_registered(installed_spec_kitty):
         [str(python), "-c",
          "from specify_cli.upgrade.registry import MigrationRegistry; "
          "registry = MigrationRegistry(); "
-         "migrations = registry.get_all_migrations(); "
-         "print([m.id for m in migrations])"],
+         "migrations = registry.get_all();"
+         "print([m.migration_id for m in migrations])"],
         capture_output=True,
         text=True
     )
@@ -85,9 +85,9 @@ def test_critical_migrations_registered(installed_spec_kitty):
 
     # Critical migrations that must be present
     critical_migrations = [
-        "m_0_10_9_repair_templates",  # Template repair (0.10.8 fix)
-        "m_0_11_0_workspace_per_wp",  # Workspace per WP
-        "m_0_12_0_documentation_mission",  # Documentation mission
+        "0.10.9_repair_templates",  # Template repair (0.10.8 fix)
+        "0.11.0_workspace_per_wp",  # Workspace per WP (if it exists)
+        "0.10.14_update_implement_slash_command",  # Implement command update
     ]
 
     for critical in critical_migrations:
@@ -189,8 +189,13 @@ def test_migration_execution_no_errors(installed_spec_kitty, tmp_path):
         text=True
     )
 
-    # Check for migration errors in output
-    assert "migration" not in result.stderr.lower() or "error" not in result.stderr.lower(), (
+    # Check for migration errors in output (look for both keywords together)
+    stderr_lower = result.stderr.lower()
+    has_migration_error = ("migration" in stderr_lower and "error" in stderr_lower) or \
+                          ("migration" in stderr_lower and "fail" in stderr_lower) or \
+                          ("migration" in stderr_lower and "exception" in stderr_lower)
+
+    assert not has_migration_error, (
         f"Migration errors detected: {result.stderr}"
     )
 
@@ -204,15 +209,15 @@ def test_migration_execution_no_errors(installed_spec_kitty, tmp_path):
 @pytest.mark.migrations
 @pytest.mark.regression
 def test_0_10_9_template_repair_migration_present(distribution_package):
-    """Regression test: Verify m_0_10_9_repair_templates migration is present.
+    """Regression test: Verify 0.10.9_repair_templates migration is present.
 
     This migration fixes the template bundling issue from 0.10.8.
     It must be present to repair existing broken installations.
     """
     migrations = distribution_package.migration_list
 
-    assert any("m_0_10_9" in m for m in migrations), (
-        "Critical regression: m_0_10_9_repair_templates migration missing!\n"
+    assert any("0.10.9" in m and "repair" in m for m in migrations), (
+        "Critical regression: 0.10.9_repair_templates migration missing!\n"
         "This migration is required to fix 0.10.8 template bundling failures."
     )
 
@@ -229,8 +234,8 @@ def test_migration_order_preserved(installed_spec_kitty):
         [str(python), "-c",
          "from specify_cli.upgrade.registry import MigrationRegistry; "
          "registry = MigrationRegistry(); "
-         "migrations = registry.get_all_migrations(); "
-         "print([(m.id, m.target_version) for m in migrations])"],
+         "migrations = registry.get_all();"
+         "print([(m.migration_id, m.target_version) for m in migrations])"],
         capture_output=True,
         text=True
     )

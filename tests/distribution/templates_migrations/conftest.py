@@ -57,8 +57,9 @@ def build_wheel(spec_kitty_source, tmp_path_factory):
         shutil.rmtree(dist_dir)
 
     # Build wheel
+    import sys
     result = subprocess.run(
-        ["python", "-m", "build", "--wheel"],
+        [sys.executable, "-m", "build", "--wheel"],
         cwd=spec_kitty_source,
         capture_output=True,
         text=True
@@ -174,7 +175,7 @@ class DistributionPackage:
         with zipfile.ZipFile(self.wheel_path) as zf:
             return [
                 name for name in zf.namelist()
-                if ".kittify/missions/" in name and name.endswith(".md")
+                if "specify_cli/missions/" in name and name.endswith(".md")
             ]
 
     def _build_migration_list(self) -> list[str]:
@@ -183,18 +184,46 @@ class DistributionPackage:
         Parses migrations/__init__.py to find all registered migrations.
 
         Returns:
-            list: List of migration identifiers (e.g., ["m_0_10_9_repair_templates"])
+            list: List of migration identifiers (e.g., ["0.10.9_repair_templates"])
         """
         with zipfile.ZipFile(self.wheel_path) as zf:
             try:
-                init_content = zf.read(
+                # Check multiple possible paths for migrations
+                possible_paths = [
+                    "specify_cli/upgrade/migrations/__init__.py",
                     "specify_cli/migrations/__init__.py"
-                ).decode()
-                # Parse for migration imports/registrations
-                # Look for m_X_Y_Z patterns
-                migrations = re.findall(r"m_\d+_\d+_\d+\w*", init_content)
+                ]
+
+                init_content = None
+                for path in possible_paths:
+                    try:
+                        init_content = zf.read(path).decode()
+                        break
+                    except KeyError:
+                        continue
+
+                if not init_content:
+                    return []
+
+                # Parse for migration import statements like "from . import m_0_10_9_repair_templates"
+                # Extract the module names and convert to migration_id format (replace first _ with .)
+                import_pattern = r"from\s+\.\s+import\s+(m_\d+_\d+_\d+[\w_]*)"
+                matches = re.findall(import_pattern, init_content)
+
+                # Convert from m_0_10_9_repair_templates to 0.10.9_repair_templates
+                migrations = []
+                for match in matches:
+                    # Remove 'm_' prefix and replace first two underscores with dots
+                    parts = match[2:].split('_')  # Remove 'm_' prefix
+                    if len(parts) >= 3:
+                        # Convert 0_10_9_repair_templates to 0.10.9_repair_templates
+                        migration_id = f"{parts[0]}.{parts[1]}.{parts[2]}"
+                        if len(parts) > 3:
+                            migration_id += "_" + "_".join(parts[3:])
+                        migrations.append(migration_id)
+
                 return list(set(migrations))
-            except KeyError:
+            except Exception:
                 return []
 
     def validate_templates(self, required_templates: list[str]) -> list[str]:
