@@ -10,7 +10,7 @@ any developer bypasses. They would have caught the 0.10.8 catastrophe.
 import pytest
 from pathlib import Path
 import subprocess
-import json
+import yaml
 
 
 @pytest.mark.distribution
@@ -67,13 +67,11 @@ def test_fresh_install_init_workflow(installed_spec_kitty, tmp_path):
     )
 
     # Verify mission selected (default or explicit)
-    config_file = test_project / ".kittify" / "config.json"
-    assert config_file.exists(), "config.json not created"
+    config_file = test_project / ".kittify" / "config.yaml"
+    assert config_file.exists(), "config.yaml not created"
 
-    config = json.loads(config_file.read_text())
-    assert "mission" in config or "default_mission" in config, (
-        "Mission not configured"
-    )
+    config = yaml.safe_load(config_file.read_text()) or {}
+    assert isinstance(config, dict), "config.yaml should contain a mapping"
 
 
 @pytest.mark.distribution

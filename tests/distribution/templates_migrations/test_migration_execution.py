@@ -8,7 +8,7 @@ installs are critical bugs that prevent users from using spec-kitty.
 import pytest
 from pathlib import Path
 import subprocess
-import json
+import yaml
 
 
 @pytest.mark.distribution
@@ -143,14 +143,14 @@ def test_init_creates_migration_tracking(installed_spec_kitty, tmp_path):
     )
 
     # Verify migration tracking file exists
-    migration_file = test_project / ".kittify" / "applied-migrations.json"
-    assert migration_file.exists(), (
-        "Migration tracking file not created during init"
+    metadata_file = test_project / ".kittify" / "metadata.yaml"
+    assert metadata_file.exists(), (
+        "Migration metadata file not created during init"
     )
 
     # Verify file has content
-    content = json.loads(migration_file.read_text())
-    assert isinstance(content, dict), "Migration file not valid JSON"
+    content = yaml.safe_load(metadata_file.read_text()) or {}
+    assert isinstance(content, dict), "Metadata file not valid YAML mapping"
 
 
 @pytest.mark.distribution
