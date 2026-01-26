@@ -118,6 +118,12 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.skip(reason="Google Gemini agent not installed"))
 
 
+@pytest.fixture
+def anyio_backend():
+    """Limit anyio tests to asyncio backend to avoid missing trio dependency."""
+    return "asyncio"
+
+
 @pytest.fixture(scope="session")
 def detect_available_agents():
     """Detect which AI agents are installed on this system.
