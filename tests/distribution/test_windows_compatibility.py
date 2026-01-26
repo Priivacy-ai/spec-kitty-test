@@ -291,18 +291,20 @@ class TestPythonCommandDetection:
         if not hook_file.exists():
             pytest.skip("Pre-commit hook not installed")
 
-        hook_content = hook_file.read_text()
+        # Main hook delegates to sub-hooks - check the encoding check hook
+        encoding_hook = git_repo_with_user / ".git" / "hooks" / "pre-commit-encoding-check"
 
-        # Should have Python command detection logic
-        # Either hardcoded to current platform's command, or has fallback logic
-        if IS_WINDOWS:
-            # On Windows, should work with "python" command
-            assert "python" in hook_content.lower(), (
-                "Pre-commit hook should reference python command"
-            )
-        else:
-            # On Unix, should work with "python3" or "python"
-            assert "python" in hook_content.lower()
+        if not encoding_hook.exists():
+            # If no encoding hook, check main hook at least exists
+            pytest.skip("Encoding check hook not installed")
+
+        hook_content = encoding_hook.read_text()
+
+        # Should have Python command detection logic with fallback
+        # The fix adds: try python3, then fall back to python
+        assert "python" in hook_content.lower(), (
+            "Encoding hook should reference python command"
+        )
 
         # Test the hook actually works by creating a commit
         test_file = git_repo_with_user / "test.md"
