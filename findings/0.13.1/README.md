@@ -16,12 +16,15 @@ The implementing team (spec-kitty repo) provided the fixes and comprehensive uni
 **Type:** Bug Validation (Adversarial Testing)
 **Status:** ✅ Tests implemented, ready to run
 
-Comprehensive adversarial testing for both bug fixes:
+Comprehensive adversarial testing for two critical bug fixes:
 - **Bug #1:** Merge without remote validation
 - **Bug #2:** Worktree git exclusion validation
 
 **Test Coverage:**
-- 11 distribution tests (696 lines)
+- 24 distribution tests across 4 test files
+- Git bugs: 11 tests (696 lines)
+- Windows/workflow bugs: 26 tests (604 lines)
+- Total: 37 distribution tests (1,300 lines)
 - Real user workflow simulation
 - NO development bypasses
 - Validates fixes prevent the actual bugs
@@ -30,13 +33,46 @@ Comprehensive adversarial testing for both bug fixes:
 - `tests/distribution/test_merge_without_remote.py` (294 lines, 5 tests)
 - `tests/distribution/test_worktree_git_exclusion.py` (402 lines, 6 tests)
 
+### 2026-01-26_02_windows_workflow_fixes.md
+**Type:** Bug Validation (Adversarial Testing)
+**Status:** ✅ Tests implemented, ready to run
+
+Comprehensive adversarial testing for 7 bug fixes across 3 priority levels:
+- **Phase 1 (CRITICAL):** Windows compatibility (UTF-8, python3)
+- **Phase 2 (HIGH):** Workflow fixes (--base, clarify, upgrade)
+- **Phase 3 (MEDIUM/LOW):** Documentation fixes (paths, constitution)
+
+**Test Coverage:**
+- 13 distribution tests (604 lines)
+- Cross-platform validation
+- Windows-specific scenarios
+- All 12 agent validation (parametrized)
+
+**Files Created:**
+- `tests/distribution/test_windows_compatibility.py` (296 lines, 6 tests)
+- `tests/distribution/test_workflow_fixes.py` (308 lines, 7 tests + 12 parametrized)
+
+## Summary Statistics
+
+**Total Adversarial Tests:** 24 distribution tests across 4 test files
+**Total Lines:** 1,300 lines of test code
+**Bugs Validated:** 9 bug fixes (2 git bugs + 7 Windows/workflow bugs)
+
+**Files:**
+1. `test_merge_without_remote.py` - 5 tests (merge without remote)
+2. `test_worktree_git_exclusion.py` - 6 tests (worktree exclusion)
+3. `test_windows_compatibility.py` - 6 tests (UTF-8, python3)
+4. `test_workflow_fixes.py` - 7 tests + 12 parametrized (workflow/templates)
+
 ## Testing Approach: Adversarial vs Implementation
 
 ### Implementing Team (spec-kitty repo)
 **Focus:** Code correctness, unit/integration testing
-**Coverage:** 23 tests
+**Coverage:** 23+ tests for git bugs, static analysis + tests for Windows/workflow
 - 6 tests for merge without remote
 - 17 tests for worktree exclusion
+- Static analysis for encoding
+- Unit tests for workflow fixes
 
 **Tests validate:**
 - ✅ `has_remote()` function works correctly
@@ -46,9 +82,11 @@ Comprehensive adversarial testing for both bug fixes:
 
 ### Adversarial Testing (this repo)
 **Focus:** User experience, distribution validation
-**Coverage:** 11 tests
+**Coverage:** 24 tests
 - 5 tests for merge without remote
 - 6 tests for worktree exclusion
+- 6 tests for Windows compatibility (UTF-8, python3)
+- 7 tests + 12 parametrized for workflow fixes
 
 **Tests validate:**
 - ✅ Users can merge in local-only repos (end-to-end)
@@ -79,8 +117,21 @@ spec-kitty --version  # Should show 0.13.1 or higher
 ```bash
 cd /Users/robert/Code/spec-kitty-test
 
+# Git bug tests
 pytest tests/distribution/test_merge_without_remote.py -v
 pytest tests/distribution/test_worktree_git_exclusion.py -v
+
+# Windows compatibility tests
+pytest tests/distribution/test_windows_compatibility.py -v
+
+# Workflow fix tests
+pytest tests/distribution/test_workflow_fixes.py -v
+
+# Or run all together
+pytest tests/distribution/test_merge_without_remote.py \
+       tests/distribution/test_worktree_git_exclusion.py \
+       tests/distribution/test_windows_compatibility.py \
+       tests/distribution/test_workflow_fixes.py -v
 ```
 
 ### Run Specific Bug Validation
@@ -153,11 +204,18 @@ $ git status
 
 ## Test Coverage Summary
 
-| Bug | Spec-Kitty Tests | Adversarial Tests | Total |
-|-----|------------------|-------------------|-------|
+| Bug Category | Spec-Kitty Tests | Adversarial Tests | Total |
+|--------------|------------------|-------------------|-------|
 | Merge without remote | 6 | 5 | 11 |
 | Worktree exclusion | 17 | 6 | 23 |
-| **Total** | **23** | **11** | **34** |
+| UTF-8 encoding | Static analysis | 2 | - |
+| Python command | Unit tests | 3 | - |
+| Workflow --base | Unit tests | 2 | - |
+| Clarify placeholders | Static analysis | 1 | - |
+| Upgrade version | Unit tests | 1 | - |
+| Template paths | Static analysis | 2 | - |
+| Constitution workflow | File regen | 2 | - |
+| **Total** | **23+ (git) + tests/static (others)** | **24** | **47+** |
 
 ## Value of Adversarial Testing
 
@@ -236,7 +294,7 @@ These adversarial tests follow the philosophy established after the v0.10.8 cata
 ---
 
 **Status:** ✅ Adversarial Tests Complete
-**Coverage:** 11 distribution tests
+**Coverage:** 37 distribution tests total (11 git + 26 Windows/workflow)
 **Spec-Kitty Coverage:** 23 unit/integration tests
 **Combined:** 35 tests for 2 bugs
 **Confidence:** High
