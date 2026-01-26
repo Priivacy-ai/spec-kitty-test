@@ -14,6 +14,7 @@ import tempfile
 from typing import Callable, Any
 from unittest.mock import Mock, patch, MagicMock
 import yaml
+import sys
 
 
 @pytest.fixture
@@ -191,6 +192,16 @@ def mock_failing_agent(mock_agent_factory):
         Test failure scenarios and error handling
     """
     return mock_agent_factory(success_probability=0.0, exit_code=1)
+
+
+@pytest.fixture(scope="session")
+def spec_kitty_src_path(spec_kitty_repo_root):
+    """Ensure spec-kitty src/ is on sys.path for local imports."""
+    src_path = spec_kitty_repo_root / "src"
+    src_str = str(src_path)
+    if src_str not in sys.path:
+        sys.path.insert(0, src_str)
+    return src_path
 
 
 # =============================================================================
