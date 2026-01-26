@@ -41,9 +41,9 @@ Related:
 - Issues: #101 (encoding), #105 (python3)
 """
 
+import os
 import platform
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
@@ -95,7 +95,7 @@ class TestUTF8Encoding:
         """
         env = {
             "SPEC_KITTY_TEMPLATE_ROOT": str(spec_kitty_repo_root),
-            "PATH": subprocess.os.environ.get("PATH", ""),
+            "PATH": os.environ.get("PATH", ""),
         }
 
         project_name = "test_utf8"
@@ -163,7 +163,7 @@ This is common in real-world documentation.
         """
         env = {
             "SPEC_KITTY_TEMPLATE_ROOT": str(spec_kitty_repo_root),
-            "PATH": subprocess.os.environ.get("PATH", ""),
+            "PATH": os.environ.get("PATH", ""),
         }
 
         # Initialize
@@ -225,7 +225,7 @@ class TestPythonCommandDetection:
         """
         env = {
             "SPEC_KITTY_TEMPLATE_ROOT": str(spec_kitty_repo_root),
-            "PATH": subprocess.os.environ.get("PATH", ""),
+            "PATH": os.environ.get("PATH", ""),
         }
 
         # Initialize
@@ -269,7 +269,7 @@ class TestPythonCommandDetection:
         """
         env = {
             "SPEC_KITTY_TEMPLATE_ROOT": str(spec_kitty_repo_root),
-            "PATH": subprocess.os.environ.get("PATH", ""),
+            "PATH": os.environ.get("PATH", ""),
         }
 
         # Initialize
@@ -347,7 +347,7 @@ class TestGitHookCompatibility:
         """
         env = {
             "SPEC_KITTY_TEMPLATE_ROOT": str(spec_kitty_repo_root),
-            "PATH": subprocess.os.environ.get("PATH", ""),
+            "PATH": os.environ.get("PATH", ""),
         }
 
         # Initialize
@@ -408,7 +408,7 @@ class TestCrossplatformWorkflow:
         """
         env = {
             "SPEC_KITTY_TEMPLATE_ROOT": str(spec_kitty_repo_root),
-            "PATH": subprocess.os.environ.get("PATH", ""),
+            "PATH": os.environ.get("PATH", ""),
         }
 
         # Initialize
@@ -450,7 +450,7 @@ class TestCrossplatformWorkflow:
         """
         env = {
             "SPEC_KITTY_TEMPLATE_ROOT": str(spec_kitty_repo_root),
-            "PATH": subprocess.os.environ.get("PATH", ""),
+            "PATH": os.environ.get("PATH", ""),
         }
 
         # Initialize with documentation mission
