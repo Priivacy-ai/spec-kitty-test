@@ -96,6 +96,15 @@ def test_fresh_install_create_feature(installed_spec_kitty, tmp_path):
         capture_output=True
     )
 
+    # Create initial commit on main branch
+    (test_project / "README.md").write_text("# Test Project")
+    subprocess.run(["git", "add", "."], cwd=test_project, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "Initial commit"],
+        cwd=test_project,
+        capture_output=True
+    )
+
     # Clean environment
     env = {
         "PATH": str(venv_path / "bin") + ":/usr/bin:/bin",
@@ -111,10 +120,9 @@ def test_fresh_install_create_feature(installed_spec_kitty, tmp_path):
         text=True
     )
 
-    # Create feature
+    # Create feature (no --mission flag - mission set during /spec-kitty.specify)
     result = subprocess.run(
-        [str(spec_kitty), "agent", "feature", "create-feature",
-         "--mission", "software-dev", "test-feature"],
+        [str(spec_kitty), "agent", "feature", "create-feature", "test-feature"],
         cwd=test_project,
         env=env,
         capture_output=True,
@@ -129,17 +137,14 @@ def test_fresh_install_create_feature(installed_spec_kitty, tmp_path):
     feature_dir = test_project / "kitty-specs" / "001-test-feature"
     assert feature_dir.exists(), "Feature directory not created"
 
-    # Verify spec.md created from template
+    # Verify spec.md created (will be empty until LLM runs /spec-kitty.specify)
     spec_file = feature_dir / "spec.md"
     assert spec_file.exists(), "spec.md not created"
 
-    spec_content = spec_file.read_text()
-    # Should have basic spec structure
-    assert len(spec_content) > 100, "spec.md appears empty"
-    # Should not have template placeholders
-    assert "{{TEMPLATE_" not in spec_content, (
-        "spec.md contains unreplaced template placeholders"
-    )
+    # Verify subdirectories created
+    assert (feature_dir / "tasks").exists(), "tasks directory not created"
+    assert (feature_dir / "research").exists(), "research directory not created"
+    assert (feature_dir / "checklists").exists(), "checklists directory not created"
 
 
 @pytest.mark.distribution
@@ -253,6 +258,15 @@ def test_0_10_8_complete_workflow_regression(installed_spec_kitty, tmp_path):
         capture_output=True
     )
 
+    # Create initial commit on main branch
+    (user_project / "README.md").write_text("# Real User Project")
+    subprocess.run(["git", "add", "."], cwd=user_project, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "Initial commit"],
+        cwd=user_project,
+        capture_output=True
+    )
+
     # Exact PyPI user environment
     env = {
         "PATH": str(venv_path / "bin") + ":/usr/bin:/bin",
@@ -275,9 +289,9 @@ def test_0_10_8_complete_workflow_regression(installed_spec_kitty, tmp_path):
     )
 
     # Step 2: Create feature (also failed in 0.10.8)
+    # Note: --mission flag never existed; mission set during /spec-kitty.specify
     feature_result = subprocess.run(
-        [str(spec_kitty), "agent", "feature", "create-feature",
-         "--mission", "software-dev", "my-feature"],
+        [str(spec_kitty), "agent", "feature", "create-feature", "my-feature"],
         cwd=user_project,
         env=env,
         capture_output=True,
@@ -289,19 +303,18 @@ def test_0_10_8_complete_workflow_regression(installed_spec_kitty, tmp_path):
         f"Error: {feature_result.stderr}"
     )
 
-    # Step 3: Verify spec.md has content
-    spec_file = user_project / "kitty-specs" / "001-my-feature" / "spec.md"
+    # Step 3: Verify feature directory structure created
+    feature_dir = user_project / "kitty-specs" / "001-my-feature"
+    assert feature_dir.exists(), "Feature directory not created"
+
+    spec_file = feature_dir / "spec.md"
     assert spec_file.exists(), "spec.md not created"
 
-    spec_content = spec_file.read_text()
-    assert len(spec_content) > 500, (
-        "spec.md too small - template may not have loaded"
-    )
+    # Step 4: Verify subdirectories created
+    assert (feature_dir / "tasks").exists(), "tasks directory not created"
+    assert (feature_dir / "research").exists(), "research directory not created"
 
-    # Step 4: Verify no placeholder leaks
-    assert "{{" not in spec_content[:200], (
-        "Template placeholders not replaced"
-    )
+    # Note: spec.md will be empty until LLM runs /spec-kitty.specify
 
     print("✅ Complete 0.10.8 regression test PASSED")
     print("   All PyPI user workflows function correctly")
