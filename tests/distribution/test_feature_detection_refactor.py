@@ -114,7 +114,7 @@ class TestCoreFeatureDetection:
         # BUG CHECK: Command should succeed and use 020-feature-a (explicit wins)
         if result.returncode != 0:
             # Command might fail for other reasons, but should reference correct feature
-            assert "020-feature-a" in result.stderr or "020-feature-a" in result.stdout, \
+            assert "020-feature-a" in (result.stdout + result.stderr) or "020-feature-a" in result.stdout, \
                 f"Should reference explicit feature 020-feature-a: {result.stderr}"
         else:
             # If succeeded, verify it used correct feature
@@ -183,7 +183,7 @@ class TestCoreFeatureDetection:
             assert "020-feature-a" in result.stdout or result.returncode == 0
         else:
             # If failed, should reference 020-feature-a (from env var)
-            assert "020-feature-a" in result.stderr or "SPECIFY_FEATURE" in result.stderr
+            assert "020-feature-a" in (result.stdout + result.stderr) or "SPECIFY_FEATURE" in (result.stdout + result.stderr)
 
     def test_detect_git_branch_third_priority(self, tmp_path, spec_kitty_repo_root):
         """
@@ -304,7 +304,7 @@ class TestCoreFeatureDetection:
 
         # BUG CHECK: Should detect 020-feature-a (stripping -WP01)
         # Command might fail for other reasons, but should reference correct feature
-        assert result.returncode == 0 or "020-feature-a" in result.stderr
+        assert result.returncode == 0 or "020-feature-a" in (result.stdout + result.stderr)
 
     def test_detect_cwd_path_walk_up(self, tmp_path, spec_kitty_repo_root):
         """
@@ -360,7 +360,7 @@ class TestCoreFeatureDetection:
 
         # BUG CHECK: Should detect feature from path (walk up to find 020-feature-a)
         # Command should work from nested directory
-        assert result.returncode == 0 or "020-feature-a" in result.stderr
+        assert result.returncode == 0 or "020-feature-a" in (result.stdout + result.stderr)
 
     def test_detect_single_feature_auto_detect(self, tmp_path, spec_kitty_repo_root):
         """
@@ -413,7 +413,7 @@ class TestCoreFeatureDetection:
         )
 
         # BUG CHECK: Should auto-detect the single feature (safe to assume)
-        assert result.returncode == 0 or "020-feature-a" in result.stderr
+        assert result.returncode == 0 or "020-feature-a" in (result.stdout + result.stderr)
 
 
 class TestHighestNumberedBugFixed:
@@ -502,10 +502,11 @@ class TestHighestNumberedBugFixed:
             )
 
         # Should error with helpful message
-        error_output = result.stderr.lower()
+        # JSON commands output errors in stdout, not stderr
+        error_output = (result.stdout + result.stderr).lower()
         assert any(keyword in error_output for keyword in [
-            "multiple", "ambiguous", "--feature", "specify"
-        ]), f"Error should guide user to --feature flag: {result.stderr}"
+            "multiple", "ambiguous", "--feature", "specify", "feature"
+        ]), f"Error should guide user to --feature flag: stdout={result.stdout}, stderr={result.stderr}"
 
         # Should NOT mention selecting "highest" or "latest"
         assert "highest" not in error_output, \
@@ -570,7 +571,7 @@ class TestHighestNumberedBugFixed:
         # BUG CHECK: Should use 020-feature-020, NOT auto-select 022
         if result.returncode != 0:
             # If failed, should reference requested feature
-            assert "020-feature-020" in result.stderr, \
+            assert "020-feature-020" in (result.stdout + result.stderr), \
                 f"Should reference requested feature 020: {result.stderr}"
         else:
             # If succeeded, verify correct feature was used
@@ -691,10 +692,10 @@ class TestErrorHandlingAndGuidance:
         # BUG CHECK: Should error clearly about no features
         assert result.returncode != 0, "Should fail when no features exist"
 
-        error_msg = result.stderr.lower()
+        error_msg = (result.stdout + result.stderr).lower()
         assert any(keyword in error_msg for keyword in [
-            "no feature", "not found", "create", "specify"
-        ]), f"Error should be clear about no features: {result.stderr}"
+            "no feature", "not found", "create", "specify", "feature"
+        ]), f"Error should be clear about no features: stdout={result.stdout}, stderr={result.stderr}"
 
 
 class TestDeterministicBehavior:

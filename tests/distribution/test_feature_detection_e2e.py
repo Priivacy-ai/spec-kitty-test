@@ -189,7 +189,8 @@ class TestOriginalBugFixed:
         # Should work when feature is explicit
         # (Might fail for other reasons, but not due to detection)
         if result.returncode != 0:
-            assert "multiple feature" not in result.stderr.lower(), \
+            error_combined = (result.stdout + result.stderr).lower()
+            assert "multiple feature" not in error_combined, \
                 f"Should not error about ambiguity when --feature provided: {result.stderr}"
 
 
@@ -281,7 +282,7 @@ dependencies: []
         )
 
         # Should detect 020-feature-a from branch 020-feature-a-WP01
-        assert result.returncode == 0 or "020-feature-a" in result.stderr
+        assert result.returncode == 0 or "020-feature-a" in (result.stdout + result.stderr)
 
 
 class TestTemplateUpdates:
@@ -410,7 +411,7 @@ class TestMultiFeatureWorkflows:
         )
 
         # Should use 020-feature-a from branch context
-        assert result.returncode == 0 or "020-feature-a" in result.stderr
+        assert result.returncode == 0 or "020-feature-a" in (result.stdout + result.stderr)
 
     def test_workflow_from_inside_feature_directory(self, tmp_path, spec_kitty_repo_root):
         """
@@ -468,7 +469,7 @@ class TestMultiFeatureWorkflows:
         )
 
         # Should detect feature from cwd path
-        assert result.returncode == 0 or "020-feature-a" in result.stderr
+        assert result.returncode == 0 or "020-feature-a" in (result.stdout + result.stderr)
 
     def test_workflow_with_env_var(self, tmp_path, spec_kitty_repo_root):
         """
@@ -526,7 +527,7 @@ class TestMultiFeatureWorkflows:
         )
 
         # Should use env var (020-feature-a) regardless of cwd
-        assert result.returncode == 0 or "020-feature-a" in result.stderr
+        assert result.returncode == 0 or "020-feature-a" in (result.stdout + result.stderr)
 
 
 class TestRegressionPrevention:

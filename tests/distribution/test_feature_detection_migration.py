@@ -407,7 +407,7 @@ dependencies: []
 
         # Should work (or fail gracefully with clear error)
         if result.returncode != 0:
-            assert "020-test-feature" in result.stderr or "WP01" in result.stderr, \
+            assert "020-test-feature" in (result.stdout + result.stderr) or "WP01" in (result.stdout + result.stderr), \
                 f"Error should reference correct feature: {result.stderr}"
 
     def test_agent_commands_have_feature_flag(self, tmp_path, spec_kitty_repo_root):
