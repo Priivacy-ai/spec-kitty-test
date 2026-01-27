@@ -692,50 +692,95 @@ def cleanup_dashboard_processes():
         pass  # pgrep not available on this system
 
 
-# Playwright Configuration
+# =============================================================================
+# Playwright Configuration - Unified Headless Browser Testing
+# =============================================================================
+# CRITICAL: All Playwright tests MUST run headless to prevent browser windows
+# from opening during test execution. This configuration enforces headless mode
+# across all test files.
+#
+# How it works:
+# 1. browser_type_launch_args: Controls browser launch (headless mode)
+# 2. browser_context_args: Controls browser context (viewport, HTTPS)
+# 3. isolated_page: Provides isolated browser page per test
+#
+# DO NOT override these fixtures unless absolutely necessary. If you need
+# to run tests with a visible browser for debugging, use:
+#   pytest --headed tests/functional/test_dashboard_live_updates.py
+# =============================================================================
+
 @pytest.fixture(scope="session")
-def browser_type_launch_args(browser_type_launch_args):
-    """Configure Playwright browser launch options."""
+def browser_type_launch_args():
+    """
+    Configure Playwright browser launch options for ALL tests.
+
+    CRITICAL: This enforces headless mode to prevent browser windows from
+    opening during test execution. All Playwright tests inherit this configuration.
+
+    Returns:
+        dict: Browser launch arguments with headless=True enforced
+    """
     return {
-        **browser_type_launch_args,
-        "headless": True,  # Run headless for CI/CD
+        "headless": True,  # CRITICAL: Always run headless (no browser windows)
         "args": [
             "--disable-dev-shm-usage",  # Overcome limited resource problems
-            "--no-sandbox",  # For containerized environments
-            "--new-window",  # Open new windows instead of tabs
+            "--no-sandbox",  # For containerized environments (CI/CD)
+            "--disable-gpu",  # Disable GPU hardware acceleration
+            "--no-first-run",  # Skip first run wizards
+            "--no-default-browser-check",  # Skip default browser check
+            "--disable-extensions",  # Disable extensions
         ]
     }
 
 
 @pytest.fixture(scope="session")
-def browser_context_args(browser_context_args):
-    """Configure Playwright browser context."""
+def browser_context_args():
+    """
+    Configure Playwright browser context for ALL tests.
+
+    This controls the browser environment (viewport size, HTTPS handling, etc.)
+    but not whether the browser is visible (that's in browser_type_launch_args).
+
+    Returns:
+        dict: Browser context arguments
+    """
     return {
-        **browser_context_args,
         "viewport": {"width": 1920, "height": 1080},
-        "ignore_https_errors": True,
+        "ignore_https_errors": True,  # Allow self-signed certificates
+        "java_script_enabled": True,
+        "accept_downloads": False,  # Prevent download prompts
     }
 
 
 @pytest.fixture
 def isolated_page(browser):
     """
-    Create a new browser context (window) for each test.
+    Create an isolated browser page for each test.
+
+    IMPORTANT: This fixture inherits the headless configuration from
+    browser_type_launch_args, ensuring the page runs headless.
 
     This ensures:
-    1. Each test gets a fresh window (not a tab in an existing window)
-    2. The window is automatically closed when the test ends
-    3. Complete isolation between tests (cookies, storage, etc.)
+    1. Each test gets a fresh browser context (isolated cookies, storage, etc.)
+    2. The page is automatically closed when the test ends
+    3. Complete isolation between tests
+    4. Runs in headless mode (no browser window opens)
 
     Usage:
-        def test_something(isolated_page):
-            isolated_page.goto("http://localhost:8000")
-            # Test runs in isolated window
-        # Window automatically closed after test
+        def test_dashboard_loads(isolated_page):
+            isolated_page.goto("http://localhost:9237")
+            assert isolated_page.title() == "Spec Kitty Dashboard"
+            # Test runs headless, window automatically closed after test
+
+    Args:
+        browser: The Playwright browser instance (provided by pytest-playwright)
+
+    Yields:
+        Page: An isolated Playwright page object for testing
     """
     context = browser.new_context()
     page = context.new_page()
     yield page
-    # Cleanup: close page and context (window) after test
+    # Cleanup: close page and context after test
     page.close()
     context.close()
